@@ -1,37 +1,46 @@
 {
-    "name": "yiisoft/_____",
+    "name": "yiisoft/user",
     "type": "library",
-    "description": "_____",
+    "description": "",
     "keywords": [
-        "_____"
+        "yiisoft",
+        "user"
     ],
     "homepage": "https://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/_____/issues?state=open",
+        "issues": "https://github.com/yiisoft/user/issues?state=open",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/_____"
+        "source": "https://github.com/yiisoft/user"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4|^8.0"
+        "php": "^7.4|^8.0",
+        "yiisoft/access": "dev-master",
+        "yiisoft/auth": "^1.0",
+        "yiisoft/cookies": "dev-master",
+        "yiisoft/session": "dev-master",
+        "psr/log": "^1.1",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-factory": "^1.0"
     },
     "require-dev": {
+        "nyholm/psr7": "^1.0",
         "infection/infection": "^0.18.2",
         "phpunit/phpunit": "^9.4",
         "vimeo/psalm": "^4.0"
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\_____\\": "src"
+            "Yiisoft\\User\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Yiisoft\\_____\\Tests\\": "tests"
+            "Yiisoft\\User\\Tests\\": "tests"
         }
     },
     "extra": {
