@@ -46,6 +46,9 @@
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
+        },
+        "config-plugin": {
+            "web": "config/web.php"
         }
     },
     "config": {
