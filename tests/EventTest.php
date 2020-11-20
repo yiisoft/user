@@ -58,5 +58,4 @@ final class EventTest extends TestCase
     {
         return new MockIdentity($id);
     }
-
 }

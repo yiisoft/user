@@ -65,7 +65,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage(
             [
                 '__auth_id' => 'test-id',
-                '__auth_expire' => strtotime('-1 day')
+                '__auth_expire' => strtotime('-1 day'),
             ]
         );
 
@@ -89,7 +89,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage(
             [
                 '__auth_id' => 'test-id',
-                '__auth_absolute_expire' => strtotime('-1 day')
+                '__auth_absolute_expire' => strtotime('-1 day'),
             ]
         );
 
@@ -145,7 +145,7 @@ final class UserTest extends TestCase
         $this->assertEquals(
             [
                 BeforeLogin::class,
-                AfterLogin::class
+                AfterLogin::class,
             ],
             $dispatcher->getClassesEvents()
         );
@@ -188,7 +188,7 @@ final class UserTest extends TestCase
         $this->assertEquals(
             [
                 BeforeLogout::class,
-                AfterLogout::class
+                AfterLogout::class,
             ],
             $dispatcher->getClassesEvents()
         );
@@ -243,7 +243,7 @@ final class UserTest extends TestCase
         $this->assertEquals(
             [
                 BeforeLogin::class,
-                AfterLogin::class
+                AfterLogin::class,
             ],
             $dispatcher->getClassesEvents()
         );
@@ -297,7 +297,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage(
             [
                 '__auth_id' => 'test-id',
-                '__auth_expire' => $expire
+                '__auth_expire' => $expire,
             ]
         );
 
