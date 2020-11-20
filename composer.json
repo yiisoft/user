@@ -31,7 +31,7 @@
         "nyholm/psr7": "^1.0",
         "infection/infection": "^0.18.2",
         "phpunit/phpunit": "^9.4",
-        "vimeo/psalm": "^4.0"
+        "vimeo/psalm": "^4.2"
     },
     "autoload": {
         "psr-4": {
