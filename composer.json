@@ -19,7 +19,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
-        "yiisoft/access": "dev-master",
+        "yiisoft/access": "^1.0",
         "yiisoft/auth": "^1.0",
         "yiisoft/cookies": "dev-master",
         "yiisoft/session": "dev-master",
@@ -29,7 +29,7 @@
     },
     "require-dev": {
         "nyholm/psr7": "^1.0",
-        "infection/infection": "^0.18.2",
+        "infection/infection": "^0.20",
         "phpunit/phpunit": "^9.4",
         "vimeo/psalm": "^4.0"
     },
