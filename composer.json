@@ -28,7 +28,7 @@
         "yiisoft/session": "dev-master"
     },
     "require-dev": {
-        "nyholm/psr7": "^1.0",
+        "nyholm/psr7": "^1.3",
         "phpunit/phpunit": "^9.4",
         "roave/infection-static-analysis-plugin": "^1.5",
         "spatie/phpunit-watcher": "^1.23",
