@@ -19,19 +19,21 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/log": "^1.1",
         "yiisoft/access": "^1.0",
         "yiisoft/auth": "^1.0",
         "yiisoft/cookies": "dev-master",
-        "yiisoft/session": "dev-master",
-        "psr/log": "^1.1",
-        "psr/event-dispatcher": "^1.0",
-        "psr/http-factory": "^1.0"
+        "yiisoft/session": "dev-master"
     },
     "require-dev": {
-        "nyholm/psr7": "^1.0",
         "infection/infection": "^0.20",
+        "nyholm/psr7": "^1.0",
         "phpunit/phpunit": "^9.4",
-        "vimeo/psalm": "^4.0"
+        "roave/infection-static-analysis-plugin": "^1.5",
+        "spatie/phpunit-watcher": "^1.23",
+        "vimeo/psalm": "^4.2"
     },
     "autoload": {
         "psr-4": {
