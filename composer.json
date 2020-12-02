@@ -24,7 +24,7 @@
         "psr/log": "^1.1",
         "yiisoft/access": "^1.0",
         "yiisoft/auth": "^1.0",
-        "yiisoft/cookies": "dev-master",
+        "yiisoft/cookies": "^1.0",
         "yiisoft/session": "dev-master"
     },
     "require-dev": {
