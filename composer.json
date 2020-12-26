@@ -25,7 +25,7 @@
         "yiisoft/access": "^1.0",
         "yiisoft/auth": "^1.0",
         "yiisoft/cookies": "^1.0",
-        "yiisoft/session": "dev-master"
+        "yiisoft/session": "^1.0"
     },
     "require-dev": {
         "nyholm/psr7": "^1.0",
