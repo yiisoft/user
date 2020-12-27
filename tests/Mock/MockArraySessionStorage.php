@@ -8,15 +8,15 @@ use Yiisoft\Session\SessionInterface;
 
 class MockArraySessionStorage implements SessionInterface
 {
-    private $id = '';
+    private ?string $id = '';
 
-    private $name = '';
+    private string $name = '';
 
-    private $started = false;
+    private bool $started = false;
 
-    private $closed = false;
+    private bool $closed = false;
 
-    private $data;
+    private array $data;
 
     public function __construct(array $data = [])
     {
@@ -83,9 +83,9 @@ class MockArraySessionStorage implements SessionInterface
         return isset($this->data[$key]);
     }
 
-    public function pull(string $key)
+    public function pull(string $key, $default = null)
     {
-        $value = $this->data[$key] ?? null;
+        $value = $this->data[$key] ?? $default;
         $this->remove($key);
         return $value;
     }
