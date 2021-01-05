@@ -20,17 +20,20 @@ final class AutoLoginMiddleware implements MiddlewareInterface
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
+    private bool $addCookie;
 
     public function __construct(
         User $user,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
-        AutoLogin $autoLogin
+        AutoLogin $autoLogin,
+        bool $addCookie = true
     ) {
         $this->user = $user;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
         $this->autoLogin = $autoLogin;
+        $this->addCookie = $addCookie;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -40,7 +43,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $guestAfterHandle = $this->user->isGuest();
 
-        if ($guestBeforeHandle && !$guestAfterHandle) {
+        if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
             $response = $this->autoLogin->addCookie($this->user->getIdentity(false), $response);
         }
 

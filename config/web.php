@@ -3,11 +3,10 @@
 declare(strict_types=1);
 
 use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\User\AutoLoginMiddleware;
 use Yiisoft\User\UserAuth;
 
-/**
- * @var array $params
- */
+/** @var array $params */
 
 return [
     UserAuth::class => [
@@ -16,4 +15,10 @@ return [
     ],
 
     AuthenticationMethodInterface::class => UserAuth::class,
+
+    AutoLoginMiddleware::class => [
+        '__construct()' => [
+            'addCookie' => $params['yiisoft/user']['autoLogin']['addCookie'],
+        ],
+    ],
 ];

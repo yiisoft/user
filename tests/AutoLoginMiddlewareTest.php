@@ -178,6 +178,22 @@ final class AutoLoginMiddlewareTest extends TestCase
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
 
+    public function testNotAddCookieAfterLogin(): void
+    {
+        $user = $this->getUserForSuccessfulAutologin();
+        $autoLogin = $this->getAutoLogin();
+        $middleware = new AutoLoginMiddleware(
+            $user,
+            $this->getAutoLoginIdentityRepository(),
+            $this->logger,
+            $autoLogin,
+            false
+        );
+        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
+        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+    }
+
     public function testRemoveCookieAfterLogout()
     {
         $user = $this->getUserForLogout();
@@ -306,8 +322,7 @@ final class AutoLoginMiddlewareTest extends TestCase
                 $isUserGuest = !$isUserGuest;
 
                 return !$isUserGuest;
-            })
-        ;
+            });
 
         $user
             ->method('getIdentity')
@@ -328,8 +343,7 @@ final class AutoLoginMiddlewareTest extends TestCase
                 $isUserGuest = !$isUserGuest;
 
                 return !$isUserGuest;
-            })
-        ;
+            });
 
         return $user;
     }
