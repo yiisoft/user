@@ -20,7 +20,7 @@ return [
 
     AutoLogin::class => [
         '__construct()' => [
-            'duration' => $params['yiisoft/user']['autoLoginDuration'],
+            'duration' => $params['yiisoft/user']['autoLogin']['duration'],
         ],
     ],
 ];
