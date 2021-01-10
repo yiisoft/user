@@ -19,9 +19,9 @@ final class AutoLogin
     private string $cookieName = 'autoLogin';
     private DateInterval $duration;
 
-    public function __construct(DateInterval $duration)
+    public function __construct(string $duration)
     {
-        $this->duration = $duration;
+        $this->duration = new DateInterval($duration);
     }
 
     public function withCookieName(string $name): self
@@ -49,6 +49,10 @@ final class AutoLogin
 
     /**
      * Expire auto-login cookie so user is not logged in automatically anymore.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
      */
     public function expireCookie(ResponseInterface $response): ResponseInterface
     {

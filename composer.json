@@ -19,6 +19,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
+        "ext-json": "*",
         "psr/event-dispatcher": "^1.0",
         "psr/http-factory": "^1.0",
         "psr/log": "^1.1",

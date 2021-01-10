@@ -6,7 +6,7 @@ return [
     'yiisoft/user' => [
         'authUrl' => '/login',
         'autoLogin' => [
-            'duration' => new DateInterval('P5D'), // 5 days
+            'duration' => 'P5D', // 5 days, see format on http://php.net/manual/dateinterval.construct.php
         ],
     ],
 ];

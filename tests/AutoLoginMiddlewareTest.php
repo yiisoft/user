@@ -336,7 +336,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     private function getAutoLogin(): AutoLogin
     {
-        return new AutoLogin(new \DateInterval('P1W'));
+        return new AutoLogin('P1W');
     }
 
     /**

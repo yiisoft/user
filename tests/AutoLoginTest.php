@@ -13,7 +13,7 @@ final class AutoLoginTest extends TestCase
 {
     public function testAddCookie(): void
     {
-        $autoLogin = new AutoLogin(new \DateInterval('P1W'));
+        $autoLogin = new AutoLogin('P1W');
 
         $identity = new AutoLoginIdentity();
 
@@ -25,7 +25,7 @@ final class AutoLoginTest extends TestCase
 
     public function testRemoveCookie(): void
     {
-        $autoLogin = new AutoLogin(new \DateInterval('P1W'));
+        $autoLogin = new AutoLogin('P1W');
 
         $response = new Response();
         $response = $autoLogin->expireCookie($response);
@@ -36,7 +36,7 @@ final class AutoLoginTest extends TestCase
     public function testAddCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $autoLogin = (new AutoLogin(new \DateInterval('P1W')))
+        $autoLogin = (new AutoLogin('P1W'))
             ->withCookieName($cookieName);
 
         $identity = new AutoLoginIdentity();
@@ -50,7 +50,7 @@ final class AutoLoginTest extends TestCase
     public function testRemoveCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $autoLogin = (new AutoLogin(new \DateInterval('P1W')))
+        $autoLogin = (new AutoLogin('P1W'))
             ->withCookieName($cookieName);
 
         $response = new Response();
