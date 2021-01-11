@@ -177,7 +177,7 @@ final class AutoLoginMiddlewareTest extends TestCase
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
-    
+
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
         $user = $this->getUserForSuccessfulAutologinWithRememberMe();
@@ -331,7 +331,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         return $user;
     }
-    
+
     private function getUserForSuccessfulAutologinWithRememberMe(): User
     {
         $user = $this->createMock(User::class);
