@@ -267,7 +267,7 @@ class User
      * @param IdentityInterface $identity the identity information to be associated with the current user.
      * In order to indicate that the user is guest, use {{@see GuestIdentity}}.
      */
-    private function switchIdentity(IdentityInterface $identity): void
+    public function switchIdentity(IdentityInterface $identity): void
     {
         $this->setIdentity($identity);
         if ($this->session === null) {
@@ -349,14 +349,14 @@ class User
         return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);
     }
 
-    public function authTimeout(int $timeout = null): self
+    public function setAuthTimeout(int $timeout = null): self
     {
         $this->authTimeout = $timeout;
 
         return $this;
     }
 
-    public function absoluteAuthTimeout(int $timeout = null): self
+    public function setAbsoluteAuthTimeout(int $timeout = null): self
     {
         $this->absoluteAuthTimeout = $timeout;
 

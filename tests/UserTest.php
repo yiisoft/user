@@ -75,7 +75,7 @@ final class UserTest extends TestCase
             $sessionStorage
         );
 
-        $user->authTimeout(60);
+        $user->setAuthTimeout(60);
 
         $this->assertInstanceOf(GuestIdentity::class, $user->getIdentity());
     }
@@ -99,7 +99,7 @@ final class UserTest extends TestCase
             $sessionStorage
         );
 
-        $user->absoluteAuthTimeout(60);
+        $user->setAbsoluteAuthTimeout(60);
 
         $this->assertInstanceOf(GuestIdentity::class, $user->getIdentity());
     }
@@ -125,7 +125,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage(['__auth_id' => 'test-id']);
         $user = new User($repository, $this->createDispatcher(), $sessionStorage);
 
-        $user->authTimeout(60);
+        $user->setAuthTimeout(60);
 
         $this->assertEquals('test-id', $user->getIdentity()->getId());
         $this->assertTrue($sessionStorage->has('__auth_expire'));
@@ -289,6 +289,50 @@ final class UserTest extends TestCase
         $user->setAccessChecker($this->createAccessChecker());
 
         $this->assertTrue($user->can('permission'));
+    }
+
+    public function testSwitchIdentity(): void
+    {
+        $expire = strtotime('+1 day');
+        $sessionStorage = $this->createSessionStorage(
+            [
+                '__auth_id' => 'test-id',
+                '__auth_expire' => $expire,
+            ]
+        );
+
+        $user = new User(
+            $this->createIdentityRepository(),
+            $this->createDispatcher(),
+            $sessionStorage
+        );
+
+        $user->setAuthTimeout(60);
+        $user->setAbsoluteAuthTimeout(3600);
+
+        $user->setIdentity($this->createIdentity('test-id'));
+        $user->switchIdentity($this->createIdentity('test-id-2'));
+
+        $this->assertEquals('test-id-2', $user->getIdentity()->getId());
+        $this->assertNotEquals('test-id', $sessionStorage->get('__auth_id'));
+        $this->assertNotEquals($expire, $sessionStorage->get('__auth_expire'));
+        $this->assertTrue($sessionStorage->has('__auth_expire'));
+        $this->assertTrue($sessionStorage->has('__auth_absolute_expire'));
+    }
+
+    public function testSwitchIdentityToGuest(): void
+    {
+        $user = new User(
+            $this->createIdentityRepository(),
+            $this->createDispatcher()
+        );
+
+        $user->setAuthTimeout(60);
+
+        $user->setIdentity($this->createIdentity('test-id'));
+        $user->switchIdentity(new GuestIdentity());
+
+        $this->assertInstanceOf(GuestIdentity::class, $user->getIdentity());
     }
 
     private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
