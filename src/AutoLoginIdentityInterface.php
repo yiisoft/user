@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User;
 
+use DateInterval;
 use Yiisoft\Auth\IdentityInterface;
 
 /**
@@ -33,6 +34,8 @@ interface AutoLoginIdentityInterface extends IdentityInterface
      * @see validateAutoLoginKey()
      */
     public function getAutoLoginKey(): string;
+
+    public function getAutoLoginDuration(): ?DateInterval;
 
     /**
      * Validates the given key.
