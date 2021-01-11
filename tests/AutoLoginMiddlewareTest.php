@@ -163,7 +163,7 @@ final class AutoLoginMiddlewareTest extends TestCase
         $this->assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
     }
 
-    public function testAddCookieAfterLogin()
+    public function testAddCookieAfterLogin(): void
     {
         $user = $this->getUserForSuccessfulAutologin();
         $autoLogin = $this->getAutoLogin();
@@ -177,8 +177,23 @@ final class AutoLoginMiddlewareTest extends TestCase
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
+    
+    public function testAddCookieAfterLoginUsingRememberMe(): void
+    {
+        $user = $this->getUserForSuccessfulAutologinWithRememberMe();
+        $autoLogin = $this->getAutoLogin();
+        $middleware = new AutoLoginMiddleware(
+            $user,
+            $this->getAutoLoginIdentityRepository(),
+            $this->logger,
+            $autoLogin
+        );
+        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
+        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
+        $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=1209600; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+    }
 
-    public function testRemoveCookieAfterLogout()
+    public function testRemoveCookieAfterLogout(): void
     {
         $user = $this->getUserForLogout();
         $autoLogin = $this->getAutoLogin();
@@ -313,6 +328,35 @@ final class AutoLoginMiddlewareTest extends TestCase
             ->method('getIdentity')
             ->with(false)
             ->willReturn(new AutoLoginIdentity());
+
+        return $user;
+    }
+    
+    private function getUserForSuccessfulAutologinWithRememberMe(): User
+    {
+        $user = $this->createMock(User::class);
+        $user
+            ->expects($this->once())
+            ->method('login')
+            ->willReturn(true);
+
+        $isUserGuest = true;
+
+        $user
+            ->method('isGuest')
+            ->willReturnCallback(function () use (&$isUserGuest) {
+                $isUserGuest = !$isUserGuest;
+
+                return !$isUserGuest;
+            })
+        ;
+
+        $identity = new AutoLoginIdentity();
+        $identity->rememberMe = true;
+        $user
+            ->method('getIdentity')
+            ->with(false)
+            ->willReturn($identity);
 
         return $user;
     }
