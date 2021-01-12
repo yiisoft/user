@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\User;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
@@ -69,7 +70,7 @@ class User
      *
      * @param bool $autoRenew whether to automatically renew authentication status if it has not been done so before.
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return IdentityInterface the identity object associated with the currently logged-in user.
      *
@@ -86,7 +87,7 @@ class User
         }
         try {
             $this->renewAuthStatus();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->identity = null;
             throw $e;
         }
@@ -130,34 +131,13 @@ class User
     }
 
     /**
-     * Logs in a user by the given access token.
-     * This method will first authenticate the user by calling {@see IdentityInterface::findIdentityByToken()}
-     * with the provided access token. If successful, it will call {@see login()} to log in the authenticated user.
-     * If authentication fails or {@see login()} is unsuccessful, it will return null.
-     *
-     * @param string $token the access token
-     * @param string $type the type of the token. The value of this parameter depends on the implementation.
-     *
-     * @return IdentityInterface|null the identity associated with the given access token. Null is returned if
-     * the access token is invalid or {@see login()} is unsuccessful.
-     */
-    public function loginByAccessToken(string $token, string $type): ?IdentityInterface
-    {
-        $identity = $this->identityRepository->findIdentityByToken($token, $type);
-        if ($identity && $this->login($identity)) {
-            return $identity;
-        }
-        return null;
-    }
-
-    /**
      * Logs out the current user.
      * This will remove authentication-related session data.
      * If `$destroySession` is true, all session data will be removed.
      *
      * @param bool $destroySession whether to destroy the whole session. Defaults to true.
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return bool whether the user is logged out
      */
@@ -193,7 +173,7 @@ class User
     /**
      * Returns a value that uniquely represents the user.
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return string the unique identifier for the user. If `null`, it means the user is a guest.
      *
@@ -298,7 +278,7 @@ class User
      *
      * If {@see authTimeout} is set, this method will refresh the timer.
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function renewAuthStatus(): void
     {
@@ -336,7 +316,7 @@ class User
      * @param array $params name-value pairs that would be passed to the rules associated
      * with the roles and permissions assigned to the user.
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return bool whether the user can perform the operation as specified by the given permission.
      */
