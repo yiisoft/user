@@ -25,13 +25,13 @@ class User
      * remaining inactive. If this property is not set, the user will be logged out after
      * the current session expires.
      */
-    public ?int $authTimeout = null;
+    private ?int $authTimeout = null;
 
     /**
      * @var int|null the number of seconds in which the user will be logged out automatically
      * regardless of activity.
      */
-    public ?int $absoluteAuthTimeout = null;
+    private ?int $absoluteAuthTimeout = null;
 
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
@@ -315,7 +315,9 @@ class User
 
         if (!($identity instanceof GuestIdentity) && ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)) {
             $expire = $this->authTimeout !== null ? $this->session->get(self::SESSION_AUTH_EXPIRE) : null;
-            $expireAbsolute = $this->absoluteAuthTimeout !== null ? $this->session->get(self::SESSION_AUTH_ABSOLUTE_EXPIRE) : null;
+            $expireAbsolute = $this->absoluteAuthTimeout !== null
+                ? $this->session->get(self::SESSION_AUTH_ABSOLUTE_EXPIRE)
+                : null;
             if (($expire !== null && $expire < time()) || ($expireAbsolute !== null && $expireAbsolute < time())) {
                 $this->logout(false);
             } elseif ($this->authTimeout !== null) {
@@ -345,5 +347,19 @@ class User
         }
 
         return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);
+    }
+
+    public function setAuthTimeout(int $timeout = null): self
+    {
+        $this->authTimeout = $timeout;
+
+        return $this;
+    }
+
+    public function setAbsoluteAuthTimeout(int $timeout = null): self
+    {
+        $this->absoluteAuthTimeout = $timeout;
+
+        return $this;
     }
 }
