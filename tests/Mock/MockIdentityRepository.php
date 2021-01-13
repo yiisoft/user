@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\User\Tests\Mock;
 
 use Yiisoft\Auth\IdentityInterface;
-use Yiisoft\Auth\IdentityWithTokenRepositoryInterface;
+use Yiisoft\Auth\IdentityRepositoryInterface;
 
-class MockIdentityRepository implements IdentityWithTokenRepositoryInterface
+class MockIdentityRepository implements IdentityRepositoryInterface
 {
     private ?IdentityInterface $identity;
     private bool $withException = false;
