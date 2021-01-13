@@ -228,45 +228,6 @@ final class UserTest extends TestCase
         $this->assertFalse($sessionStorage->isActive());
     }
 
-    public function testLoginByAccessToken(): void
-    {
-        $dispatcher = $this->createDispatcher();
-        $repository = $this->createIdentityRepository(
-            $this->createIdentity('test-id')
-        );
-
-        $user = new User($repository, $dispatcher, $this->createSessionStorage());
-        $result = $user->loginByAccessToken('token', 'type');
-
-        $this->assertEquals('test-id', $result->getId());
-        $this->assertEquals('test-id', $user->getIdentity()->getId());
-        $this->assertEquals(
-            [
-                BeforeLogin::class,
-                AfterLogin::class,
-            ],
-            $dispatcher->getClassesEvents()
-        );
-    }
-
-    public function testLoginByAccessTokenReturnsNullIfIdentityNotFound(): void
-    {
-        $dispatcher = $this->createDispatcher();
-
-        $user = new User(
-            $this->createIdentityRepository(),
-            $dispatcher,
-            $this->createSessionStorage()
-        );
-
-        $result = $user->loginByAccessToken('token', 'type');
-
-        $this->assertNull($result);
-        $this->assertEmpty(
-            $dispatcher->getClassesEvents()
-        );
-    }
-
     public function testCanReturnsFalseIfCheckerNotSet(): void
     {
         $user = new User(
