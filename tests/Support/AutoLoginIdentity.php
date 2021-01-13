@@ -11,6 +11,7 @@ final class AutoLoginIdentity implements AutoLoginIdentityInterface
     public const ID = '42';
     public const KEY_CORRECT = 'auto-login-key-correct';
     public const KEY_INCORRECT = 'auto-login-key-incorrect';
+    public bool $rememberMe = false;
 
     public function getAutoLoginKey(): string
     {
@@ -25,5 +26,10 @@ final class AutoLoginIdentity implements AutoLoginIdentityInterface
     public function getId(): ?string
     {
         return self::ID;
+    }
+
+    public function getAutoLoginDuration(): ?\DateInterval
+    {
+        return $this->rememberMe ? new \DateInterval('P2W') : null;
     }
 }
