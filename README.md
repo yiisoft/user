@@ -30,6 +30,40 @@ composer require yiisoft/user --prefer-dist
 
 ## General usage
 
+## Auto login
+
+Use middleware `AutoLoginMiddleware`.
+
+Default you should set cookie for auto login manually in your application after login user:
+
+```php
+public function login(
+        \Psr\Http\Message\ServerRequestInterface $request,
+        \Psr\Http\Message\ResponseFactoryInterface $responseFactory,
+        \Yiisoft\User\AutoLogin $autoLogin
+    ): \Psr\Http\Message\ResponseInterface {
+    $body = $request->getParsedBody();
+    // ...
+    $response = $responseFactory->createResponse();
+     if ($body['rememberMe'] ?? false) {
+        $response = $autoLogin->addCookie($identity, $response);
+    }
+    // ...
+}
+```
+
+Also you can enable automatically add cookie via `params.php`:
+
+```php
+return [
+    'yiisoft/user' => [
+        'autoLogin' => [
+            'addCookie' => true,
+        ],
+    ],
+];
+```
+
 ## Testing
 
 ### Unit testing
@@ -58,7 +92,6 @@ The code is statically analyzed with [Psalm](https://psalm.dev/). To run static 
 
 ## License
 
-The Yii User is free software. It is released under the terms of the BSD License.
-Please see [`LICENSE`](./LICENSE.md) for more information.
+The Yii User is free software. It is released under the terms of the BSD License. Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
