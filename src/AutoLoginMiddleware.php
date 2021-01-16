@@ -27,7 +27,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         AutoLogin $autoLogin,
-        bool $addCookie = true
+        bool $addCookie = false
     ) {
         $this->user = $user;
         $this->identityRepository = $identityRepository;

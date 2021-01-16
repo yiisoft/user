@@ -171,7 +171,8 @@ final class AutoLoginMiddlewareTest extends TestCase
             $user,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
-            $autoLogin
+            $autoLogin,
+            true
         );
         $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
@@ -186,8 +187,7 @@ final class AutoLoginMiddlewareTest extends TestCase
             $user,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
-            $autoLogin,
-            false
+            $autoLogin
         );
         $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
@@ -202,7 +202,8 @@ final class AutoLoginMiddlewareTest extends TestCase
             $user,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
-            $autoLogin
+            $autoLogin,
+            true
         );
         $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
