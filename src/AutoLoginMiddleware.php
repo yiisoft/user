@@ -44,7 +44,10 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         $guestAfterHandle = $this->user->isGuest();
 
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
-            $response = $this->autoLogin->addCookie($this->user->getIdentity(false), $response);
+            $identity = $this->user->getIdentity(false);
+            if ($identity instanceof AutoLoginIdentityInterface) {
+                $response = $this->autoLogin->addCookie($identity, $response);
+            }
         }
 
         if (!$guestBeforeHandle && $guestAfterHandle) {
@@ -69,7 +72,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         try {
-            $data = json_decode($cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
+            $data = json_decode((string)$cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
             return;
@@ -81,6 +84,9 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         [$id, $key] = $data;
+        $id = (string)$id;
+        $key = (string)$key;
+
         $identity = $this->identityRepository->findIdentity($id);
 
         if ($identity === null) {

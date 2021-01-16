@@ -91,6 +91,8 @@ class User
             $this->identity = null;
             throw $e;
         }
+
+        /** @psalm-suppress TypeDoesNotContainType */
         return $this->identity ?? new GuestIdentity();
     }
 
@@ -100,7 +102,7 @@ class User
      * Note that this method does not deal with session. You should usually use {@see switchIdentity()}
      * to change the identity of the current user.
      *
-     * @param IdentityInterface|null $identity the identity object associated with the currently logged user.
+     * @param IdentityInterface $identity the identity object associated with the currently logged user.
      * Use {{@see GuestIdentity}} to indicate that the current user is a guest.
      */
     public function setIdentity(IdentityInterface $identity): void
@@ -282,22 +284,41 @@ class User
      */
     private function renewAuthStatus(): void
     {
+        if ($this->session === null) {
+            $this->setIdentity(new GuestIdentity());
+            return;
+        }
+
+        /** @var mixed $id */
         $id = $this->session->get(self::SESSION_AUTH_ID);
 
         $identity = null;
         if ($id !== null) {
-            $identity = $this->identityRepository->findIdentity($id);
+            $identity = $this->identityRepository->findIdentity((string)$id);
         }
         if ($identity === null) {
             $identity = new GuestIdentity();
         }
         $this->setIdentity($identity);
 
-        if (!($identity instanceof GuestIdentity) && ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)) {
+        if (
+            !($identity instanceof GuestIdentity) &&
+            ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)
+        ) {
+            /** @var mixed $expire */
             $expire = $this->authTimeout !== null ? $this->session->get(self::SESSION_AUTH_EXPIRE) : null;
+            if ($expire !== null) {
+                $expire = (int)$expire;
+            }
+
+            /** @var mixed $expireAbsolute */
             $expireAbsolute = $this->absoluteAuthTimeout !== null
                 ? $this->session->get(self::SESSION_AUTH_ABSOLUTE_EXPIRE)
                 : null;
+            if ($expireAbsolute !== null) {
+                $expireAbsolute = (int)$expire;
+            }
+
             if (($expire !== null && $expire < time()) || ($expireAbsolute !== null && $expireAbsolute < time())) {
                 $this->logout(false);
             } elseif ($this->authTimeout !== null) {
