@@ -10,12 +10,12 @@ class LastMessageLogger extends AbstractLogger
 {
     private ?string $lastMessage = null;
 
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->lastMessage = $message;
     }
 
-    public function getLastMessage()
+    public function getLastMessage(): ?string
     {
         return $this->lastMessage;
     }

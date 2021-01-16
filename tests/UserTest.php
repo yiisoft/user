@@ -75,7 +75,7 @@ final class UserTest extends TestCase
             $sessionStorage
         );
 
-        $user->authTimeout = 60;
+        $user->setAuthTimeout(60);
 
         $this->assertInstanceOf(GuestIdentity::class, $user->getIdentity());
     }
@@ -99,7 +99,7 @@ final class UserTest extends TestCase
             $sessionStorage
         );
 
-        $user->absoluteAuthTimeout = 60;
+        $user->setAbsoluteAuthTimeout(60);
 
         $this->assertInstanceOf(GuestIdentity::class, $user->getIdentity());
     }
@@ -125,7 +125,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage(['__auth_id' => 'test-id']);
         $user = new User($repository, $this->createDispatcher(), $sessionStorage);
 
-        $user->authTimeout = 60;
+        $user->setAuthTimeout(60);
 
         $this->assertEquals('test-id', $user->getIdentity()->getId());
         $this->assertTrue($sessionStorage->has('__auth_expire'));
@@ -228,45 +228,6 @@ final class UserTest extends TestCase
         $this->assertFalse($sessionStorage->isActive());
     }
 
-    public function testLoginByAccessToken(): void
-    {
-        $dispatcher = $this->createDispatcher();
-        $repository = $this->createIdentityRepository(
-            $this->createIdentity('test-id')
-        );
-
-        $user = new User($repository, $dispatcher, $this->createSessionStorage());
-        $result = $user->loginByAccessToken('token', 'type');
-
-        $this->assertEquals('test-id', $result->getId());
-        $this->assertEquals('test-id', $user->getIdentity()->getId());
-        $this->assertEquals(
-            [
-                BeforeLogin::class,
-                AfterLogin::class,
-            ],
-            $dispatcher->getClassesEvents()
-        );
-    }
-
-    public function testLoginByAccessTokenReturnsNullIfIdentityNotFound(): void
-    {
-        $dispatcher = $this->createDispatcher();
-
-        $user = new User(
-            $this->createIdentityRepository(),
-            $dispatcher,
-            $this->createSessionStorage()
-        );
-
-        $result = $user->loginByAccessToken('token', 'type');
-
-        $this->assertNull($result);
-        $this->assertEmpty(
-            $dispatcher->getClassesEvents()
-        );
-    }
-
     public function testCanReturnsFalseIfCheckerNotSet(): void
     {
         $user = new User(
@@ -307,8 +268,8 @@ final class UserTest extends TestCase
             $sessionStorage
         );
 
-        $user->authTimeout = 60;
-        $user->absoluteAuthTimeout = 3600;
+        $user->setAuthTimeout(60);
+        $user->setAbsoluteAuthTimeout(3600);
 
         $user->setIdentity($this->createIdentity('test-id'));
         $user->switchIdentity($this->createIdentity('test-id-2'));
@@ -327,7 +288,7 @@ final class UserTest extends TestCase
             $this->createDispatcher()
         );
 
-        $user->authTimeout = 60;
+        $user->setAuthTimeout(60);
 
         $user->setIdentity($this->createIdentity('test-id'));
         $user->switchIdentity(new GuestIdentity());
