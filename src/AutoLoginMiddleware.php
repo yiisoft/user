@@ -20,17 +20,20 @@ final class AutoLoginMiddleware implements MiddlewareInterface
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
+    private bool $addCookie;
 
     public function __construct(
         User $user,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
-        AutoLogin $autoLogin
+        AutoLogin $autoLogin,
+        bool $addCookie = false
     ) {
         $this->user = $user;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
         $this->autoLogin = $autoLogin;
+        $this->addCookie = $addCookie;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -40,8 +43,11 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $guestAfterHandle = $this->user->isGuest();
 
-        if ($guestBeforeHandle && !$guestAfterHandle) {
-            $response = $this->autoLogin->addCookie($this->user->getIdentity(false), $response);
+        if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
+            $identity = $this->user->getIdentity(false);
+            if ($identity instanceof AutoLoginIdentityInterface) {
+                $response = $this->autoLogin->addCookie($identity, $response);
+            }
         }
 
         if (!$guestBeforeHandle && $guestAfterHandle) {
@@ -66,7 +72,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         try {
-            $data = json_decode($cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
+            $data = json_decode((string)$cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
             return;
@@ -78,6 +84,9 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         [$id, $key] = $data;
+        $id = (string)$id;
+        $key = (string)$key;
+
         $identity = $this->identityRepository->findIdentity($id);
 
         if ($identity === null) {

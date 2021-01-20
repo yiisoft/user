@@ -171,11 +171,27 @@ final class AutoLoginMiddlewareTest extends TestCase
             $user,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
-            $autoLogin
+            $autoLogin,
+            true
         );
         $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+    }
+
+    public function testNotAddCookieAfterLogin(): void
+    {
+        $user = $this->getUserForSuccessfulAutologin();
+        $autoLogin = $this->getAutoLogin();
+        $middleware = new AutoLoginMiddleware(
+            $user,
+            $this->getAutoLoginIdentityRepository(),
+            $this->logger,
+            $autoLogin
+        );
+        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
+        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
     public function testAddCookieAfterLoginUsingRememberMe(): void
@@ -186,14 +202,15 @@ final class AutoLoginMiddlewareTest extends TestCase
             $user,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
-            $autoLogin
+            $autoLogin,
+            true
         );
         $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
         $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=1209600; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testRemoveCookieAfterLogout(): void
+    public function testRemoveCookieAfterLogout()
     {
         $user = $this->getUserForLogout();
         $autoLogin = $this->getAutoLogin();
@@ -321,8 +338,7 @@ final class AutoLoginMiddlewareTest extends TestCase
                 $isUserGuest = !$isUserGuest;
 
                 return !$isUserGuest;
-            })
-        ;
+            });
 
         $user
             ->method('getIdentity')
@@ -372,8 +388,7 @@ final class AutoLoginMiddlewareTest extends TestCase
                 $isUserGuest = !$isUserGuest;
 
                 return !$isUserGuest;
-            })
-        ;
+            });
 
         return $user;
     }
