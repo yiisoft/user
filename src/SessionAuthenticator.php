@@ -14,7 +14,7 @@ use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
 
-final class Authenticator
+final class SessionAuthenticator implements AuthenticatorInterface
 {
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';
@@ -111,7 +111,7 @@ final class Authenticator
      * @param IdentityInterface $identity the identity information to be associated with the current user.
      * In order to indicate that the user is guest, use {{@see GuestIdentity}}.
      */
-    public function setIdentity(IdentityInterface $identity): void
+    private function switchIdentity(IdentityInterface $identity): void
     {
         $this->identity = $identity;
         if ($this->session === null) {
@@ -163,7 +163,7 @@ final class Authenticator
     public function login(IdentityInterface $identity): bool
     {
         if ($this->beforeLogin($identity)) {
-            $this->setIdentity($identity);
+            $this->switchIdentity($identity);
             $this->afterLogin($identity);
         }
         return !$this->isGuest();
@@ -214,7 +214,7 @@ final class Authenticator
             return false;
         }
         if ($this->beforeLogout($identity)) {
-            $this->setIdentity(new GuestIdentity());
+            $this->switchIdentity(new GuestIdentity());
             if ($destroySession && $this->session) {
                 $this->session->destroy();
             }
