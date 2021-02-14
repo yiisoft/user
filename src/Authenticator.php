@@ -163,7 +163,7 @@ final class Authenticator
     public function login(IdentityInterface $identity): bool
     {
         if ($this->beforeLogin($identity)) {
-            $this->switchIdentity($identity);
+            $this->setIdentity($identity);
             $this->afterLogin($identity);
         }
         return !$this->isGuest();
@@ -214,7 +214,7 @@ final class Authenticator
             return false;
         }
         if ($this->beforeLogout($identity)) {
-            $this->switchIdentity(new GuestIdentity());
+            $this->setIdentity(new GuestIdentity());
             if ($destroySession && $this->session) {
                 $this->session->destroy();
             }
