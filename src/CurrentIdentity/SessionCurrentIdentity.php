@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User;
+namespace Yiisoft\User\CurrentIdentity;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use RuntimeException;
 use Throwable;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
@@ -13,8 +14,9 @@ use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\GuestIdentity;
 
-final class SessionAuthenticator implements AuthenticatorInterface
+final class SessionCurrentIdentity implements CurrentIdentityInterface
 {
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';
@@ -80,7 +82,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
      * @see logout()
      * @see login()
      */
-    public function getIdentity(bool $autoRenew = true): IdentityInterface
+    public function get(bool $autoRenew = true): IdentityInterface
     {
         if ($this->identity !== null) {
             return $this->identity;
@@ -99,6 +101,11 @@ final class SessionAuthenticator implements AuthenticatorInterface
         return $this->identity ?? new GuestIdentity();
     }
 
+    public function set(IdentityInterface $identity): void
+    {
+        $this->identity = $identity;
+    }
+
     /**
      * Switches to a new identity for the current user.
      *
@@ -113,7 +120,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
      */
     private function switchIdentity(IdentityInterface $identity): void
     {
-        $this->identity = $identity;
+        $this->set($identity);
         if ($this->session === null) {
             return;
         }
@@ -140,38 +147,28 @@ final class SessionAuthenticator implements AuthenticatorInterface
      *
      * @return bool whether the current user is a guest.
      *
-     * @see getIdentity()
+     * @see get()
      */
     private function isGuest(): bool
     {
-        return $this->getIdentity() instanceof GuestIdentity;
+        return $this->get() instanceof GuestIdentity;
     }
 
-    /**
-     * Logs in a user.
-     *
-     * After logging in a user:
-     * - the user's identity information is obtainable from the {@see getIdentity()}
-     * - the identity information will be stored in session and be available in the next requests as long as the session
-     *   remains active or till the user closes the browser. Some browsers, such as Chrome, are keeping session when
-     *   browser is re-opened.
-     *
-     * @param IdentityInterface $identity the user identity (which should already be authenticated)
-     *
-     * @return bool whether the user is logged in
-     */
-    public function login(IdentityInterface $identity): bool
+    public function save(): void
     {
-        if ($this->beforeLogin($identity)) {
-            $this->switchIdentity($identity);
-            $this->afterLogin($identity);
+        if ($this->identity === null) {
+            throw new RuntimeException('Need set identity.');
         }
-        return !$this->isGuest();
+
+        if ($this->beforeSave($this->identity)) {
+            $this->switchIdentity($this->identity);
+            $this->afterSave($this->identity);
+        }
     }
 
     /**
      * This method is called before logging in a user.
-     * The default implementation will trigger the {@see BeforeLogin} event.
+     * The default implementation will trigger the {@see beforeSave} event.
      * If you override this method, make sure you call the parent implementation
      * so that the event is triggered.
      *
@@ -179,7 +176,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
      *
      * @return bool whether the user should continue to be logged in
      */
-    private function beforeLogin(IdentityInterface $identity): bool
+    private function beforeSave(IdentityInterface $identity): bool
     {
         $event = new BeforeLogin($identity);
         $this->eventDispatcher->dispatch($event);
@@ -191,7 +188,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
      *
      * @param IdentityInterface $identity the user identity information
      */
-    private function afterLogin(IdentityInterface $identity): void
+    private function afterSave(IdentityInterface $identity): void
     {
         $this->eventDispatcher->dispatch(new AfterLogin($identity));
     }
@@ -200,28 +197,16 @@ final class SessionAuthenticator implements AuthenticatorInterface
      * Logs out the current user.
      * This will remove authentication-related session data.
      * If `$destroySession` is true, all session data will be removed.
-     *
-     * @param bool $destroySession whether to destroy the whole session. Defaults to true.
-     *
-     * @throws Throwable
-     *
-     * @return bool whether the user is logged out
      */
-    public function logout(bool $destroySession = true): bool
+    public function clear(): void
     {
-        $identity = $this->getIdentity();
-        if ($this->isGuest()) {
-            return false;
-        }
-        if ($this->beforeLogout($identity)) {
-            $this->switchIdentity(new GuestIdentity());
-            if ($destroySession && $this->session) {
-                $this->session->destroy();
+        if (!$this->isGuest()) {
+            $identity = $this->get();
+            if ($this->beforeLogout($identity)) {
+                $this->switchIdentity(new GuestIdentity());
+                $this->afterLogout($identity);
             }
-
-            $this->afterLogout($identity);
         }
-        return $this->isGuest();
     }
 
     /**
@@ -260,7 +245,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
     private function renewAuthStatus(): void
     {
         if ($this->session === null) {
-            $this->identity = new GuestIdentity();
+            $this->set(new GuestIdentity());
             return;
         }
 
@@ -274,7 +259,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
         if ($identity === null) {
             $identity = new GuestIdentity();
         }
-        $this->identity = $identity;
+        $this->set($identity);
 
         if (
             !($identity instanceof GuestIdentity) &&
@@ -295,7 +280,7 @@ final class SessionAuthenticator implements AuthenticatorInterface
             }
 
             if (($expire !== null && $expire < time()) || ($expireAbsolute !== null && $expireAbsolute < time())) {
-                $this->logout(false);
+                $this->clear();
             } elseif ($this->authTimeout !== null) {
                 $this->session->set(self::SESSION_AUTH_EXPIRE, time() + $this->authTimeout);
             }

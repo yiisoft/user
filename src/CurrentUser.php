@@ -7,16 +7,17 @@ namespace Yiisoft\User;
 use Throwable;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
+use Yiisoft\User\CurrentIdentity\CurrentIdentityInterface;
 
-class CurrentUser
+final class CurrentUser
 {
     private ?AccessCheckerInterface $accessChecker = null;
 
-    private AuthenticatorInterface $authenticator;
+    private CurrentIdentityInterface $currentIdentity;
 
-    public function __construct(AuthenticatorInterface $authenticator)
+    public function __construct(CurrentIdentityInterface $currentIdentity)
     {
-        $this->authenticator = $authenticator;
+        $this->currentIdentity = $currentIdentity;
     }
 
     public function setAccessChecker(AccessCheckerInterface $accessChecker): void
@@ -29,17 +30,7 @@ class CurrentUser
      */
     public function getIdentity(): IdentityInterface
     {
-        return $this->authenticator->getIdentity();
-    }
-
-    /**
-     * Returns a value indicating whether the user is a guest (not authenticated).
-     *
-     * @return bool whether the current user is a guest.
-     */
-    public function isGuest(): bool
-    {
-        return $this->authenticator->getIdentity() instanceof GuestIdentity;
+        return $this->currentIdentity->get();
     }
 
     /**
@@ -53,7 +44,17 @@ class CurrentUser
      */
     public function getId(): ?string
     {
-        return $this->authenticator->getIdentity()->getId();
+        return $this->currentIdentity->get()->getId();
+    }
+
+    /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     *
+     * @return bool whether the current user is a guest.
+     */
+    public function isGuest(): bool
+    {
+        return $this->currentIdentity->get() instanceof GuestIdentity;
     }
 
     /**
