@@ -15,7 +15,7 @@ use Yiisoft\User\AutoLogin;
 use Yiisoft\User\AutoLoginMiddleware;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\User;
+use Yiisoft\User\CurrentUser;
 
 final class AutoLoginMiddlewareTest extends TestCase
 {
@@ -304,16 +304,16 @@ final class AutoLoginMiddlewareTest extends TestCase
         return $request;
     }
 
-    private function getUserWithoutLoginExpected(): User
+    private function getUserWithoutLoginExpected(): CurrentUser
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(CurrentUser::class);
         $user->expects($this->never())->method('login');
         return $user;
     }
 
-    private function getUserWithLoginExpected(): User
+    private function getUserWithLoginExpected(): CurrentUser
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(CurrentUser::class);
         $user
             ->expects($this->once())
             ->method('login')
@@ -322,9 +322,9 @@ final class AutoLoginMiddlewareTest extends TestCase
         return $user;
     }
 
-    private function getUserForSuccessfulAutologin(): User
+    private function getUserForSuccessfulAutologin(): CurrentUser
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(CurrentUser::class);
         $user
             ->expects($this->once())
             ->method('login')
@@ -348,9 +348,9 @@ final class AutoLoginMiddlewareTest extends TestCase
         return $user;
     }
 
-    private function getUserForSuccessfulAutologinWithRememberMe(): User
+    private function getUserForSuccessfulAutologinWithRememberMe(): CurrentUser
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(CurrentUser::class);
         $user
             ->expects($this->once())
             ->method('login')
@@ -377,9 +377,9 @@ final class AutoLoginMiddlewareTest extends TestCase
         return $user;
     }
 
-    private function getUserForLogout(): User
+    private function getUserForLogout(): CurrentUser
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createMock(CurrentUser::class);
         $isUserGuest = false;
 
         $user

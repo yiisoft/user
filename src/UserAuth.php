@@ -14,10 +14,10 @@ use Yiisoft\Http\Status;
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
-    private User $user;
+    private CurrentUser $user;
     private ResponseFactoryInterface $responseFactory;
 
-    public function __construct(User $user, ResponseFactoryInterface $responseFactory)
+    public function __construct(CurrentUser $user, ResponseFactoryInterface $responseFactory)
     {
         $this->user = $user;
         $this->responseFactory = $responseFactory;

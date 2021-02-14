@@ -6,7 +6,6 @@ namespace Yiisoft\User;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
-use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Session\SessionInterface;
@@ -15,11 +14,13 @@ use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
 
-class User
+final class Authenticator
 {
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';
     private const SESSION_AUTH_ABSOLUTE_EXPIRE = '__auth_absolute_expire';
+
+    private ?IdentityInterface $identity = null;
 
     /**
      * @var int|null the number of seconds in which the user will be logged out automatically in case of
@@ -36,14 +37,9 @@ class User
 
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
-
-    private ?AccessCheckerInterface $accessChecker = null;
-    private ?IdentityInterface $identity = null;
     private ?SessionInterface $session;
 
     /**
-     * @param IdentityRepositoryInterface $identityRepository
-     * @param EventDispatcherInterface $eventDispatcher
      * @param SessionInterface|null $session session to persist authentication status across multiple requests.
      * If not set, authentication has to be performed on each request, which is often the case for stateless
      * application such as RESTful API.
@@ -58,9 +54,16 @@ class User
         $this->session = $session;
     }
 
-    public function setAccessChecker(AccessCheckerInterface $accessChecker): void
+    public function setAuthTimeout(int $timeout = null): self
     {
-        $this->accessChecker = $accessChecker;
+        $this->authTimeout = $timeout;
+        return $this;
+    }
+
+    public function setAbsoluteAuthTimeout(int $timeout = null): self
+    {
+        $this->absoluteAuthTimeout = $timeout;
+        return $this;
     }
 
     /**
@@ -111,133 +114,6 @@ class User
     }
 
     /**
-     * Logs in a user.
-     *
-     * After logging in a user:
-     * - the user's identity information is obtainable from the {@see getIdentity()}
-     * - the identity information will be stored in session and be available in the next requests as long as the session
-     *   remains active or till the user closes the browser. Some browsers, such as Chrome, are keeping session when
-     *   browser is re-opened.
-     *
-     * @param IdentityInterface $identity the user identity (which should already be authenticated)
-     *
-     * @return bool whether the user is logged in
-     */
-    public function login(IdentityInterface $identity): bool
-    {
-        if ($this->beforeLogin($identity)) {
-            $this->switchIdentity($identity);
-            $this->afterLogin($identity);
-        }
-        return !$this->isGuest();
-    }
-
-    /**
-     * Logs out the current user.
-     * This will remove authentication-related session data.
-     * If `$destroySession` is true, all session data will be removed.
-     *
-     * @param bool $destroySession whether to destroy the whole session. Defaults to true.
-     *
-     * @throws Throwable
-     *
-     * @return bool whether the user is logged out
-     */
-    public function logout(bool $destroySession = true): bool
-    {
-        $identity = $this->getIdentity();
-        if ($this->isGuest()) {
-            return false;
-        }
-        if ($this->beforeLogout($identity)) {
-            $this->switchIdentity(new GuestIdentity());
-            if ($destroySession && $this->session) {
-                $this->session->destroy();
-            }
-
-            $this->afterLogout($identity);
-        }
-        return $this->isGuest();
-    }
-
-    /**
-     * Returns a value indicating whether the user is a guest (not authenticated).
-     *
-     * @return bool whether the current user is a guest.
-     *
-     * @see getIdentity()
-     */
-    public function isGuest(): bool
-    {
-        return $this->getIdentity() instanceof GuestIdentity;
-    }
-
-    /**
-     * Returns a value that uniquely represents the user.
-     *
-     * @throws Throwable
-     *
-     * @return string the unique identifier for the user. If `null`, it means the user is a guest.
-     *
-     * @see getIdentity()
-     */
-    public function getId(): ?string
-    {
-        return $this->getIdentity()->getId();
-    }
-
-    /**
-     * This method is called before logging in a user.
-     * The default implementation will trigger the {@see BeforeLogin} event.
-     * If you override this method, make sure you call the parent implementation
-     * so that the event is triggered.
-     *
-     * @param IdentityInterface $identity the user identity information
-     *
-     * @return bool whether the user should continue to be logged in
-     */
-    private function beforeLogin(IdentityInterface $identity): bool
-    {
-        $event = new BeforeLogin($identity);
-        $this->eventDispatcher->dispatch($event);
-        return $event->isValid();
-    }
-
-    /**
-     * This method is called after the user is successfully logged in.
-     *
-     * @param IdentityInterface $identity the user identity information
-     */
-    private function afterLogin(IdentityInterface $identity): void
-    {
-        $this->eventDispatcher->dispatch(new AfterLogin($identity));
-    }
-
-    /**
-     * This method is invoked when calling {@see logout()} to log out a user.
-     *
-     * @param IdentityInterface $identity the user identity information
-     *
-     * @return bool whether the user should continue to be logged out
-     */
-    private function beforeLogout(IdentityInterface $identity): bool
-    {
-        $event = new BeforeLogout($identity);
-        $this->eventDispatcher->dispatch($event);
-        return $event->isValid();
-    }
-
-    /**
-     * This method is invoked right after a user is logged out via {@see logout()}.
-     *
-     * @param IdentityInterface $identity the user identity information
-     */
-    private function afterLogout(IdentityInterface $identity): void
-    {
-        $this->eventDispatcher->dispatch(new AfterLogout($identity));
-    }
-
-    /**
      * Switches to a new identity for the current user.
      *
      * This method use session to store the user identity information.
@@ -271,6 +147,107 @@ class User
         if ($this->absoluteAuthTimeout !== null) {
             $this->session->set(self::SESSION_AUTH_ABSOLUTE_EXPIRE, time() + $this->absoluteAuthTimeout);
         }
+    }
+
+    /**
+     * Logs in a user.
+     *
+     * After logging in a user:
+     * - the user's identity information is obtainable from the {@see getIdentity()}
+     * - the identity information will be stored in session and be available in the next requests as long as the session
+     *   remains active or till the user closes the browser. Some browsers, such as Chrome, are keeping session when
+     *   browser is re-opened.
+     *
+     * @param IdentityInterface $identity the user identity (which should already be authenticated)
+     *
+     * @return bool whether the user is logged in
+     */
+    public function login(IdentityInterface $identity): bool
+    {
+        if ($this->beforeLogin($identity)) {
+            $this->switchIdentity($identity);
+            $this->afterLogin($identity);
+        }
+        return !$this->isGuest();
+    }
+
+    /**
+     * This method is called before logging in a user.
+     * The default implementation will trigger the {@see BeforeLogin} event.
+     * If you override this method, make sure you call the parent implementation
+     * so that the event is triggered.
+     *
+     * @param IdentityInterface $identity the user identity information
+     *
+     * @return bool whether the user should continue to be logged in
+     */
+    private function beforeLogin(IdentityInterface $identity): bool
+    {
+        $event = new BeforeLogin($identity);
+        $this->eventDispatcher->dispatch($event);
+        return $event->isValid();
+    }
+
+    /**
+     * This method is called after the user is successfully logged in.
+     *
+     * @param IdentityInterface $identity the user identity information
+     */
+    private function afterLogin(IdentityInterface $identity): void
+    {
+        $this->eventDispatcher->dispatch(new AfterLogin($identity));
+    }
+
+    /**
+     * Logs out the current user.
+     * This will remove authentication-related session data.
+     * If `$destroySession` is true, all session data will be removed.
+     *
+     * @param bool $destroySession whether to destroy the whole session. Defaults to true.
+     *
+     * @throws Throwable
+     *
+     * @return bool whether the user is logged out
+     */
+    public function logout(bool $destroySession = true): bool
+    {
+        $identity = $this->getIdentity();
+        if ($this->isGuest()) {
+            return false;
+        }
+        if ($this->beforeLogout($identity)) {
+            $this->switchIdentity(new GuestIdentity());
+            if ($destroySession && $this->session) {
+                $this->session->destroy();
+            }
+
+            $this->afterLogout($identity);
+        }
+        return $this->isGuest();
+    }
+
+    /**
+     * This method is invoked when calling {@see logout()} to log out a user.
+     *
+     * @param IdentityInterface $identity the user identity information
+     *
+     * @return bool whether the user should continue to be logged out
+     */
+    private function beforeLogout(IdentityInterface $identity): bool
+    {
+        $event = new BeforeLogout($identity);
+        $this->eventDispatcher->dispatch($event);
+        return $event->isValid();
+    }
+
+    /**
+     * This method is invoked right after a user is logged out via {@see logout()}.
+     *
+     * @param IdentityInterface $identity the user identity information
+     */
+    private function afterLogout(IdentityInterface $identity): void
+    {
+        $this->eventDispatcher->dispatch(new AfterLogout($identity));
     }
 
     /**
@@ -325,42 +302,5 @@ class User
                 $this->session->set(self::SESSION_AUTH_EXPIRE, time() + $this->authTimeout);
             }
         }
-    }
-
-    /**
-     * Checks if the user can perform the operation as specified by the given permission.
-     *
-     * Note that you must provide access checker via {{@see User::setAccessChecker()}} in order to use this method.
-     * Otherwise it will always return false.
-     *
-     * @param string $permissionName the name of the permission (e.g. "edit post") that needs access check.
-     * @param array $params name-value pairs that would be passed to the rules associated
-     * with the roles and permissions assigned to the user.
-     *
-     * @throws Throwable
-     *
-     * @return bool whether the user can perform the operation as specified by the given permission.
-     */
-    public function can(string $permissionName, array $params = []): bool
-    {
-        if ($this->accessChecker === null) {
-            return false;
-        }
-
-        return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);
-    }
-
-    public function setAuthTimeout(int $timeout = null): self
-    {
-        $this->authTimeout = $timeout;
-
-        return $this;
-    }
-
-    public function setAbsoluteAuthTimeout(int $timeout = null): self
-    {
-        $this->absoluteAuthTimeout = $timeout;
-
-        return $this;
     }
 }

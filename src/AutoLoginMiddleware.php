@@ -16,14 +16,14 @@ use Yiisoft\Auth\IdentityRepositoryInterface;
  */
 final class AutoLoginMiddleware implements MiddlewareInterface
 {
-    private User $user;
+    private CurrentUser $user;
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
     private bool $addCookie;
 
     public function __construct(
-        User $user,
+        CurrentUser $user,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         AutoLogin $autoLogin,

@@ -19,7 +19,7 @@ use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
-use Yiisoft\User\User;
+use Yiisoft\User\CurrentUser;
 use Yiisoft\User\UserAuth;
 
 final class UserAuthTest extends TestCase
@@ -68,9 +68,9 @@ final class UserAuthTest extends TestCase
         $this->assertNotSame($original, $original->withAuthUrl('/custom-auth-url'));
     }
 
-    private function createUser(?IdentityInterface $identity = null): User
+    private function createUser(?IdentityInterface $identity = null): CurrentUser
     {
-        return new User(
+        return new CurrentUser(
             $this->createIdentityRepository($identity),
             $this->createDispatcher(),
             $this->createSessionStorage()

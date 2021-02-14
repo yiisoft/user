@@ -20,13 +20,13 @@ use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
-use Yiisoft\User\User;
+use Yiisoft\User\CurrentUser;
 
 final class UserTest extends TestCase
 {
     public function testGetIdentityMethodReturnsGuestWithoutSession(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher()
         );
@@ -36,7 +36,7 @@ final class UserTest extends TestCase
 
     public function testGetIdentityMethodReturnsGuestWithSession(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher(),
             $this->createSessionStorage()
@@ -47,7 +47,7 @@ final class UserTest extends TestCase
 
     public function testGetIdentityMethodReturnsIdentitySet(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher()
         );
@@ -69,7 +69,7 @@ final class UserTest extends TestCase
             ]
         );
 
-        $user = new User(
+        $user = new CurrentUser(
             $repository,
             $this->createDispatcher(),
             $sessionStorage
@@ -93,7 +93,7 @@ final class UserTest extends TestCase
             ]
         );
 
-        $user = new User(
+        $user = new CurrentUser(
             $repository,
             $this->createDispatcher(),
             $sessionStorage
@@ -108,7 +108,7 @@ final class UserTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepositoryWithException(),
             $this->createDispatcher(),
             $this->createSessionStorage(['__auth_id' => '123456'])
@@ -123,7 +123,7 @@ final class UserTest extends TestCase
             $this->createIdentity('test-id')
         );
         $sessionStorage = $this->createSessionStorage(['__auth_id' => 'test-id']);
-        $user = new User($repository, $this->createDispatcher(), $sessionStorage);
+        $user = new CurrentUser($repository, $this->createDispatcher(), $sessionStorage);
 
         $user->setAuthTimeout(60);
 
@@ -135,7 +135,7 @@ final class UserTest extends TestCase
     {
         $dispatcher = $this->createDispatcher();
 
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $dispatcher,
             $this->createSessionStorage()
@@ -155,7 +155,7 @@ final class UserTest extends TestCase
 
     public function testGetIdReturnsCorrectValue(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher()
         );
@@ -166,7 +166,7 @@ final class UserTest extends TestCase
 
     public function testGetIdReturnsNullIfGuest(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher()
         );
@@ -177,7 +177,7 @@ final class UserTest extends TestCase
     public function testSuccessfulLogout(): void
     {
         $dispatcher = $this->createDispatcher();
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $dispatcher
         );
@@ -202,7 +202,7 @@ final class UserTest extends TestCase
             $this->createIdentity('test-id')
         );
 
-        $user = new User($repository, $dispatcher);
+        $user = new CurrentUser($repository, $dispatcher);
 
         $this->assertFalse($user->logout());
         $this->assertEmpty($dispatcher->getClassesEvents());
@@ -216,7 +216,7 @@ final class UserTest extends TestCase
         $sessionStorage = $this->createSessionStorage();
         $sessionStorage->open();
 
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository($identity),
             $this->createDispatcher(),
             $sessionStorage
@@ -230,7 +230,7 @@ final class UserTest extends TestCase
 
     public function testCanReturnsFalseIfCheckerNotSet(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher(),
             $this->createSessionStorage()
@@ -241,7 +241,7 @@ final class UserTest extends TestCase
 
     public function testCanWithAccessChecker(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher(),
             $this->createSessionStorage()
@@ -262,7 +262,7 @@ final class UserTest extends TestCase
             ]
         );
 
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher(),
             $sessionStorage
@@ -283,7 +283,7 @@ final class UserTest extends TestCase
 
     public function testSwitchIdentityToGuest(): void
     {
-        $user = new User(
+        $user = new CurrentUser(
             $this->createIdentityRepository(),
             $this->createDispatcher()
         );
