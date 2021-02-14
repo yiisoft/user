@@ -100,20 +100,6 @@ final class Authenticator
     }
 
     /**
-     * Sets the user identity object.
-     *
-     * Note that this method does not deal with session. You should usually use {@see switchIdentity()}
-     * to change the identity of the current user.
-     *
-     * @param IdentityInterface $identity the identity object associated with the currently logged user.
-     * Use {{@see GuestIdentity}} to indicate that the current user is a guest.
-     */
-    public function setIdentity(IdentityInterface $identity): void
-    {
-        $this->identity = $identity;
-    }
-
-    /**
      * Switches to a new identity for the current user.
      *
      * This method use session to store the user identity information.
@@ -125,9 +111,9 @@ final class Authenticator
      * @param IdentityInterface $identity the identity information to be associated with the current user.
      * In order to indicate that the user is guest, use {{@see GuestIdentity}}.
      */
-    public function switchIdentity(IdentityInterface $identity): void
+    public function setIdentity(IdentityInterface $identity): void
     {
-        $this->setIdentity($identity);
+        $this->identity = $identity;
         if ($this->session === null) {
             return;
         }
@@ -156,7 +142,7 @@ final class Authenticator
      *
      * @see getIdentity()
      */
-    public function isGuest(): bool
+    private function isGuest(): bool
     {
         return $this->getIdentity() instanceof GuestIdentity;
     }
@@ -274,7 +260,7 @@ final class Authenticator
     private function renewAuthStatus(): void
     {
         if ($this->session === null) {
-            $this->setIdentity(new GuestIdentity());
+            $this->identity = new GuestIdentity();
             return;
         }
 
@@ -288,7 +274,7 @@ final class Authenticator
         if ($identity === null) {
             $identity = new GuestIdentity();
         }
-        $this->setIdentity($identity);
+        $this->identity = $identity;
 
         if (
             !($identity instanceof GuestIdentity) &&

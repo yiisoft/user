@@ -39,7 +39,7 @@ class CurrentUser
      */
     public function isGuest(): bool
     {
-        return $this->authenticator->isGuest();
+        return $this->authenticator->getIdentity() instanceof GuestIdentity;
     }
 
     /**
@@ -59,8 +59,8 @@ class CurrentUser
     /**
      * Checks if the user can perform the operation as specified by the given permission.
      *
-     * Note that you must provide access checker via {{@see CurrentUser::setAccessChecker()}} in order to use this method.
-     * Otherwise it will always return false.
+     * Note that you must provide access checker via {{@see CurrentUser::setAccessChecker()}} in order
+     * to use this method. Otherwise it will always return false.
      *
      * @param string $permissionName the name of the permission (e.g. "edit post") that needs access check.
      * @param array $params name-value pairs that would be passed to the rules associated
