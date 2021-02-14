@@ -150,6 +150,18 @@ final class Authenticator
     }
 
     /**
+     * Returns a value indicating whether the user is a guest (not authenticated).
+     *
+     * @return bool whether the current user is a guest.
+     *
+     * @see getIdentity()
+     */
+    public function isGuest(): bool
+    {
+        return $this->getIdentity() instanceof GuestIdentity;
+    }
+
+    /**
      * Logs in a user.
      *
      * After logging in a user:
