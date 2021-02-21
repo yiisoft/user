@@ -4,20 +4,35 @@ declare(strict_types=1);
 
 namespace Yiisoft\User;
 
-use Throwable;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
-use Yiisoft\User\CurrentIdentity\CurrentIdentityInterface;
+use Yiisoft\Auth\IdentityRepositoryInterface;
+use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
+use Yiisoft\User\Event\AfterLogout;
+use Yiisoft\User\Event\AfterLogin;
+use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\Event\BeforeLogin;
 
 final class CurrentUser
 {
+    private CurrentIdentityStorageInterface $currentIdentityStorage;
+    private IdentityRepositoryInterface $identityRepository;
+    private EventDispatcherInterface $eventDispatcher;
+
     private ?AccessCheckerInterface $accessChecker = null;
 
-    private CurrentIdentityInterface $currentIdentity;
+    private ?IdentityInterface $identity = null;
+    private ?IdentityInterface $temporarilyIdentity = null;
 
-    public function __construct(CurrentIdentityInterface $currentIdentity)
-    {
-        $this->currentIdentity = $currentIdentity;
+    public function __construct(
+        CurrentIdentityStorageInterface $currentIdentityStorage,
+        IdentityRepositoryInterface $identityRepository,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->currentIdentityStorage = $currentIdentityStorage;
+        $this->identityRepository = $identityRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setAccessChecker(AccessCheckerInterface $accessChecker): void
@@ -30,46 +45,63 @@ final class CurrentUser
      */
     public function getIdentity(): IdentityInterface
     {
-        return $this->currentIdentity->get();
+        $identity = $this->temporarilyIdentity ?? $this->identity;
+
+        if ($identity === null) {
+            $identity = $this->determineIdentity();
+            $this->identity = $identity;
+        }
+
+        return $identity;
+    }
+
+    private function determineIdentity(): IdentityInterface
+    {
+        $identity = null;
+
+        $id = $this->currentIdentityStorage->get();
+        if ($id !== null) {
+            $identity = $this->identityRepository->findIdentity($id);
+        }
+
+        return $identity ?? new GuestIdentity();
     }
 
     /**
      * Returns a value that uniquely represents the user.
      *
-     * @throws Throwable
-     *
-     * @return string the unique identifier for the user. If `null`, it means the user is a guest.
-     *
      * @see getIdentity()
+     *
+     * @return string The unique identifier for the user. If `null`, it means the user is a guest.
      */
     public function getId(): ?string
     {
-        return $this->currentIdentity->get()->getId();
+        return $this->getIdentity()->getId();
     }
 
     /**
      * Returns a value indicating whether the user is a guest (not authenticated).
      *
-     * @return bool whether the current user is a guest.
+     * @see getIdentity()
+     *
+     * @return bool Whether the current user is a guest.
      */
     public function isGuest(): bool
     {
-        return $this->currentIdentity->get() instanceof GuestIdentity;
+        return $this->getIdentity() instanceof GuestIdentity;
     }
 
     /**
      * Checks if the user can perform the operation as specified by the given permission.
      *
-     * Note that you must provide access checker via {{@see CurrentUser::setAccessChecker()}} in order
+     * Note that you must provide access checker via {@see CurrentUser::setAccessChecker()} in order
      * to use this method. Otherwise it will always return false.
      *
-     * @param string $permissionName the name of the permission (e.g. "edit post") that needs access check.
-     * @param array $params name-value pairs that would be passed to the rules associated
+     * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
+     * @param array $params Name-value pairs that would be passed to the rules associated
      * with the roles and permissions assigned to the user.
      *
-     * @throws Throwable
-     *
-     * @return bool whether the user can perform the operation as specified by the given permission.
+     * @return bool Whether the user can perform the operation as specified by the given permission.
      */
     public function can(string $permissionName, array $params = []): bool
     {
@@ -78,5 +110,121 @@ final class CurrentUser
         }
 
         return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);
+    }
+
+    /**
+     * Logs in a user.
+     *
+     * @param IdentityInterface $identity The user identity (which should already be authenticated).
+     *
+     * @return bool Whether the user is logged in.
+     */
+    public function login(IdentityInterface $identity): bool
+    {
+        if ($this->beforeLogin($identity)) {
+            $this->switchIdentity($identity);
+            $this->afterLogin($identity);
+        }
+        return !$this->isGuest();
+    }
+
+    /**
+     * This method is called before logging in a user.
+     * The default implementation will trigger the {@see BeforeLogin} event.
+     *
+     * @param IdentityInterface $identity The user identity information.
+     *
+     * @return bool Whether the user should continue to be logged in.
+     */
+    private function beforeLogin(IdentityInterface $identity): bool
+    {
+        $event = new BeforeLogin($identity);
+        $this->eventDispatcher->dispatch($event);
+        return $event->isValid();
+    }
+
+    /**
+     * This method is called after the user is successfully logged in.
+     *
+     * @param IdentityInterface $identity The user identity information.
+     */
+    private function afterLogin(IdentityInterface $identity): void
+    {
+        $this->eventDispatcher->dispatch(new AfterLogin($identity));
+    }
+
+    /**
+     * Logs out the current user.
+     *
+     * @return bool Whether the user is logged out.
+     */
+    public function logout(): bool
+    {
+        if ($this->isGuest()) {
+            return false;
+        }
+
+        $identity = $this->getIdentity();
+        if ($this->beforeLogout($identity)) {
+            $this->switchIdentity(new GuestIdentity());
+            $this->afterLogout($identity);
+        }
+
+        return $this->isGuest();
+    }
+
+    /**
+     * This method is invoked when calling {@see logout()} to log out a user.
+     *
+     * @param IdentityInterface $identity The user identity information.
+     *
+     * @return bool Whether the user should continue to be logged out.
+     */
+    private function beforeLogout(IdentityInterface $identity): bool
+    {
+        $event = new BeforeLogout($identity);
+        $this->eventDispatcher->dispatch($event);
+        return $event->isValid();
+    }
+
+    /**
+     * This method is invoked right after a user is logged out via {@see logout()}.
+     *
+     * @param IdentityInterface $identity The user identity information.
+     */
+    private function afterLogout(IdentityInterface $identity): void
+    {
+        $this->eventDispatcher->dispatch(new AfterLogout($identity));
+    }
+
+    public function setTemporarilyIdentity(IdentityInterface $identity): void
+    {
+        $this->temporarilyIdentity = $identity;
+    }
+
+    public function clearTemporarilyIdentity(): void
+    {
+        $this->temporarilyIdentity = null;
+    }
+
+    /**
+     * Switches to a new identity for the current user.
+     *
+     * This method is called by {@see login()} and {@see logout()}
+     * when the current user needs to be associated with the corresponding identity information.
+     *
+     * @param IdentityInterface $identity The identity information to be associated with the current user.
+     * In order to indicate that the user is guest, use {@see GuestIdentity}.
+     */
+    private function switchIdentity(IdentityInterface $identity): void
+    {
+        $this->identity = $identity;
+
+        $id = $identity->getId();
+        if ($id === null) {
+            $this->currentIdentityStorage->clear();
+        } else {
+            $this->currentIdentityStorage->set($id);
+        }
     }
 }

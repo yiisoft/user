@@ -15,6 +15,8 @@ use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\Session\SessionInterface;
+use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
+use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
@@ -26,58 +28,58 @@ final class UserAuthTest extends TestCase
 {
     public function testSuccessfulAuthentication(): void
     {
-        $user = $this->createUser();
-        $user->setIdentity($this->createIdentity('test-id'));
+        $user = $this->createCurrentUser();
+        $user->login($this->createIdentity('test-id'));
         $result = (new UserAuth($user, new Psr17Factory()))->authenticate($this->createRequest());
 
-        $this->assertNotNull($result);
-        $this->assertEquals('test-id', $result->getId());
+        self::assertNotNull($result);
+        self::assertSame('test-id', $result->getId());
     }
 
     public function testIdentityNotAuthenticated(): void
     {
-        $user = $this->createUser();
+        $user = $this->createCurrentUser();
         $result = (new UserAuth($user, new Psr17Factory()))->authenticate($this->createRequest());
 
-        $this->assertNull($result);
+        self::assertNull($result);
     }
 
     public function testChallengeIsCorrect(): void
     {
         $response = new Response();
-        $user = $this->createUser();
+        $user = $this->createCurrentUser();
         $challenge = (new UserAuth($user, new Psr17Factory()))->challenge($response);
 
-        $this->assertEquals(Status::FOUND, $challenge->getStatusCode());
-        $this->assertEquals('/login', $challenge->getHeaderLine('Location'));
+        self::assertSame(Status::FOUND, $challenge->getStatusCode());
+        self::assertSame('/login', $challenge->getHeaderLine('Location'));
     }
 
     public function testCustomAuthUrl(): void
     {
         $response = new Response();
-        $user = $this->createUser();
+        $user = $this->createCurrentUser();
         $challenge = (new UserAuth($user, new Psr17Factory()))->withAuthUrl('/custom-auth-url')->challenge($response);
 
-        $this->assertEquals('/custom-auth-url', $challenge->getHeaderLine('Location'));
+        self::assertSame('/custom-auth-url', $challenge->getHeaderLine('Location'));
     }
 
     public function testImmutability(): void
     {
-        $original = new UserAuth($this->createUser(), new Psr17Factory());
+        $original = new UserAuth($this->createCurrentUser(), new Psr17Factory());
 
-        $this->assertNotSame($original, $original->withAuthUrl('/custom-auth-url'));
+        self::assertNotSame($original, $original->withAuthUrl('/custom-auth-url'));
     }
 
-    private function createUser(?IdentityInterface $identity = null): CurrentUser
+    private function createCurrentUser(): CurrentUser
     {
         return new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createDispatcher(),
-            $this->createSessionStorage()
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher()
         );
     }
 
-    private function createIdentity(string $id = 'test-id'): IdentityInterface
+    private function createIdentity(string $id): MockIdentity
     {
         return new MockIdentity($id);
     }
@@ -87,7 +89,12 @@ final class UserAuthTest extends TestCase
         return new MockIdentityRepository($identity);
     }
 
-    private function createDispatcher(): EventDispatcherInterface
+    private function createCurrentIdentityStorage(?string $id = null): CurrentIdentityStorageInterface
+    {
+        return new FakeCurrentIdentityStorage($id);
+    }
+
+    private function createEventDispatcher(): EventDispatcherInterface
     {
         return new MockEventDispatcher();
     }

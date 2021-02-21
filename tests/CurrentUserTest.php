@@ -6,71 +6,139 @@ namespace Yiisoft\User\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
+use Yiisoft\Auth\IdentityRepositoryInterface;
+use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
 use Yiisoft\User\CurrentUser;
+use Yiisoft\User\Event\AfterLogin;
+use Yiisoft\User\Event\AfterLogout;
+use Yiisoft\User\Event\BeforeLogin;
+use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\GuestIdentity;
+use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockAccessChecker;
+use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
-use Yiisoft\User\Tests\Mock\StubCurrentIdentity;
+use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 
 final class CurrentUserTest extends TestCase
 {
-    public function testGetIdentity(): void
+    public function testIdentityWithoutLogin(): void
     {
-        $identity = new MockIdentity('42');
-        self::assertSame(
-            $identity,
-            $this->createCurrentUser($identity)->getIdentity()
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher()
         );
+
+        self::assertInstanceOf(GuestIdentity::class, $user->getIdentity());
+        self::assertNull($user->getId());
     }
 
-    public function testGetIdentityDefault(): void
+    public function testLogin(): void
     {
-        self::assertInstanceOf(
-            GuestIdentity::class,
-            $this->createCurrentUser()->getIdentity()
+        $eventDispatcher = $this->createEventDispatcher();
+
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $eventDispatcher,
         );
+
+        $identity = $this->createIdentity('test-id');
+
+        self::assertTrue($user->login($identity));
+        self::assertEquals(
+            [BeforeLogin::class, AfterLogin::class],
+            $eventDispatcher->getClassesEvents()
+        );
+
+        self::assertSame($identity, $user->getIdentity());
+        self::assertSame($identity->getId(), $user->getId());
     }
 
-    public function testGetId(): void
+    public function testSuccessfulLogout(): void
     {
-        self::assertNull(
-            $this->createCurrentUser()->getId()
+        $eventDispatcher = $this->createEventDispatcher();
+
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $eventDispatcher,
         );
-        self::assertSame(
-            '42',
-            $this->createCurrentUser(new MockIdentity('42'))->getId()
+        $user->login($this->createIdentity('test-id'));
+        $eventDispatcher->clear();
+
+        self::assertTrue($user->logout());
+        self::assertEquals(
+            [BeforeLogout::class, AfterLogout::class],
+            $eventDispatcher->getClassesEvents()
         );
+        self::assertTrue($user->isGuest());
     }
 
-    public function testIsGuest(): void
+    public function testGuestLogout(): void
     {
-        self::assertTrue(
-            $this->createCurrentUser()->isGuest()
+        $eventDispatcher = $this->createEventDispatcher();
+
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $eventDispatcher,
         );
-        self::assertFalse(
-            $this->createCurrentUser(new MockIdentity('42'))->isGuest()
-        );
+
+        self::assertFalse($user->logout());
+        self::assertEmpty($eventDispatcher->getClassesEvents());
+        self::assertTrue($user->isGuest());
     }
 
-    public function testCanWithoutChecker(): void
+    public function testCanWithoutAccessChecker(): void
     {
-        self::assertFalse(
-            $this->createCurrentUser()->can('createPost')
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
         );
+
+        self::assertFalse($user->can('permission'));
     }
 
-    public function testCanWithChecker(): void
+    public function testCanWithAccessChecker(): void
     {
-        $currentUser = $this->createCurrentUser();
-        $currentUser->setAccessChecker(new MockAccessChecker(true));
+        $user = new CurrentUser(
+            $this->createCurrentIdentityStorage(),
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+        );
 
-        self::assertTrue($currentUser->can('createPost'));
+        $user->setAccessChecker($this->createAccessChecker(true));
+        self::assertTrue($user->can('permission'));
+
+        $user->setAccessChecker($this->createAccessChecker(false));
+        self::assertFalse($user->can('permission'));
     }
 
-    private function createCurrentUser(IdentityInterface $identity = null): CurrentUser
+    private function createAccessChecker(bool $userHasPermission): MockAccessChecker
     {
-        return new CurrentUser(
-            new StubCurrentIdentity($identity ?? new GuestIdentity())
-        );
+        return new MockAccessChecker($userHasPermission);
+    }
+
+    private function createIdentity(string $id): IdentityInterface
+    {
+        return new MockIdentity($id);
+    }
+
+    private function createCurrentIdentityStorage(?string $id = null): CurrentIdentityStorageInterface
+    {
+        return new FakeCurrentIdentityStorage($id);
+    }
+
+    private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
+    {
+        return new MockIdentityRepository($identity);
+    }
+
+    private function createEventDispatcher(): MockEventDispatcher
+    {
+        return new MockEventDispatcher();
     }
 }

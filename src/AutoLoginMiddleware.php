@@ -44,7 +44,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         $guestAfterHandle = $this->user->isGuest();
 
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
-            $identity = $this->user->getIdentity(false);
+            $identity = $this->user->getIdentity();
             if ($identity instanceof AutoLoginIdentityInterface) {
                 $response = $this->autoLogin->addCookie($identity, $response);
             }

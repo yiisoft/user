@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Mock;
 
+use Exception;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 
@@ -20,7 +21,7 @@ class MockIdentityRepository implements IdentityRepositoryInterface
     public function findIdentity(string $id): ?IdentityInterface
     {
         if ($this->withException) {
-            throw new \Exception();
+            throw new Exception();
         }
 
         return $this->identity;
@@ -29,7 +30,7 @@ class MockIdentityRepository implements IdentityRepositoryInterface
     public function findIdentityByToken(string $token, ?string $type = null): ?IdentityInterface
     {
         if ($this->withException) {
-            throw new \Exception();
+            throw new Exception();
         }
 
         return $this->identity;
