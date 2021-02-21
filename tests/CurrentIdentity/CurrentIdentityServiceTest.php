@@ -15,7 +15,6 @@ use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
 use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
 use Yiisoft\User\GuestIdentity;
 use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
-use Yiisoft\User\Tests\Mock\MockAccessChecker;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
