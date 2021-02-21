@@ -15,7 +15,6 @@ use Yiisoft\User\AutoLoginMiddleware;
 use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
 use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
-use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
