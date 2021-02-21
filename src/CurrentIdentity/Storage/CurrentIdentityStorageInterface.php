@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CurrentIdentityStorage;
+namespace Yiisoft\User\CurrentIdentity\Storage;
 
 interface CurrentIdentityStorageInterface
 {

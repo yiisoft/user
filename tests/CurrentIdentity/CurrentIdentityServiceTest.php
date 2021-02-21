@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests;
+namespace Yiisoft\User\Tests\CurrentIdentity;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
-use Yiisoft\User\CurrentUser;
-use Yiisoft\User\Event\AfterLogin;
-use Yiisoft\User\Event\AfterLogout;
-use Yiisoft\User\Event\BeforeLogin;
-use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogin;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
 use Yiisoft\User\GuestIdentity;
 use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockAccessChecker;
@@ -20,25 +20,24 @@ use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 
-final class CurrentUserTest extends TestCase
+final class CurrentIdentityServiceTest extends TestCase
 {
     public function testIdentityWithoutLogin(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher()
         );
 
-        self::assertInstanceOf(GuestIdentity::class, $user->getIdentity());
-        self::assertNull($user->getId());
+        self::assertInstanceOf(GuestIdentity::class, $user->get());
     }
 
     public function testLogin(): void
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
@@ -52,15 +51,14 @@ final class CurrentUserTest extends TestCase
             $eventDispatcher->getClassesEvents()
         );
 
-        self::assertSame($identity, $user->getIdentity());
-        self::assertSame($identity->getId(), $user->getId());
+        self::assertSame($identity, $user->get());
     }
 
     public function testSuccessfulLogout(): void
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
@@ -80,7 +78,7 @@ final class CurrentUserTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
@@ -89,37 +87,6 @@ final class CurrentUserTest extends TestCase
         self::assertFalse($user->logout());
         self::assertEmpty($eventDispatcher->getClassesEvents());
         self::assertTrue($user->isGuest());
-    }
-
-    public function testCanWithoutAccessChecker(): void
-    {
-        $user = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-        );
-
-        self::assertFalse($user->can('permission'));
-    }
-
-    public function testCanWithAccessChecker(): void
-    {
-        $user = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-        );
-
-        $user->setAccessChecker($this->createAccessChecker(true));
-        self::assertTrue($user->can('permission'));
-
-        $user->setAccessChecker($this->createAccessChecker(false));
-        self::assertFalse($user->can('permission'));
-    }
-
-    private function createAccessChecker(bool $userHasPermission): MockAccessChecker
-    {
-        return new MockAccessChecker($userHasPermission);
     }
 
     private function createIdentity(string $id): IdentityInterface

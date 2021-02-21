@@ -12,13 +12,13 @@ use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\AutoLogin;
 use Yiisoft\User\AutoLoginMiddleware;
-use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
 use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\CurrentUser;
+use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
 
 final class AutoLoginMiddlewareTest extends TestCase
 {
@@ -36,7 +36,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testCorrectLogin(): void
     {
-        $currentUser = new CurrentUser(
+        $currentIdentityService = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -44,7 +44,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $currentUser,
+            $currentIdentityService,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
@@ -54,12 +54,12 @@ final class AutoLoginMiddlewareTest extends TestCase
         $middleware->process($request, $this->getRequestHandler());
 
         self::assertNull($this->getLastLogMessage());
-        self::assertSame(AutoLoginIdentity::ID, $currentUser->getId());
+        self::assertSame(AutoLoginIdentity::ID, $currentIdentityService->get()->getId());
     }
 
     public function testInvalidKey(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -81,7 +81,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testNoCookie(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -103,7 +103,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testEmptyCookie(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -125,7 +125,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testInvalidCookie(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -151,7 +151,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testIncorrectIdentity(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -174,7 +174,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testIdentityNotFound(): void
     {
-        $user = new CurrentUser(
+        $user = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -197,7 +197,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLogin(): void
     {
-        $currentUser = new CurrentUser(
+        $currentIdentityService = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -205,7 +205,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $currentUser,
+            $currentIdentityService,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin,
@@ -216,8 +216,8 @@ final class AutoLoginMiddlewareTest extends TestCase
         $request
             ->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(function () use ($currentUser) {
-                $currentUser->login(new AutoLoginIdentity());
+            ->willReturnCallback(function () use ($currentIdentityService) {
+                $currentIdentityService->login(new AutoLoginIdentity());
                 return new Response();
             });
         $response = $middleware->process(
@@ -234,7 +234,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testNotAddCookieAfterLogin(): void
     {
-        $currentUser = new CurrentUser(
+        $currentIdentityService = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -242,7 +242,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $currentUser,
+            $currentIdentityService,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
@@ -252,8 +252,8 @@ final class AutoLoginMiddlewareTest extends TestCase
         $request
             ->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(function () use ($currentUser) {
-                $currentUser->login(new AutoLoginIdentity());
+            ->willReturnCallback(function () use ($currentIdentityService) {
+                $currentIdentityService->login(new AutoLoginIdentity());
                 return new Response();
             });
         $response = $middleware->process(
@@ -266,7 +266,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
-        $currentUser = new CurrentUser(
+        $currentIdentityService = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -274,7 +274,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $currentUser,
+            $currentIdentityService,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin,
@@ -285,10 +285,10 @@ final class AutoLoginMiddlewareTest extends TestCase
         $request
             ->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(function () use ($currentUser) {
+            ->willReturnCallback(function () use ($currentIdentityService) {
                 $identity = new AutoLoginIdentity();
                 $identity->rememberMe = true;
-                $currentUser->login($identity);
+                $currentIdentityService->login($identity);
                 return new Response();
             });
         $response = $middleware->process(
@@ -305,7 +305,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testRemoveCookieAfterLogout(): void
     {
-        $currentUser = new CurrentUser(
+        $currentIdentityService = new CurrentIdentityService(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -313,7 +313,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $currentUser,
+            $currentIdentityService,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
@@ -323,8 +323,8 @@ final class AutoLoginMiddlewareTest extends TestCase
         $request
             ->expects(self::once())
             ->method('handle')
-            ->willReturnCallback(function () use ($currentUser) {
-                $currentUser->logout();
+            ->willReturnCallback(function () use ($currentIdentityService) {
+                $currentIdentityService->logout();
                 return new Response();
             });
         $response = $middleware->process(

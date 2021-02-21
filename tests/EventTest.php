@@ -6,10 +6,10 @@ namespace Yiisoft\Yii\Web\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
-use Yiisoft\User\Event\AfterLogin;
-use Yiisoft\User\Event\AfterLogout;
-use Yiisoft\User\Event\BeforeLogin;
-use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogin;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 
 final class EventTest extends TestCase

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Event;
+namespace Yiisoft\User\CurrentIdentity\Event;
 
 use Yiisoft\Auth\IdentityInterface;
 
-final class AfterLogin
+final class AfterLogout
 {
     private IdentityInterface $identity;
 

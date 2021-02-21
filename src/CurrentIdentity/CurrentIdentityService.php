@@ -2,25 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User;
+namespace Yiisoft\User\CurrentIdentity;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentIdentityStorage\CurrentIdentityStorageInterface;
-use Yiisoft\User\Event\AfterLogout;
-use Yiisoft\User\Event\AfterLogin;
-use Yiisoft\User\Event\BeforeLogout;
-use Yiisoft\User\Event\BeforeLogin;
+use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
+use Yiisoft\User\CurrentIdentity\Event\AfterLogin;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
+use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
+use Yiisoft\User\GuestIdentity;
 
-final class CurrentUser
+final class CurrentIdentityService
 {
     private CurrentIdentityStorageInterface $currentIdentityStorage;
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
-
-    private ?AccessCheckerInterface $accessChecker = null;
 
     private ?IdentityInterface $identity = null;
     private ?IdentityInterface $temporarilyIdentity = null;
@@ -35,15 +33,10 @@ final class CurrentUser
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function setAccessChecker(AccessCheckerInterface $accessChecker): void
-    {
-        $this->accessChecker = $accessChecker;
-    }
-
     /**
      * Returns the identity object associated with the currently logged-in user.
      */
-    public function getIdentity(): IdentityInterface
+    public function get(): IdentityInterface
     {
         $identity = $this->temporarilyIdentity ?? $this->identity;
 
@@ -68,48 +61,15 @@ final class CurrentUser
     }
 
     /**
-     * Returns a value that uniquely represents the user.
-     *
-     * @see getIdentity()
-     *
-     * @return string The unique identifier for the user. If `null`, it means the user is a guest.
-     */
-    public function getId(): ?string
-    {
-        return $this->getIdentity()->getId();
-    }
-
-    /**
      * Returns a value indicating whether the user is a guest (not authenticated).
      *
-     * @see getIdentity()
+     * @see get()
      *
      * @return bool Whether the current user is a guest.
      */
     public function isGuest(): bool
     {
-        return $this->getIdentity() instanceof GuestIdentity;
-    }
-
-    /**
-     * Checks if the user can perform the operation as specified by the given permission.
-     *
-     * Note that you must provide access checker via {@see CurrentUser::setAccessChecker()} in order
-     * to use this method. Otherwise it will always return false.
-     *
-     * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
-     * @param array $params Name-value pairs that would be passed to the rules associated
-     * with the roles and permissions assigned to the user.
-     *
-     * @return bool Whether the user can perform the operation as specified by the given permission.
-     */
-    public function can(string $permissionName, array $params = []): bool
-    {
-        if ($this->accessChecker === null) {
-            return false;
-        }
-
-        return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);
+        return $this->get() instanceof GuestIdentity;
     }
 
     /**
@@ -164,7 +124,7 @@ final class CurrentUser
             return false;
         }
 
-        $identity = $this->getIdentity();
+        $identity = $this->get();
         if ($this->beforeLogout($identity)) {
             $this->switchIdentity(new GuestIdentity());
             $this->afterLogout($identity);
