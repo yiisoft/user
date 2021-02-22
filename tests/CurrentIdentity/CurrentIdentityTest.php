@@ -74,7 +74,7 @@ final class CurrentIdentityTest extends TestCase
             $this->createIdentityRepository($identity),
             $this->createEventDispatcher()
         );
-        $currentIdentity->setTemporaryIdentity( new MockIdentity('temp-id'));
+        $currentIdentity->setTemporaryIdentity(new MockIdentity('temp-id'));
         $currentIdentity->clearTemporaryIdentity();
 
         self::assertSame($identity, $currentIdentity->get());

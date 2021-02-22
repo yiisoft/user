@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\User\Tests\CurrentIdentity\Storage;
 
 use Yiisoft\User\CurrentIdentity\Storage\MemoryCurrentIdentityStorage;

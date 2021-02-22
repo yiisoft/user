@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\User\Tests\CurrentIdentity\Event;
 
 use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
