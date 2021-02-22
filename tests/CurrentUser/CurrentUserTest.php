@@ -22,7 +22,7 @@ use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 
 final class CurrentUserTest extends TestCase
 {
-    public function testGetWithoutLogin(): void
+    public function testGetIdentityWithoutLogin(): void
     {
         $currentUser = new CurrentUser(
             $this->createCurrentIdentityStorage(),
@@ -33,7 +33,7 @@ final class CurrentUserTest extends TestCase
         self::assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
-    public function testGetFromStorage(): void
+    public function testGetIdentityFromStorage(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
@@ -47,7 +47,7 @@ final class CurrentUserTest extends TestCase
         self::assertSame($identity, $currentUser->getIdentity());
     }
 
-    public function testGetTemporary(): void
+    public function testGetTemporaryIdentity(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
@@ -64,7 +64,7 @@ final class CurrentUserTest extends TestCase
         self::assertSame($temporaryIdentity, $currentUser->getIdentity());
     }
 
-    public function testClearTemporary(): void
+    public function testClearTemporaryIdentity(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
