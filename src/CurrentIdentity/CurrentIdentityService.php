@@ -14,6 +14,9 @@ use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
 use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
 use Yiisoft\User\GuestIdentity;
 
+/**
+ * Maintains current identity and allows logging in and out using it.
+ */
 final class CurrentIdentityService
 {
     private CurrentIdentityStorageInterface $currentIdentityStorage;
@@ -21,7 +24,7 @@ final class CurrentIdentityService
     private EventDispatcherInterface $eventDispatcher;
 
     private ?IdentityInterface $identity = null;
-    private ?IdentityInterface $temporarilyIdentity = null;
+    private ?IdentityInterface $temporaryIdentity = null;
 
     public function __construct(
         CurrentIdentityStorageInterface $currentIdentityStorage,
@@ -38,7 +41,7 @@ final class CurrentIdentityService
      */
     public function get(): IdentityInterface
     {
-        $identity = $this->temporarilyIdentity ?? $this->identity;
+        $identity = $this->temporaryIdentity ?? $this->identity;
 
         if ($identity === null) {
             $identity = $this->determineIdentity();
@@ -157,14 +160,14 @@ final class CurrentIdentityService
         $this->eventDispatcher->dispatch(new AfterLogout($identity));
     }
 
-    public function setTemporarilyIdentity(IdentityInterface $identity): void
+    public function setTemporaryIdentity(IdentityInterface $identity): void
     {
-        $this->temporarilyIdentity = $identity;
+        $this->temporaryIdentity = $identity;
     }
 
-    public function clearTemporarilyIdentity(): void
+    public function clearTemporaryIdentity(): void
     {
-        $this->temporarilyIdentity = null;
+        $this->temporaryIdentity = null;
     }
 
     /**
