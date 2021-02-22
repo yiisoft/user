@@ -9,8 +9,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use function array_key_exists;
+use function is_array;
 
 /**
  * AutoLoginMiddleware automatically logs user in based on cookie.
@@ -96,7 +99,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         if (!$identity instanceof AutoLoginIdentityInterface) {
-            throw new \RuntimeException('Identity repository must return an instance of \Yiisoft\User\AutoLoginIdentityInterface in order for auto-login to function.');
+            throw new RuntimeException('Identity repository must return an instance of \Yiisoft\User\AutoLoginIdentityInterface in order for auto-login to function.');
         }
 
         if (!$identity->validateAutoLoginKey($key)) {
