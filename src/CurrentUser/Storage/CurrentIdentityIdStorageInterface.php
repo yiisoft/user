@@ -7,7 +7,7 @@ namespace Yiisoft\User\CurrentUser\Storage;
 /**
  * Defines how current identity ID is stored.
  */
-interface CurrentIdentityStorageInterface
+interface CurrentIdentityIdStorageInterface
 {
     /**
      * Get current identity ID.

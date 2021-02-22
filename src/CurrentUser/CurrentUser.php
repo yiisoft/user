@@ -8,7 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityIdStorageInterface;
 use Yiisoft\User\CurrentUser\Event\AfterLogout;
 use Yiisoft\User\CurrentUser\Event\AfterLogin;
 use Yiisoft\User\CurrentUser\Event\BeforeLogout;
@@ -20,7 +20,7 @@ use Yiisoft\User\GuestIdentity;
  */
 final class CurrentUser
 {
-    private CurrentIdentityStorageInterface $currentIdentityStorage;
+    private CurrentIdentityIdStorageInterface $currentIdentityIdStorage;
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
     private ?AccessCheckerInterface $accessChecker = null;
@@ -29,11 +29,11 @@ final class CurrentUser
     private ?IdentityInterface $temporaryIdentity = null;
 
     public function __construct(
-        CurrentIdentityStorageInterface $currentIdentityStorage,
+        CurrentIdentityIdStorageInterface $currentIdentityIdStorage,
         IdentityRepositoryInterface $identityRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->currentIdentityStorage = $currentIdentityStorage;
+        $this->currentIdentityIdStorage = $currentIdentityIdStorage;
         $this->identityRepository = $identityRepository;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -62,7 +62,7 @@ final class CurrentUser
     {
         $identity = null;
 
-        $id = $this->currentIdentityStorage->get();
+        $id = $this->currentIdentityIdStorage->get();
         if ($id !== null) {
             $identity = $this->identityRepository->findIdentity($id);
         }
@@ -225,9 +225,9 @@ final class CurrentUser
 
         $id = $identity->getId();
         if ($id === null) {
-            $this->currentIdentityStorage->clear();
+            $this->currentIdentityIdStorage->clear();
         } else {
-            $this->currentIdentityStorage->set($id);
+            $this->currentIdentityIdStorage->set($id);
         }
     }
 }

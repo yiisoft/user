@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\CurrentUser\Storage;
 
-use Yiisoft\User\CurrentUser\Storage\MemoryCurrentIdentityStorage;
+use Yiisoft\User\CurrentUser\Storage\MemoryCurrentIdentityIdStorage;
 use PHPUnit\Framework\TestCase;
 
 class MemoryCurrentIdentityStorageTest extends TestCase
 {
     public function testGetNull(): void
     {
-        $storage = new MemoryCurrentIdentityStorage();
+        $storage = new MemoryCurrentIdentityIdStorage();
 
         self::assertNull($storage->get());
     }
@@ -20,7 +20,7 @@ class MemoryCurrentIdentityStorageTest extends TestCase
     {
         $id = 'test-id';
 
-        $storage = new MemoryCurrentIdentityStorage();
+        $storage = new MemoryCurrentIdentityIdStorage();
         $storage->set($id);
 
         self::assertSame($id, $storage->get());
@@ -28,7 +28,7 @@ class MemoryCurrentIdentityStorageTest extends TestCase
 
     public function testClear(): void
     {
-        $storage = new MemoryCurrentIdentityStorage();
+        $storage = new MemoryCurrentIdentityIdStorage();
         $storage->set('test-id');
         $storage->clear();
 

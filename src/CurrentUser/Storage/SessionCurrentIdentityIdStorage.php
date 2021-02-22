@@ -9,7 +9,7 @@ use Yiisoft\Session\SessionInterface;
 /**
  * Stores current identity ID in a session.
  */
-final class SessionCurrentIdentityStorage implements CurrentIdentityStorageInterface
+final class SessionCurrentIdentityIdStorage implements CurrentIdentityIdStorageInterface
 {
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';

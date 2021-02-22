@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\CurrentUser\Storage;
 
-use Yiisoft\User\CurrentUser\Storage\SessionCurrentIdentityStorage;
+use Yiisoft\User\CurrentUser\Storage\SessionCurrentIdentityIdStorage;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 
@@ -12,7 +12,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
 {
     public function testGetNull(): void
     {
-        $storage = new SessionCurrentIdentityStorage($this->createSession());
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession());
 
         self::assertNull($storage->get());
     }
@@ -21,7 +21,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
     {
         $id = 'test-id';
 
-        $storage = new SessionCurrentIdentityStorage($this->createSession(['__auth_id' => $id]));
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession(['__auth_id' => $id]));
 
         self::assertSame($id, $storage->get());
     }
@@ -30,7 +30,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
     {
         $id = 'test-id';
 
-        $storage = new SessionCurrentIdentityStorage($this->createSession());
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession());
         $storage->set($id);
 
         self::assertSame($id, $storage->get());
@@ -41,7 +41,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
         $id = 'test-id';
 
         $session = $this->createSession();
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAbsoluteAuthTimeout(60);
         $storage->set($id);
 
@@ -54,7 +54,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
         $id = 'test-id';
 
         $session = $this->createSession();
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
         $storage->set($id);
 
@@ -65,7 +65,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
 
     public function testClear(): void
     {
-        $storage = new SessionCurrentIdentityStorage($this->createSession(['__auth_id' => 'test-id']));
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession(['__auth_id' => 'test-id']));
         $storage->clear();
 
         self::assertNull($storage->get());
@@ -76,7 +76,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
         $session = $this->createSession();
         $sessionId = $session->getId();
 
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
         $storage->set('test-id');
         $storage->clear();
@@ -96,7 +96,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
             '__auth_expire' => time(),
         ]);
 
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
 
         self::assertSame($id, $storage->get());
@@ -109,7 +109,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
             '__auth_expire' => strtotime('-1 day'),
         ]);
 
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
 
         self::assertNull($storage->get());
@@ -123,7 +123,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
             '__auth_expire' => strtotime('-1 day'),
         ]);
 
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
 
         self::assertNull($storage->get());
@@ -132,7 +132,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
 
     public function testGetNullIfSessionHasExpiredAbsoluteAuthTimeout(): void
     {
-        $storage = new SessionCurrentIdentityStorage($this->createSession([
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession([
             '__auth_id' => 'test-id',
             '__auth_absolute_expire' => strtotime('-1 day'),
         ]));
@@ -145,7 +145,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
     {
         $id = 'test-id';
 
-        $storage = new SessionCurrentIdentityStorage($this->createSession([
+        $storage = new SessionCurrentIdentityIdStorage($this->createSession([
             '__auth_id' => $id,
             '__auth_absolute_expire' => time(),
         ]));
@@ -159,7 +159,7 @@ class SessionCurrentIdentityStorageTest extends TestCase
         $id = 'test-id';
 
         $session = $this->createSession(['__auth_id' => $id]);
-        $storage = new SessionCurrentIdentityStorage($session);
+        $storage = new SessionCurrentIdentityIdStorage($session);
         $storage->setAuthTimeout(60);
 
         self::assertSame($id, $storage->get());

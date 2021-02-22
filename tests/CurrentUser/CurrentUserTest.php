@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
-use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityIdStorageInterface;
 use Yiisoft\User\CurrentUser\CurrentUser;
 use Yiisoft\User\CurrentUser\Event\AfterLogin;
 use Yiisoft\User\CurrentUser\Event\AfterLogout;
 use Yiisoft\User\CurrentUser\Event\BeforeLogin;
 use Yiisoft\User\CurrentUser\Event\BeforeLogout;
 use Yiisoft\User\GuestIdentity;
-use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
+use Yiisoft\User\Tests\Mock\FakeCurrentIdentityIdStorage;
 use Yiisoft\User\Tests\Mock\MockAccessChecker;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
@@ -25,7 +25,7 @@ final class CurrentUserTest extends TestCase
     public function testGetIdentityWithoutLogin(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher()
         );
@@ -39,7 +39,7 @@ final class CurrentUserTest extends TestCase
         $identity = new MockIdentity($id);
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage($id),
+            $this->createCurrentIdentityIdStorage($id),
             $this->createIdentityRepository($identity),
             $this->createEventDispatcher()
         );
@@ -53,7 +53,7 @@ final class CurrentUserTest extends TestCase
         $identity = new MockIdentity($id);
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage($id),
+            $this->createCurrentIdentityIdStorage($id),
             $this->createIdentityRepository($identity),
             $this->createEventDispatcher()
         );
@@ -70,7 +70,7 @@ final class CurrentUserTest extends TestCase
         $identity = new MockIdentity($id);
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage($id),
+            $this->createCurrentIdentityIdStorage($id),
             $this->createIdentityRepository($identity),
             $this->createEventDispatcher()
         );
@@ -85,7 +85,7 @@ final class CurrentUserTest extends TestCase
         $eventDispatcher = $this->createEventDispatcher();
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
         );
@@ -106,7 +106,7 @@ final class CurrentUserTest extends TestCase
         $eventDispatcher = $this->createEventDispatcher();
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
         );
@@ -126,7 +126,7 @@ final class CurrentUserTest extends TestCase
         $eventDispatcher = $this->createEventDispatcher();
 
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
         );
@@ -139,7 +139,7 @@ final class CurrentUserTest extends TestCase
     public function testCanWithoutAccessChecker(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
         );
@@ -150,7 +150,7 @@ final class CurrentUserTest extends TestCase
     public function testCanWithAccessChecker(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityStorage(),
+            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
         );
@@ -164,9 +164,9 @@ final class CurrentUserTest extends TestCase
         return new MockIdentity($id);
     }
 
-    private function createCurrentIdentityStorage(?string $id = null): CurrentIdentityStorageInterface
+    private function createCurrentIdentityIdStorage(?string $id = null): CurrentIdentityIdStorageInterface
     {
-        return new FakeCurrentIdentityStorage($id);
+        return new FakeCurrentIdentityIdStorage($id);
     }
 
     private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
