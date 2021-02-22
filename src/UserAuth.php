@@ -10,15 +10,15 @@ use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
-use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use Yiisoft\User\CurrentIdentity\CurrentIdentity;
 
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
-    private CurrentIdentityService $currentIdentityService;
+    private CurrentIdentity $currentIdentityService;
     private ResponseFactoryInterface $responseFactory;
 
-    public function __construct(CurrentIdentityService $currentIdentityService, ResponseFactoryInterface $responseFactory)
+    public function __construct(CurrentIdentity $currentIdentityService, ResponseFactoryInterface $responseFactory)
     {
         $this->currentIdentityService = $currentIdentityService;
         $this->responseFactory = $responseFactory;

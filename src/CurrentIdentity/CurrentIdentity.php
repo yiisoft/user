@@ -17,7 +17,7 @@ use Yiisoft\User\GuestIdentity;
 /**
  * Maintains current identity and allows logging in and out using it.
  */
-final class CurrentIdentityService
+final class CurrentIdentity
 {
     private CurrentIdentityStorageInterface $currentIdentityStorage;
     private IdentityRepositoryInterface $identityRepository;

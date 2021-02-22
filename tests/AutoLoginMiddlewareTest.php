@@ -18,7 +18,7 @@ use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use Yiisoft\User\CurrentIdentity\CurrentIdentity;
 
 final class AutoLoginMiddlewareTest extends TestCase
 {
@@ -36,7 +36,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testCorrectLogin(): void
     {
-        $currentIdentityService = new CurrentIdentityService(
+        $currentIdentityService = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -59,7 +59,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testInvalidKey(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -81,7 +81,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testNoCookie(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -103,7 +103,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testEmptyCookie(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -125,7 +125,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testInvalidCookie(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -151,7 +151,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testIncorrectIdentity(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -174,7 +174,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testIdentityNotFound(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -197,7 +197,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLogin(): void
     {
-        $currentIdentityService = new CurrentIdentityService(
+        $currentIdentityService = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -234,7 +234,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testNotAddCookieAfterLogin(): void
     {
-        $currentIdentityService = new CurrentIdentityService(
+        $currentIdentityService = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -266,7 +266,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
-        $currentIdentityService = new CurrentIdentityService(
+        $currentIdentityService = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
@@ -305,7 +305,7 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testRemoveCookieAfterLogout(): void
     {
-        $currentIdentityService = new CurrentIdentityService(
+        $currentIdentityService = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),

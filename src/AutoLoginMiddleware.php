@@ -11,7 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use Yiisoft\User\CurrentIdentity\CurrentIdentity;
 use function array_key_exists;
 use function is_array;
 
@@ -20,14 +20,14 @@ use function is_array;
  */
 final class AutoLoginMiddleware implements MiddlewareInterface
 {
-    private CurrentIdentityService $currentIdentityService;
+    private CurrentIdentity $currentIdentityService;
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
     private bool $addCookie;
 
     public function __construct(
-        CurrentIdentityService $currentIdentityService,
+        CurrentIdentity $currentIdentityService,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         AutoLogin $autoLogin,

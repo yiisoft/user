@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
-use Yiisoft\User\CurrentIdentity\CurrentIdentityService;
+use Yiisoft\User\CurrentIdentity\CurrentIdentity;
 use Yiisoft\User\CurrentIdentity\Event\AfterLogin;
 use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
 use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
@@ -19,11 +19,11 @@ use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 
-final class CurrentIdentityServiceTest extends TestCase
+final class CurrentIdentityTest extends TestCase
 {
     public function testIdentityWithoutLogin(): void
     {
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher()
@@ -36,7 +36,7 @@ final class CurrentIdentityServiceTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
@@ -57,7 +57,7 @@ final class CurrentIdentityServiceTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
@@ -77,7 +77,7 @@ final class CurrentIdentityServiceTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $user = new CurrentIdentityService(
+        $user = new CurrentIdentity(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $eventDispatcher,
