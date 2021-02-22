@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\CurrentIdentity\Storage;
 
+/**
+ * Stores current identity ID in memory.
+ */
 final class MemoryCurrentIdentityStorage implements CurrentIdentityStorageInterface
 {
     private ?string $id = null;

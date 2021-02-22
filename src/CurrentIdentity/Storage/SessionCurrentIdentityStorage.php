@@ -6,6 +6,9 @@ namespace Yiisoft\User\CurrentIdentity\Storage;
 
 use Yiisoft\Session\SessionInterface;
 
+/**
+ * Stores current identity ID in a session.
+ */
 final class SessionCurrentIdentityStorage implements CurrentIdentityStorageInterface
 {
     private const SESSION_AUTH_ID = '__auth_id';
