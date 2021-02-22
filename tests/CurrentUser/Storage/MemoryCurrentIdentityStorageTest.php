@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CurrentIdentity\Storage;
+namespace Yiisoft\User\Tests\CurrentUser\Storage;
 
-use Yiisoft\User\CurrentIdentity\Storage\MemoryCurrentIdentityStorage;
+use Yiisoft\User\CurrentUser\Storage\MemoryCurrentIdentityStorage;
 use PHPUnit\Framework\TestCase;
 
 class MemoryCurrentIdentityStorageTest extends TestCase

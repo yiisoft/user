@@ -10,27 +10,27 @@ use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
-use Yiisoft\User\CurrentIdentity\CurrentIdentity;
+use Yiisoft\User\CurrentUser\CurrentUser;
 
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
-    private CurrentIdentity $currentIdentityService;
+    private CurrentUser $currentUser;
     private ResponseFactoryInterface $responseFactory;
 
-    public function __construct(CurrentIdentity $currentIdentityService, ResponseFactoryInterface $responseFactory)
+    public function __construct(CurrentUser $currentUser, ResponseFactoryInterface $responseFactory)
     {
-        $this->currentIdentityService = $currentIdentityService;
+        $this->currentUser = $currentUser;
         $this->responseFactory = $responseFactory;
     }
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
     {
-        if ($this->currentIdentityService->isGuest()) {
+        if ($this->currentUser->isGuest()) {
             return null;
         }
 
-        return $this->currentIdentityService->get();
+        return $this->currentUser->getIdentity();
     }
 
     public function challenge(ResponseInterface $response): ResponseInterface

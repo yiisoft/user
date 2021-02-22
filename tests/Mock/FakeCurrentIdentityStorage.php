@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Mock;
 
-use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
 
 final class FakeCurrentIdentityStorage implements CurrentIdentityStorageInterface
 {

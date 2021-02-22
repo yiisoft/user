@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CurrentIdentity;
+namespace Yiisoft\User\CurrentUser;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
-use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
-use Yiisoft\User\CurrentIdentity\Event\AfterLogin;
-use Yiisoft\User\CurrentIdentity\Event\BeforeLogout;
-use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Event\AfterLogout;
+use Yiisoft\User\CurrentUser\Event\AfterLogin;
+use Yiisoft\User\CurrentUser\Event\BeforeLogout;
+use Yiisoft\User\CurrentUser\Event\BeforeLogin;
 use Yiisoft\User\GuestIdentity;
 
 /**
  * Maintains current identity and allows logging in and out using it.
  */
-final class CurrentIdentity
+final class CurrentUser
 {
     private CurrentIdentityStorageInterface $currentIdentityStorage;
     private IdentityRepositoryInterface $identityRepository;
@@ -46,7 +46,7 @@ final class CurrentIdentity
     /**
      * Returns the identity object associated with the currently logged-in user.
      */
-    public function get(): IdentityInterface
+    public function getIdentity(): IdentityInterface
     {
         $identity = $this->temporaryIdentity ?? $this->identity;
 
@@ -73,31 +73,31 @@ final class CurrentIdentity
     /**
      * Returns a value that uniquely represents the user.
      *
-     * @see CurrentIdentity::get()
+     * @see CurrentUser::getIdentity()
      *
      * @return string|null The unique identifier for the user. If `null`, it means the user is a guest.     *
      */
     public function getId(): ?string
     {
-        return $this->get()->getId();
+        return $this->getIdentity()->getId();
     }
 
     /**
      * Returns a value indicating whether the user is a guest (not authenticated).
      *
-     * @see get()
+     * @see getIdentity()
      *
      * @return bool Whether the current user is a guest.
      */
     public function isGuest(): bool
     {
-        return $this->get() instanceof GuestIdentity;
+        return $this->getIdentity() instanceof GuestIdentity;
     }
 
     /**
      * Checks if the user can perform the operation as specified by the given permission.
      *
-     * Note that you must provide access checker via {@see CurrentIdentity::setAccessChecker()} in order to use this
+     * Note that you must provide access checker via {@see CurrentUser::setAccessChecker()} in order to use this
      * method. Otherwise it will always return `false`.
      *
      * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
@@ -167,7 +167,7 @@ final class CurrentIdentity
             return false;
         }
 
-        $identity = $this->get();
+        $identity = $this->getIdentity();
         if ($this->beforeLogout($identity)) {
             $this->switchIdentity(new GuestIdentity());
             $this->afterLogout($identity);
@@ -177,7 +177,7 @@ final class CurrentIdentity
     }
 
     /**
-     * This method is invoked when calling {@see CurrentIdentity::logout()} to log out a user.
+     * This method is invoked when calling {@see CurrentUser::logout()} to log out a user.
      *
      * @param IdentityInterface $identity The user identity information.
      *
@@ -191,7 +191,7 @@ final class CurrentIdentity
     }
 
     /**
-     * This method is invoked right after a user is logged out via {@see CurrentIdentity::logout()}.
+     * This method is invoked right after a user is logged out via {@see CurrentUser::logout()}.
      *
      * @param IdentityInterface $identity The user identity information.
      */
@@ -213,7 +213,7 @@ final class CurrentIdentity
     /**
      * Switches to a new identity for the current user.
      *
-     * This method is called by {@see CurrentIdentity::login()} and {@see CurrentIdentity::logout()}
+     * This method is called by {@see CurrentUser::login()} and {@see CurrentUser::logout()}
      * when the current user needs to be associated with the corresponding identity information.
      *
      * @param IdentityInterface $identity The identity information to be associated with the current user.

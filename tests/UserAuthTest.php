@@ -15,13 +15,13 @@ use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\Session\SessionInterface;
-use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
 use Yiisoft\User\Tests\Mock\FakeCurrentIdentityStorage;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
-use Yiisoft\User\CurrentIdentity\CurrentIdentity;
+use Yiisoft\User\CurrentUser\CurrentUser;
 use Yiisoft\User\UserAuth;
 
 final class UserAuthTest extends TestCase
@@ -70,9 +70,9 @@ final class UserAuthTest extends TestCase
         self::assertNotSame($original, $original->withAuthUrl('/custom-auth-url'));
     }
 
-    private function createCurrentUser(): CurrentIdentity
+    private function createCurrentUser(): CurrentUser
     {
-        return new CurrentIdentity(
+        return new CurrentUser(
             $this->createCurrentIdentityStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher()

@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CurrentIdentity\Event;
+namespace Yiisoft\User\Tests\CurrentUser\Event;
 
-use Yiisoft\User\CurrentIdentity\Event\BeforeLogin;
+use Yiisoft\User\CurrentUser\Event\BeforeLogout;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 
-class BeforeLoginTest extends TestCase
+class BeforeLogoutTest extends TestCase
 {
     public function testGetIdentity(): void
     {
         $identity = new MockIdentity('test');
 
-        $event = new BeforeLogin($identity);
+        $event = new BeforeLogout($identity);
 
         self::assertSame($identity, $event->getIdentity());
     }
 
     public function testInvalidate(): void
     {
-        $event = new BeforeLogin(new MockIdentity('test'));
+        $event = new BeforeLogout(new MockIdentity('test'));
         $event->invalidate();
 
         self::assertFalse($event->isValid());

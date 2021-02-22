@@ -11,7 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentIdentity\CurrentIdentity;
+use Yiisoft\User\CurrentUser\CurrentUser;
 
 use function array_key_exists;
 use function is_array;
@@ -21,20 +21,20 @@ use function is_array;
  */
 final class AutoLoginMiddleware implements MiddlewareInterface
 {
-    private CurrentIdentity $currentIdentityService;
+    private CurrentUser $currentUser;
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
     private bool $addCookie;
 
     public function __construct(
-        CurrentIdentity $currentIdentityService,
+        CurrentUser $currentUser,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         AutoLogin $autoLogin,
         bool $addCookie = false
     ) {
-        $this->currentIdentityService = $currentIdentityService;
+        $this->currentUser = $currentUser;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
         $this->autoLogin = $autoLogin;
@@ -44,12 +44,12 @@ final class AutoLoginMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->authenticateUserByCookieFromRequest($request);
-        $guestBeforeHandle = $this->currentIdentityService->isGuest();
+        $guestBeforeHandle = $this->currentUser->isGuest();
         $response = $handler->handle($request);
-        $guestAfterHandle = $this->currentIdentityService->isGuest();
+        $guestAfterHandle = $this->currentUser->isGuest();
 
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
-            $identity = $this->currentIdentityService->get();
+            $identity = $this->currentUser->getIdentity();
             if ($identity instanceof AutoLoginIdentityInterface) {
                 $response = $this->autoLogin->addCookie($identity, $response);
             }
@@ -108,6 +108,6 @@ final class AutoLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        $this->currentIdentityService->login($identity);
+        $this->currentUser->login($identity);
     }
 }

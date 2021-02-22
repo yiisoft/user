@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CurrentIdentity\Event;
+namespace Yiisoft\User\Tests\CurrentUser\Event;
 
-use Yiisoft\User\CurrentIdentity\Event\AfterLogout;
+use Yiisoft\User\CurrentUser\Event\AfterLogout;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\User\AutoLoginMiddleware;
 use Yiisoft\User\AutoLogin;
-use Yiisoft\User\CurrentIdentity\Storage\CurrentIdentityStorageInterface;
-use Yiisoft\User\CurrentIdentity\Storage\SessionCurrentIdentityStorage;
+use Yiisoft\User\CurrentUser\Storage\CurrentIdentityStorageInterface;
+use Yiisoft\User\CurrentUser\Storage\SessionCurrentIdentityStorage;
 use Yiisoft\User\UserAuth;
 
 /** @var array $params */

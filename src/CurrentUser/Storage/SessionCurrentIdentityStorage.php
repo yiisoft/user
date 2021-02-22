@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CurrentIdentity\Storage;
+namespace Yiisoft\User\CurrentUser\Storage;
 
 use Yiisoft\Session\SessionInterface;
 
