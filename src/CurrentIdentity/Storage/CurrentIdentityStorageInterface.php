@@ -11,12 +11,14 @@ interface CurrentIdentityStorageInterface
 {
     /**
      * Get current identity ID.
+     *
      * @return string|null Current identity ID or null if no identity is currently set.
      */
     public function get(): ?string;
 
     /**
      * Set current identity ID.
+     *
      * @param string $id Current identity ID.
      */
     public function set(string $id): void;

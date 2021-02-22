@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\CurrentIdentity\CurrentIdentity;
+
 use function array_key_exists;
 use function is_array;
 
