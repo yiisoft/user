@@ -14,22 +14,22 @@ use Yiisoft\Http\Status;
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
-    private User $user;
+    private CurrentUser $currentUser;
     private ResponseFactoryInterface $responseFactory;
 
-    public function __construct(User $user, ResponseFactoryInterface $responseFactory)
+    public function __construct(CurrentUser $currentUser, ResponseFactoryInterface $responseFactory)
     {
-        $this->user = $user;
+        $this->currentUser = $currentUser;
         $this->responseFactory = $responseFactory;
     }
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
     {
-        if ($this->user->isGuest()) {
+        if ($this->currentUser->isGuest()) {
             return null;
         }
 
-        return $this->user->getIdentity();
+        return $this->currentUser->getIdentity();
     }
 
     public function challenge(ResponseInterface $response): ResponseInterface

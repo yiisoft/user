@@ -9,27 +9,31 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
+
+use function array_key_exists;
+use function is_array;
 
 /**
  * AutoLoginMiddleware automatically logs user in based on cookie.
  */
 final class AutoLoginMiddleware implements MiddlewareInterface
 {
-    private User $user;
+    private CurrentUser $currentUser;
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private AutoLogin $autoLogin;
     private bool $addCookie;
 
     public function __construct(
-        User $user,
+        CurrentUser $currentUser,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         AutoLogin $autoLogin,
         bool $addCookie = false
     ) {
-        $this->user = $user;
+        $this->currentUser = $currentUser;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
         $this->autoLogin = $autoLogin;
@@ -39,12 +43,12 @@ final class AutoLoginMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->authenticateUserByCookieFromRequest($request);
-        $guestBeforeHandle = $this->user->isGuest();
+        $guestBeforeHandle = $this->currentUser->isGuest();
         $response = $handler->handle($request);
-        $guestAfterHandle = $this->user->isGuest();
+        $guestAfterHandle = $this->currentUser->isGuest();
 
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
-            $identity = $this->user->getIdentity(false);
+            $identity = $this->currentUser->getIdentity();
             if ($identity instanceof AutoLoginIdentityInterface) {
                 $response = $this->autoLogin->addCookie($identity, $response);
             }
@@ -95,7 +99,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
         }
 
         if (!$identity instanceof AutoLoginIdentityInterface) {
-            throw new \RuntimeException('Identity repository must return an instance of \Yiisoft\User\AutoLoginIdentityInterface in order for auto-login to function.');
+            throw new RuntimeException('Identity repository must return an instance of \Yiisoft\User\AutoLoginIdentityInterface in order for auto-login to function.');
         }
 
         if (!$identity->validateAutoLoginKey($key)) {
@@ -103,6 +107,6 @@ final class AutoLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        $this->user->login($identity);
+        $this->currentUser->login($identity);
     }
 }

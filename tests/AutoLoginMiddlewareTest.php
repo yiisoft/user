@@ -8,18 +8,20 @@ use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\AutoLogin;
 use Yiisoft\User\AutoLoginMiddleware;
+use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
+use Yiisoft\User\Tests\Mock\MockEventDispatcher;
+use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\User;
+use Yiisoft\User\CurrentUser;
 
 final class AutoLoginMiddlewareTest extends TestCase
 {
-    private LoggerInterface $logger;
+    private LastMessageLogger $logger;
 
     protected function setUp(): void
     {
@@ -33,11 +35,15 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testCorrectLogin(): void
     {
-        $user = $this->getUserWithLoginExpected();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $user,
+            $currentUser,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
@@ -46,12 +52,17 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertNull($this->getLastLogMessage());
+        self::assertNull($this->getLastLogMessage());
+        self::assertSame(AutoLoginIdentity::ID, $currentUser->getIdentity()->getId());
     }
 
     public function testInvalidKey(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
@@ -64,12 +75,16 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertSame('Unable to authenticate user by cookie. Invalid key.', $this->getLastLogMessage());
+        self::assertSame('Unable to authenticate user by cookie. Invalid key.', $this->getLastLogMessage());
     }
 
     public function testNoCookie(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
@@ -82,12 +97,16 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertNull($this->getLastLogMessage());
+        self::assertNull($this->getLastLogMessage());
     }
 
     public function testEmptyCookie(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
@@ -105,7 +124,11 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testInvalidCookie(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
@@ -122,12 +145,16 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
+        self::assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
     }
 
     public function testIncorrectIdentity(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $middleware = new AutoLoginMiddleware(
             $user,
@@ -146,7 +173,11 @@ final class AutoLoginMiddlewareTest extends TestCase
 
     public function testIdentityNotFound(): void
     {
-        $user = $this->getUserWithoutLoginExpected();
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
 
         $middleware = new AutoLoginMiddleware(
             $user,
@@ -160,69 +191,150 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
+        self::assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
     }
 
     public function testAddCookieAfterLogin(): void
     {
-        $user = $this->getUserForSuccessfulAutologin();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
+
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $user,
+            $currentUser,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin,
             true
         );
-        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
-        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
-        $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+
+        $request = $this->createMock(RequestHandlerInterface::class);
+        $request
+            ->expects(self::once())
+            ->method('handle')
+            ->willReturnCallback(function () use ($currentUser) {
+                $currentUser->login(new AutoLoginIdentity());
+                return new Response();
+            });
+        $response = $middleware->process(
+            $this->getRequestWithCookies([]),
+            $request
+        );
+
+        self::assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; ' .
+            'Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie')
+        );
     }
 
     public function testNotAddCookieAfterLogin(): void
     {
-        $user = $this->getUserForSuccessfulAutologin();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
+
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $user,
+            $currentUser,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
         );
-        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
-        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
-        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+
+        $request = $this->createMock(RequestHandlerInterface::class);
+        $request
+            ->expects(self::once())
+            ->method('handle')
+            ->willReturnCallback(function () use ($currentUser) {
+                $currentUser->login(new AutoLoginIdentity());
+                return new Response();
+            });
+        $response = $middleware->process(
+            $this->getRequestWithCookies([]),
+            $request
+        );
+
+        self::assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
-        $user = $this->getUserForSuccessfulAutologinWithRememberMe();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
+
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $user,
+            $currentUser,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin,
             true
         );
-        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
-        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
-        $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=1209600; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+
+        $request = $this->createMock(RequestHandlerInterface::class);
+        $request
+            ->expects(self::once())
+            ->method('handle')
+            ->willReturnCallback(function () use ($currentUser) {
+                $identity = new AutoLoginIdentity();
+                $identity->rememberMe = true;
+                $currentUser->login($identity);
+                return new Response();
+            });
+        $response = $middleware->process(
+            $this->getRequestWithCookies([]),
+            $request
+        );
+
+        self::assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; ' .
+            'Max-Age=1209600; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie')
+        );
     }
 
-    public function testRemoveCookieAfterLogout()
+    public function testRemoveCookieAfterLogout(): void
     {
-        $user = $this->getUserForLogout();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
+
         $autoLogin = $this->getAutoLogin();
         $middleware = new AutoLoginMiddleware(
-            $user,
+            $currentUser,
             $this->getAutoLoginIdentityRepository(),
             $this->logger,
             $autoLogin
         );
-        $request = $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT);
-        $response = $middleware->process($request, $this->getRequestHandlerThatReturnsResponse());
-        $this->assertMatchesRegularExpression('#autoLogin=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+
+        $request = $this->createMock(RequestHandlerInterface::class);
+        $request
+            ->expects(self::once())
+            ->method('handle')
+            ->willReturnCallback(function () use ($currentUser) {
+                $currentUser->logout();
+                return new Response();
+            });
+        $response = $middleware->process(
+            $this->getRequestWithAutoLoginCookie(AutoLoginIdentity::ID, AutoLoginIdentity::KEY_CORRECT),
+            $request
+        );
+
+        self::assertMatchesRegularExpression(
+            '#autoLogin=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie')
+        );
     }
 
     private function getRequestHandler(): RequestHandlerInterface
@@ -243,19 +355,6 @@ final class AutoLoginMiddlewareTest extends TestCase
         $requestHandler
             ->expects($this->never())
             ->method('handle');
-
-        return $requestHandler;
-    }
-
-    private function getRequestHandlerThatReturnsResponse(): RequestHandlerInterface
-    {
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response = new Response();
-
-        $requestHandler
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturn($response);
 
         return $requestHandler;
     }
@@ -304,123 +403,23 @@ final class AutoLoginMiddlewareTest extends TestCase
         return $request;
     }
 
-    private function getUserWithoutLoginExpected(): User
-    {
-        $user = $this->createMock(User::class);
-        $user->expects($this->never())->method('login');
-        return $user;
-    }
-
-    private function getUserWithLoginExpected(): User
-    {
-        $user = $this->createMock(User::class);
-        $user
-            ->expects($this->once())
-            ->method('login')
-            ->willReturn(true);
-
-        return $user;
-    }
-
-    private function getUserForSuccessfulAutologin(): User
-    {
-        $user = $this->createMock(User::class);
-        $user
-            ->expects($this->once())
-            ->method('login')
-            ->willReturn(true);
-
-        $isUserGuest = true;
-
-        $user
-            ->method('isGuest')
-            ->willReturnCallback(function () use (&$isUserGuest) {
-                $isUserGuest = !$isUserGuest;
-
-                return !$isUserGuest;
-            });
-
-        $user
-            ->method('getIdentity')
-            ->with(false)
-            ->willReturn(new AutoLoginIdentity());
-
-        return $user;
-    }
-
-    private function getUserForSuccessfulAutologinWithRememberMe(): User
-    {
-        $user = $this->createMock(User::class);
-        $user
-            ->expects($this->once())
-            ->method('login')
-            ->willReturn(true);
-
-        $isUserGuest = true;
-
-        $user
-            ->method('isGuest')
-            ->willReturnCallback(function () use (&$isUserGuest) {
-                $isUserGuest = !$isUserGuest;
-
-                return !$isUserGuest;
-            })
-        ;
-
-        $identity = new AutoLoginIdentity();
-        $identity->rememberMe = true;
-        $user
-            ->method('getIdentity')
-            ->with(false)
-            ->willReturn($identity);
-
-        return $user;
-    }
-
-    private function getUserForLogout(): User
-    {
-        $user = $this->createMock(User::class);
-        $isUserGuest = false;
-
-        $user
-            ->method('isGuest')
-            ->willReturnCallback(function () use (&$isUserGuest) {
-                $isUserGuest = !$isUserGuest;
-
-                return !$isUserGuest;
-            });
-
-        return $user;
-    }
-
     private function getAutoLogin(): AutoLogin
     {
         return new AutoLogin(new \DateInterval('P1W'));
     }
 
-    /**
-     * Gets an inaccessible object property.
-     *
-     * @param $object
-     * @param $propertyName
-     * @param bool $revoke whether to make property inaccessible after getting
-     *
-     * @throws \ReflectionException
-     *
-     * @return mixed
-     */
-    private function getInaccessibleProperty($object, $propertyName, bool $revoke = true)
+    private function createSession(array $data = []): MockArraySessionStorage
     {
-        $class = new \ReflectionClass($object);
-        while (!$class->hasProperty($propertyName)) {
-            $class = $class->getParentClass();
-        }
-        $property = $class->getProperty($propertyName);
-        $property->setAccessible(true);
-        $result = $property->getValue($object);
-        if ($revoke) {
-            $property->setAccessible(false);
-        }
-        return $result;
+        return new MockArraySessionStorage($data);
+    }
+
+    private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
+    {
+        return new MockIdentityRepository($identity);
+    }
+
+    private function createEventDispatcher(): MockEventDispatcher
+    {
+        return new MockEventDispatcher();
     }
 }
