@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CurrentUser\Event;
+namespace Yiisoft\User\Tests\Event;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\User\CurrentUser\Event\AfterLogin;
+use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 
 final class AfterLoginTest extends TestCase

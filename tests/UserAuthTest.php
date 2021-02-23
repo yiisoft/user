@@ -18,7 +18,7 @@ use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
-use Yiisoft\User\CurrentUser\CurrentUser;
+use Yiisoft\User\CurrentUser;
 use Yiisoft\User\UserAuth;
 
 final class UserAuthTest extends TestCase

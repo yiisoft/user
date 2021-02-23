@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CurrentUser;
+namespace Yiisoft\User;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Session\SessionInterface;
-use Yiisoft\User\CurrentUser\Event\AfterLogout;
-use Yiisoft\User\CurrentUser\Event\AfterLogin;
-use Yiisoft\User\CurrentUser\Event\BeforeLogout;
-use Yiisoft\User\CurrentUser\Event\BeforeLogin;
-use Yiisoft\User\GuestIdentity;
+use Yiisoft\User\Event\AfterLogout;
+use Yiisoft\User\Event\AfterLogin;
+use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\Event\BeforeLogin;
 
 /**
  * Maintains current identity and allows logging in and out using it.

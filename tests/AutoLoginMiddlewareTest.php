@@ -17,7 +17,7 @@ use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\CurrentUser\CurrentUser;
+use Yiisoft\User\CurrentUser;
 
 final class AutoLoginMiddlewareTest extends TestCase
 {

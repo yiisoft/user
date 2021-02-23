@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CurrentUser\Event;
+namespace Yiisoft\User\Event;
 
 use Yiisoft\Auth\IdentityInterface;
 

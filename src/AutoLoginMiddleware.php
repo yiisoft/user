@@ -11,7 +11,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentUser\CurrentUser;
 
 use function array_key_exists;
 use function is_array;

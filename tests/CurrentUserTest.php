@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CurrentUser;
+namespace Yiisoft\User\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
-use Yiisoft\User\CurrentUser\CurrentUser;
-use Yiisoft\User\CurrentUser\Event\AfterLogin;
-use Yiisoft\User\CurrentUser\Event\AfterLogout;
-use Yiisoft\User\CurrentUser\Event\BeforeLogin;
-use Yiisoft\User\CurrentUser\Event\BeforeLogout;
+use Yiisoft\User\CurrentUser;
+use Yiisoft\User\Event\AfterLogin;
+use Yiisoft\User\Event\AfterLogout;
+use Yiisoft\User\Event\BeforeLogin;
+use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\GuestIdentity;
 use Yiisoft\User\Tests\Mock\MockAccessChecker;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;

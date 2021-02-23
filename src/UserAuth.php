@@ -10,7 +10,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
-use Yiisoft\User\CurrentUser\CurrentUser;
 
 final class UserAuth implements AuthenticationMethodInterface
 {
