@@ -8,7 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CurrentUser\Storage\CurrentIdentityIdStorageInterface;
+use Yiisoft\Session\SessionInterface;
 use Yiisoft\User\CurrentUser\Event\AfterLogout;
 use Yiisoft\User\CurrentUser\Event\AfterLogin;
 use Yiisoft\User\CurrentUser\Event\BeforeLogout;
@@ -20,27 +20,56 @@ use Yiisoft\User\GuestIdentity;
  */
 final class CurrentUser
 {
-    private CurrentIdentityIdStorageInterface $currentIdentityIdStorage;
+    private const SESSION_AUTH_ID = '__auth_id';
+    private const SESSION_AUTH_EXPIRE = '__auth_expire';
+    private const SESSION_AUTH_ABSOLUTE_EXPIRE = '__auth_absolute_expire';
+
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
+    private ?SessionInterface $session;
     private ?AccessCheckerInterface $accessChecker = null;
 
     private ?IdentityInterface $identity = null;
     private ?IdentityInterface $temporaryIdentity = null;
 
+    /**
+     * @var int|null the number of seconds in which the user will be logged out automatically in case of
+     * remaining inactive. If this property is not set, the user will be logged out after
+     * the current session expires.
+     */
+    private ?int $authTimeout = null;
+
+    /**
+     * @var int|null the number of seconds in which the user will be logged out automatically
+     * regardless of activity.
+     */
+    private ?int $absoluteAuthTimeout = null;
+
     public function __construct(
-        CurrentIdentityIdStorageInterface $currentIdentityIdStorage,
         IdentityRepositoryInterface $identityRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ?SessionInterface $session = null
     ) {
-        $this->currentIdentityIdStorage = $currentIdentityIdStorage;
         $this->identityRepository = $identityRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->session = $session;
     }
 
     public function setAccessChecker(AccessCheckerInterface $accessChecker): void
     {
         $this->accessChecker = $accessChecker;
+    }
+
+    public function setAuthTimeout(int $timeout = null): self
+    {
+        $this->authTimeout = $timeout;
+        return $this;
+    }
+
+    public function setAbsoluteAuthTimeout(int $timeout = null): self
+    {
+        $this->absoluteAuthTimeout = $timeout;
+        return $this;
     }
 
     /**
@@ -51,23 +80,18 @@ final class CurrentUser
         $identity = $this->temporaryIdentity ?? $this->identity;
 
         if ($identity === null) {
-            $identity = $this->determineIdentity();
+            $identity = null;
+
+            $id = $this->getSavedId();
+            if ($id !== null) {
+                $identity = $this->identityRepository->findIdentity($id);
+            }
+            $identity = $identity ?? new GuestIdentity();
+
             $this->identity = $identity;
         }
 
         return $identity;
-    }
-
-    private function determineIdentity(): IdentityInterface
-    {
-        $identity = null;
-
-        $id = $this->currentIdentityIdStorage->get();
-        if ($id !== null) {
-            $identity = $this->identityRepository->findIdentity($id);
-        }
-
-        return $identity ?? new GuestIdentity();
     }
 
     /**
@@ -222,12 +246,86 @@ final class CurrentUser
     private function switchIdentity(IdentityInterface $identity): void
     {
         $this->identity = $identity;
+        $this->saveId($identity->getId());
+    }
 
-        $id = $identity->getId();
+    private function getSavedId(): ?string
+    {
+        if ($this->session === null) {
+            return null;
+        }
+
+        /** @var mixed $id */
+        $id = $this->session->get(self::SESSION_AUTH_ID);
+
+        if (
+            $id !== null &&
+            ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)
+        ) {
+            $expire = $this->getExpire();
+            $expireAbsolute = $this->getExpireAbsolute();
+
+            if (
+                ($expire !== null && $expire < time()) ||
+                ($expireAbsolute !== null && $expireAbsolute < time())
+            ) {
+                $this->saveId(null);
+                return null;
+            }
+
+            if ($this->authTimeout !== null) {
+                $this->session->set(self::SESSION_AUTH_EXPIRE, time() + $this->authTimeout);
+            }
+        }
+
+        return $id === null ? null : (string)$id;
+    }
+
+    private function getExpire(): ?int
+    {
+        /**
+         * @var mixed $expire
+         * @psalm-suppress PossiblyNullReference
+         */
+        $expire = $this->authTimeout !== null
+            ? $this->session->get(self::SESSION_AUTH_EXPIRE)
+            : null;
+        return $expire !== null ? (int)$expire : null;
+    }
+
+    private function getExpireAbsolute(): ?int
+    {
+        /**
+         * @var mixed $expire
+         * @psalm-suppress PossiblyNullReference
+         */
+        $expire = $this->absoluteAuthTimeout !== null
+            ? $this->session->get(self::SESSION_AUTH_ABSOLUTE_EXPIRE)
+            : null;
+        return $expire !== null ? (int)$expire : null;
+    }
+
+    private function saveId(?string $id): void
+    {
+        if ($this->session === null) {
+            return;
+        }
+
+        $this->session->regenerateID();
+
+        $this->session->remove(self::SESSION_AUTH_ID);
+        $this->session->remove(self::SESSION_AUTH_EXPIRE);
+
         if ($id === null) {
-            $this->currentIdentityIdStorage->clear();
-        } else {
-            $this->currentIdentityIdStorage->set($id);
+            return;
+        }
+
+        $this->session->set(self::SESSION_AUTH_ID, $id);
+        if ($this->authTimeout !== null) {
+            $this->session->set(self::SESSION_AUTH_EXPIRE, time() + $this->authTimeout);
+        }
+        if ($this->absoluteAuthTimeout !== null) {
+            $this->session->set(self::SESSION_AUTH_ABSOLUTE_EXPIRE, time() + $this->absoluteAuthTimeout);
         }
     }
 }

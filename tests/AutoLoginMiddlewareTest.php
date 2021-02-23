@@ -12,8 +12,7 @@ use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\User\AutoLogin;
 use Yiisoft\User\AutoLoginMiddleware;
-use Yiisoft\User\CurrentUser\Storage\CurrentIdentityIdStorageInterface;
-use Yiisoft\User\Tests\Mock\FakeCurrentIdentityIdStorage;
+use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;
 use Yiisoft\User\Tests\Support\AutoLoginIdentity;
@@ -37,9 +36,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testCorrectLogin(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -60,9 +59,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testInvalidKey(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -82,9 +81,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testNoCookie(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -104,9 +103,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testEmptyCookie(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -126,9 +125,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testInvalidCookie(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -146,15 +145,15 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
+        self::assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
     }
 
     public function testIncorrectIdentity(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $middleware = new AutoLoginMiddleware(
@@ -175,9 +174,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testIdentityNotFound(): void
     {
         $user = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $middleware = new AutoLoginMiddleware(
@@ -192,15 +191,15 @@ final class AutoLoginMiddlewareTest extends TestCase
 
         $middleware->process($request, $this->getRequestHandler());
 
-        $this->assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
+        self::assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
     }
 
     public function testAddCookieAfterLogin(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -235,9 +234,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testNotAddCookieAfterLogin(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -267,9 +266,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -306,9 +305,9 @@ final class AutoLoginMiddlewareTest extends TestCase
     public function testRemoveCookieAfterLogout(): void
     {
         $currentUser = new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
             $this->createEventDispatcher(),
+            $this->createSession()
         );
 
         $autoLogin = $this->getAutoLogin();
@@ -356,19 +355,6 @@ final class AutoLoginMiddlewareTest extends TestCase
         $requestHandler
             ->expects($this->never())
             ->method('handle');
-
-        return $requestHandler;
-    }
-
-    private function getRequestHandlerThatReturnsResponse(): RequestHandlerInterface
-    {
-        $requestHandler = $this->createMock(RequestHandlerInterface::class);
-        $response = new Response();
-
-        $requestHandler
-            ->expects(self::once())
-            ->method('handle')
-            ->willReturn($response);
 
         return $requestHandler;
     }
@@ -422,9 +408,9 @@ final class AutoLoginMiddlewareTest extends TestCase
         return new AutoLogin(new \DateInterval('P1W'));
     }
 
-    private function createCurrentIdentityIdStorage(?string $id = null): CurrentIdentityIdStorageInterface
+    private function createSession(array $data = []): MockArraySessionStorage
     {
-        return new FakeCurrentIdentityIdStorage($id);
+        return new MockArraySessionStorage($data);
     }
 
     private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface

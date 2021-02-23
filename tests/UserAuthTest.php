@@ -14,9 +14,6 @@ use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
-use Yiisoft\Session\SessionInterface;
-use Yiisoft\User\CurrentUser\Storage\CurrentIdentityIdStorageInterface;
-use Yiisoft\User\Tests\Mock\FakeCurrentIdentityIdStorage;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentity;
@@ -73,9 +70,9 @@ final class UserAuthTest extends TestCase
     private function createCurrentUser(): CurrentUser
     {
         return new CurrentUser(
-            $this->createCurrentIdentityIdStorage(),
             $this->createIdentityRepository(),
-            $this->createEventDispatcher()
+            $this->createEventDispatcher(),
+            $this->createSession()
         );
     }
 
@@ -89,9 +86,9 @@ final class UserAuthTest extends TestCase
         return new MockIdentityRepository($identity);
     }
 
-    private function createCurrentIdentityIdStorage(?string $id = null): CurrentIdentityIdStorageInterface
+    private function createSession(array $data = []): MockArraySessionStorage
     {
-        return new FakeCurrentIdentityIdStorage($id);
+        return new MockArraySessionStorage($data);
     }
 
     private function createEventDispatcher(): EventDispatcherInterface
