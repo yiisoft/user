@@ -77,6 +77,7 @@ final class CurrentUser
      */
     public function getIdentity(): IdentityInterface
     {
+        /** @var IdentityInterface|null $identity */
         $identity = ($this->temporaryIdentity !== null ? $this->temporaryIdentity->get() : null)
             ?? ($this->identity !== null ? $this->identity->get() : null);
 
