@@ -229,6 +229,10 @@ final class CurrentUser
     public function setTemporaryIdentity(IdentityInterface $identity): void
     {
         $this->temporaryIdentity = WeakReference::create($identity);
+        unset($identity);
+        if ($this->temporaryIdentity->get() === null) {
+            throw new \Exception('No reference.');
+        }
     }
 
     public function clearTemporaryIdentity(): void

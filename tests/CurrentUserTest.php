@@ -215,7 +215,8 @@ final class CurrentUserTest extends TestCase
             $this->createEventDispatcher(),
             $this->createSession(['__auth_id' => $id])
         );
-        $currentUser->setTemporaryIdentity(new MockIdentity('temp-id'));
+        $temporaryIdentity = new MockIdentity('temp-id');
+        $currentUser->setTemporaryIdentity($temporaryIdentity);
         $currentUser->clearTemporaryIdentity();
 
         self::assertSame($identity, $currentUser->getIdentity());
@@ -424,7 +425,7 @@ final class CurrentUserTest extends TestCase
         self::assertSame('from-repository', $currentUser->getIdentity()->getId());
     }
 
-    public function testWeakTemporaryIdentityCacheSideEffect(): void
+    public function testWeakTemporaryIdentityCacheArgumentWithoutReference(): void
     {
         $currentUser = new CurrentUser(
             $this->createIdentityRepository(),
@@ -432,11 +433,10 @@ final class CurrentUserTest extends TestCase
             $this->createSession()
         );
 
+        $this->expectException(\Exception::class);
+
         // Identity without refs
         $currentUser->setTemporaryIdentity(new MockIdentity('temporary'));
-
-        self::assertNotSame('temporary', $currentUser->getIdentity()->getId());
-        self::assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
     public function testWeakIdentityCache(): void
