@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\User;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use WeakReference;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
@@ -28,8 +29,8 @@ final class CurrentUser
     private ?SessionInterface $session;
     private ?AccessCheckerInterface $accessChecker = null;
 
-    private ?IdentityInterface $identity = null;
-    private ?IdentityInterface $temporaryIdentity = null;
+    private ?WeakReference $identity = null;
+    private ?WeakReference $temporaryIdentity = null;
 
     /**
      * @var int|null the number of seconds in which the user will be logged out automatically in case of
@@ -76,7 +77,8 @@ final class CurrentUser
      */
     public function getIdentity(): IdentityInterface
     {
-        $identity = $this->temporaryIdentity ?? $this->identity;
+        $identity = ($this->temporaryIdentity !== null ? $this->temporaryIdentity->get() : null)
+            ?? ($this->identity !== null ? $this->identity->get() : null);
 
         if ($identity === null) {
             $identity = null;
@@ -87,7 +89,7 @@ final class CurrentUser
             }
             $identity = $identity ?? new GuestIdentity();
 
-            $this->identity = $identity;
+            $this->identity = WeakReference::create($identity);
         }
 
         return $identity;
@@ -225,7 +227,7 @@ final class CurrentUser
 
     public function setTemporaryIdentity(IdentityInterface $identity): void
     {
-        $this->temporaryIdentity = $identity;
+        $this->temporaryIdentity = WeakReference::create($identity);
     }
 
     public function clearTemporaryIdentity(): void
@@ -244,7 +246,7 @@ final class CurrentUser
      */
     private function switchIdentity(IdentityInterface $identity): void
     {
-        $this->identity = $identity;
+        $this->identity = WeakReference::create($identity);
         $this->saveId($identity->getId());
     }
 
