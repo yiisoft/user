@@ -182,7 +182,7 @@ final class CurrentUserTest extends TestCase
         );
 
         $temporaryIdentity = new MockIdentity('temp-id');
-        $currentUser->setTemporaryIdentity($temporaryIdentity);
+        $currentUser->overrideIdentity($temporaryIdentity);
 
         self::assertSame($temporaryIdentity, $currentUser->getIdentity());
     }
@@ -200,7 +200,7 @@ final class CurrentUserTest extends TestCase
         $currentUser->login($identity);
 
         $temporaryIdentity = new MockIdentity('temp-id');
-        $currentUser->setTemporaryIdentity($temporaryIdentity);
+        $currentUser->overrideIdentity($temporaryIdentity);
 
         self::assertSame($temporaryIdentity, $currentUser->getIdentity());
     }
@@ -215,8 +215,8 @@ final class CurrentUserTest extends TestCase
             $this->createEventDispatcher(),
             $this->createSession(['__auth_id' => $id])
         );
-        $currentUser->setTemporaryIdentity(new MockIdentity('temp-id'));
-        $currentUser->clearTemporaryIdentity();
+        $currentUser->overrideIdentity(new MockIdentity('temp-id'));
+        $currentUser->clearIdentityOverride();
 
         self::assertSame($identity, $currentUser->getIdentity());
     }

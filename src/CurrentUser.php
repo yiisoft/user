@@ -29,7 +29,7 @@ final class CurrentUser
     private ?AccessCheckerInterface $accessChecker = null;
 
     private ?IdentityInterface $identity = null;
-    private ?IdentityInterface $temporaryIdentity = null;
+    private ?IdentityInterface $identityOverride = null;
 
     /**
      * @var int|null the number of seconds in which the user will be logged out automatically in case of
@@ -76,7 +76,7 @@ final class CurrentUser
      */
     public function getIdentity(): IdentityInterface
     {
-        $identity = $this->temporaryIdentity ?? $this->identity;
+        $identity = $this->identityOverride ?? $this->identity;
 
         if ($identity === null) {
             $identity = null;
@@ -223,14 +223,14 @@ final class CurrentUser
         $this->eventDispatcher->dispatch(new AfterLogout($identity));
     }
 
-    public function setTemporaryIdentity(IdentityInterface $identity): void
+    public function overrideIdentity(IdentityInterface $identity): void
     {
-        $this->temporaryIdentity = $identity;
+        $this->identityOverride = $identity;
     }
 
-    public function clearTemporaryIdentity(): void
+    public function clearIdentityOverride(): void
     {
-        $this->temporaryIdentity = null;
+        $this->identityOverride = null;
     }
 
     /**
