@@ -170,7 +170,7 @@ final class CurrentUserTest extends TestCase
         self::assertTrue($session->has('__auth_expire'));
     }
 
-    public function testGetTemporaryIdentity(): void
+    public function testGetOverriddenIdentity(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
@@ -181,13 +181,13 @@ final class CurrentUserTest extends TestCase
             $this->createSession(['__auth_id' => $id])
         );
 
-        $temporaryIdentity = new MockIdentity('temp-id');
-        $currentUser->overrideIdentity($temporaryIdentity);
+        $overriddenIdentity = new MockIdentity('temp-id');
+        $currentUser->overrideIdentity($overriddenIdentity);
 
-        self::assertSame($temporaryIdentity, $currentUser->getIdentity());
+        self::assertSame($overriddenIdentity, $currentUser->getIdentity());
     }
 
-    public function testLoginAndGetTemporaryIdentity(): void
+    public function testLoginAndGetOverriddenIdentity(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
@@ -199,13 +199,13 @@ final class CurrentUserTest extends TestCase
         );
         $currentUser->login($identity);
 
-        $temporaryIdentity = new MockIdentity('temp-id');
-        $currentUser->overrideIdentity($temporaryIdentity);
+        $overriddenIdentity = new MockIdentity('temp-id');
+        $currentUser->overrideIdentity($overriddenIdentity);
 
-        self::assertSame($temporaryIdentity, $currentUser->getIdentity());
+        self::assertSame($overriddenIdentity, $currentUser->getIdentity());
     }
 
-    public function testClearTemporaryIdentity(): void
+    public function testClearIdentityOverride(): void
     {
         $id = 'test-id';
         $identity = new MockIdentity($id);
