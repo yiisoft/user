@@ -405,6 +405,56 @@ final class CurrentUserTest extends TestCase
         self::assertTrue($currentUser->can('permission'));
     }
 
+    public function testWeakTemporaryIdentityCache(): void
+    {
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(new MockIdentity('from-repository')),
+            $this->createEventDispatcher(),
+            $this->createSession(['__auth_id' => 'from-repository'])
+        );
+
+        $fn = static function () use ($currentUser): void {
+            $identity = new MockIdentity('temporary');
+            $currentUser->setTemporaryIdentity($identity);
+
+            self::assertSame('temporary', $currentUser->getIdentity()->getId());
+        };
+        $fn();
+
+        self::assertSame('from-repository', $currentUser->getIdentity()->getId());
+    }
+
+    public function testWeakTemporaryIdentityCacheSideEffect(): void
+    {
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession()
+        );
+
+        // Identity without refs
+        $currentUser->setTemporaryIdentity(new MockIdentity('temporary'));
+
+        self::assertNotSame('temporary', $currentUser->getIdentity()->getId());
+        self::assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
+    }
+
+    public function testWeakIdentityCache(): void
+    {
+        $repository = $this->createIdentityRepository(new MockIdentity('from-repository'));
+        $currentUser = new CurrentUser(
+            $repository,
+            $this->createEventDispatcher(),
+            $this->createSession(['__auth_id' => 'from-repository'])
+        );
+        self::assertSame('from-repository', $currentUser->getIdentity()->getId());
+
+        // Clear storage
+        $repository->setIdentity(null);
+
+        self::assertNotSame('from-repository', $currentUser->getIdentity()->getId());
+    }
+
     private function createIdentity(string $id): IdentityInterface
     {
         return new MockIdentity($id);

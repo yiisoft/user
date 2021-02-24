@@ -40,4 +40,9 @@ class MockIdentityRepository implements IdentityRepositoryInterface
     {
         $this->withException = true;
     }
+
+    public function setIdentity(?IdentityInterface $identity = null): void
+    {
+        $this->identity = $identity;
+    }
 }
