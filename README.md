@@ -40,9 +40,9 @@ composer require yiisoft/user --prefer-dist
 
 ...
 
-## Auto login
+## Auto login through cookie
 
-In order to log user in automatically based on request cookie presence, use `AutoLoginMiddleware`.
+In order to log user in automatically based on request cookie presence, use `CookieLoginMiddleware`.
 
 By default, you should set cookie for auto login manually in your application after logging user in:
 
