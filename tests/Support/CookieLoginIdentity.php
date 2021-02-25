@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Support;
 
-use Yiisoft\User\AutoLoginIdentityInterface;
+use Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface;
 
-final class AutoLoginIdentity implements AutoLoginIdentityInterface
+final class CookieLoginIdentity implements CookieLoginIdentityInterface
 {
     public const ID = '42';
     public const KEY_CORRECT = 'auto-login-key-correct';
     public const KEY_INCORRECT = 'auto-login-key-incorrect';
     public bool $rememberMe = false;
 
-    public function getAutoLoginKey(): string
+    public function getCookieLoginKey(): string
     {
         return self::KEY_CORRECT;
     }
 
-    public function validateAutoLoginKey(string $key): bool
+    public function validateCookieLoginKey(string $key): bool
     {
-        return $key === $this->getAutoLoginKey();
+        return $key === $this->getCookieLoginKey();
     }
 
     public function getId(): ?string
@@ -28,7 +28,7 @@ final class AutoLoginIdentity implements AutoLoginIdentityInterface
         return self::ID;
     }
 
-    public function getAutoLoginDuration(): ?\DateInterval
+    public function getCookieLoginDuration(): ?\DateInterval
     {
         return $this->rememberMe ? new \DateInterval('P2W') : null;
     }

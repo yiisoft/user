@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User;
+namespace Yiisoft\User\Login\Cookie;
 
 use DateInterval;
 use Yiisoft\Auth\IdentityInterface;
 
 /**
- * AutoLoginIdentityInterface should be implemented in order to automatically log user in based on a cookie.
+ * `CookieLoginIdentityInterface` should be implemented in order to automatically log user in based on a cookie.
  *
- * @see AutoLogin
- * @see AutoLoginMiddleware
+ * @see CookieLogin
+ * @see CookieLoginMiddleware
  */
-interface AutoLoginIdentityInterface extends IdentityInterface
+interface CookieLoginIdentityInterface extends IdentityInterface
 {
     /**
      * Returns a key that can be used to check the validity of a given identity ID.
@@ -31,11 +31,11 @@ interface AutoLoginIdentityInterface extends IdentityInterface
      *
      * @return string a key that is used to check the validity of a given identity ID.
      *
-     * @see validateAutoLoginKey()
+     * @see validateCookieLoginKey()
      */
-    public function getAutoLoginKey(): string;
+    public function getCookieLoginKey(): string;
 
-    public function getAutoLoginDuration(): ?DateInterval;
+    public function getCookieLoginDuration(): ?DateInterval;
 
     /**
      * Validates the given key.
@@ -44,7 +44,7 @@ interface AutoLoginIdentityInterface extends IdentityInterface
      *
      * @return bool whether the given key is valid.
      *
-     * @see getAutoLoginKey()
+     * @see getCookieLoginKey()
      */
-    public function validateAutoLoginKey(string $key): bool;
+    public function validateCookieLoginKey(string $key): bool;
 }
