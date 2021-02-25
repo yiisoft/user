@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CookieLogin;
+namespace Yiisoft\User\Tests\Login\Cookie;
 
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -10,8 +10,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\User\CookieLogin\CookieLogin;
-use Yiisoft\User\CookieLogin\CookieLoginMiddleware;
+use Yiisoft\User\Login\Cookie\CookieLogin;
+use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
 use Yiisoft\User\Tests\Mock\MockEventDispatcher;
 use Yiisoft\User\Tests\Mock\MockIdentityRepository;

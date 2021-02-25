@@ -50,7 +50,7 @@ By default, you should set cookie for auto login manually in your application af
 public function login(
     \Psr\Http\Message\ServerRequestInterface $request,
     \Psr\Http\Message\ResponseFactoryInterface $responseFactory,
-    \Yiisoft\User\CookieLogin\CookieLogin $cookieLogin
+    \Yiisoft\User\Login\Cookie\CookieLogin $cookieLogin
 ): \Psr\Http\Message\ResponseInterface {
     $body = $request->getParsedBody();
     

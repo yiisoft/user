@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Yiisoft\Auth\AuthenticationMethodInterface;
-use Yiisoft\User\CookieLogin\CookieLoginMiddleware;
-use Yiisoft\User\CookieLogin\CookieLogin;
+use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
+use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\UserAuth;
 
 /** @var array $params */

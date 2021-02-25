@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\CookieLogin;
+namespace Yiisoft\User\Login\Cookie;
 
 use DateInterval;
 use Yiisoft\Auth\IdentityInterface;

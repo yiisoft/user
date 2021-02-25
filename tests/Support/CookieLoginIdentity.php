@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Support;
 
-use Yiisoft\User\CookieLogin\CookieLoginIdentityInterface;
+use Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface;
 
 final class CookieLoginIdentity implements CookieLoginIdentityInterface
 {

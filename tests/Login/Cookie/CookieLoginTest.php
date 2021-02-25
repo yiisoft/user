@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\CookieLogin;
+namespace Yiisoft\User\Tests\Login\Cookie;
 
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\User\CookieLogin\CookieLogin;
+use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Tests\Support\CookieLoginIdentity;
 
 final class CookieLoginTest extends TestCase
