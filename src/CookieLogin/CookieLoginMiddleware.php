@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User;
+namespace Yiisoft\User\CookieLogin;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,31 +12,33 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 
+use Yiisoft\User\CurrentUser;
+
 use function array_key_exists;
 use function is_array;
 
 /**
- * AutoLoginMiddleware automatically logs user in based on cookie.
+ * `CookieLoginMiddleware` automatically logs user in based on cookie.
  */
-final class AutoLoginMiddleware implements MiddlewareInterface
+final class CookieLoginMiddleware implements MiddlewareInterface
 {
     private CurrentUser $currentUser;
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
-    private AutoLogin $autoLogin;
+    private CookieLogin $cookieLogin;
     private bool $addCookie;
 
     public function __construct(
         CurrentUser $currentUser,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
-        AutoLogin $autoLogin,
+        CookieLogin $cookieLogin,
         bool $addCookie = false
     ) {
         $this->currentUser = $currentUser;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
-        $this->autoLogin = $autoLogin;
+        $this->cookieLogin = $cookieLogin;
         $this->addCookie = $addCookie;
     }
 
@@ -49,13 +51,13 @@ final class AutoLoginMiddleware implements MiddlewareInterface
 
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
             $identity = $this->currentUser->getIdentity();
-            if ($identity instanceof AutoLoginIdentityInterface) {
-                $response = $this->autoLogin->addCookie($identity, $response);
+            if ($identity instanceof CookieLoginIdentityInterface) {
+                $response = $this->cookieLogin->addCookie($identity, $response);
             }
         }
 
         if (!$guestBeforeHandle && $guestAfterHandle) {
-            $response = $this->autoLogin->expireCookie($response);
+            $response = $this->cookieLogin->expireCookie($response);
         }
 
         return $response;
@@ -68,7 +70,7 @@ final class AutoLoginMiddleware implements MiddlewareInterface
      */
     private function authenticateUserByCookieFromRequest(ServerRequestInterface $request): void
     {
-        $cookieName = $this->autoLogin->getCookieName();
+        $cookieName = $this->cookieLogin->getCookieName();
         $cookies = $request->getCookieParams();
 
         if (!array_key_exists($cookieName, $cookies)) {
@@ -98,11 +100,11 @@ final class AutoLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        if (!$identity instanceof AutoLoginIdentityInterface) {
-            throw new RuntimeException('Identity repository must return an instance of \Yiisoft\User\AutoLoginIdentityInterface in order for auto-login to function.');
+        if (!$identity instanceof CookieLoginIdentityInterface) {
+            throw new RuntimeException('Identity repository must return an instance of \Yiisoft\User\CookieLoginIdentityInterface in order for auto-login to function.');
         }
 
-        if (!$identity->validateAutoLoginKey($key)) {
+        if (!$identity->validateCookieLoginKey($key)) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid key.');
             return;
         }

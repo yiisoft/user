@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User;
+namespace Yiisoft\User\CookieLogin;
 
 use DateInterval;
 use Psr\Http\Message\ResponseInterface;
@@ -11,10 +11,10 @@ use Yiisoft\Cookies\Cookie;
 /**
  * The service is used to send or remove auto-login cookie.
  *
- * @see AutoLoginIdentityInterface
- * @see AutoLoginMiddleware
+ * @see CookieLoginIdentityInterface
+ * @see CookieLoginMiddleware
  */
-final class AutoLogin
+final class CookieLogin
 {
     private string $cookieName = 'autoLogin';
     private DateInterval $duration;
@@ -35,15 +35,15 @@ final class AutoLogin
      * Add auto-login cookie to response so the user is logged in automatically based on cookie even if session
      * is expired.
      */
-    public function addCookie(AutoLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
+    public function addCookie(CookieLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
     {
         $data = json_encode([
             $identity->getId(),
-            $identity->getAutoLoginKey(),
+            $identity->getCookieLoginKey(),
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return (new Cookie($this->cookieName, $data))
-            ->withMaxAge($identity->getAutoLoginDuration() ?? $this->duration)
+            ->withMaxAge($identity->getCookieLoginDuration() ?? $this->duration)
             ->addToResponse($response);
     }
 

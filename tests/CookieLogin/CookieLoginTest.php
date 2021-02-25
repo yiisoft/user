@@ -2,33 +2,33 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests;
+namespace Yiisoft\User\Tests\CookieLogin;
 
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\User\AutoLogin;
-use Yiisoft\User\Tests\Support\AutoLoginIdentity;
+use Yiisoft\User\CookieLogin\CookieLogin;
+use Yiisoft\User\Tests\Support\CookieLoginIdentity;
 
-final class AutoLoginTest extends TestCase
+final class CookieLoginTest extends TestCase
 {
     public function testAddCookie(): void
     {
-        $autoLogin = new AutoLogin(new \DateInterval('P1W'));
+        $cookieLogin = new CookieLogin(new \DateInterval('P1W'));
 
-        $identity = new AutoLoginIdentity();
+        $identity = new CookieLoginIdentity();
 
         $response = new Response();
-        $response = $autoLogin->addCookie($identity, $response);
+        $response = $cookieLogin->addCookie($identity, $response);
 
         $this->assertMatchesRegularExpression('#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
 
     public function testRemoveCookie(): void
     {
-        $autoLogin = new AutoLogin(new \DateInterval('P1W'));
+        $cookieLogin = new CookieLogin(new \DateInterval('P1W'));
 
         $response = new Response();
-        $response = $autoLogin->expireCookie($response);
+        $response = $cookieLogin->expireCookie($response);
 
         $this->assertMatchesRegularExpression('#autoLogin=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
@@ -36,13 +36,13 @@ final class AutoLoginTest extends TestCase
     public function testAddCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $autoLogin = (new AutoLogin(new \DateInterval('P1W')))
+        $cookieLogin = (new CookieLogin(new \DateInterval('P1W')))
             ->withCookieName($cookieName);
 
-        $identity = new AutoLoginIdentity();
+        $identity = new CookieLoginIdentity();
 
         $response = new Response();
-        $response = $autoLogin->addCookie($identity, $response);
+        $response = $cookieLogin->addCookie($identity, $response);
 
         $this->assertMatchesRegularExpression('#' . $cookieName . '=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
@@ -50,11 +50,11 @@ final class AutoLoginTest extends TestCase
     public function testRemoveCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $autoLogin = (new AutoLogin(new \DateInterval('P1W')))
+        $cookieLogin = (new CookieLogin(new \DateInterval('P1W')))
             ->withCookieName($cookieName);
 
         $response = new Response();
-        $response = $autoLogin->expireCookie($response);
+        $response = $cookieLogin->expireCookie($response);
 
         $this->assertMatchesRegularExpression('#' . $cookieName . '=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }

@@ -50,7 +50,7 @@ By default, you should set cookie for auto login manually in your application af
 public function login(
     \Psr\Http\Message\ServerRequestInterface $request,
     \Psr\Http\Message\ResponseFactoryInterface $responseFactory,
-    \Yiisoft\User\AutoLogin $autoLogin
+    \Yiisoft\User\CookieLogin\CookieLogin $cookieLogin
 ): \Psr\Http\Message\ResponseInterface {
     $body = $request->getParsedBody();
     
@@ -59,7 +59,7 @@ public function login(
     
     $response = $responseFactory->createResponse();
     if ($body['rememberMe'] ?? false) {
-        $response = $autoLogin->addCookie($identity, $response);
+        $response = $cookieLogin->addCookie($identity, $response);
     }
     return $response;
 }
@@ -72,7 +72,7 @@ you can enable it via `params.php`:
 ```php
 return [
     'yiisoft/user' => [
-        'autoLogin' => [
+        'cookieLogin' => [
             'addCookie' => true,
         ],
     ],
