@@ -101,7 +101,12 @@ final class CookieLoginMiddleware implements MiddlewareInterface
         }
 
         if (!$identity instanceof CookieLoginIdentityInterface) {
-            throw new RuntimeException('Identity repository must return an instance of \Yiisoft\User\CookieLoginIdentityInterface in order for auto-login to function.');
+            throw new RuntimeException(
+                sprintf(
+                    'Identity repository must return an instance of %s in order for auto-login to function.',
+                    CookieLoginIdentityInterface::class
+                )
+            );
         }
 
         if (!$identity->validateCookieLoginKey($key)) {
