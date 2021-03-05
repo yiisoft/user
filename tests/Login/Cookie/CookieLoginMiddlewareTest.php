@@ -166,7 +166,10 @@ final class CookieLoginMiddlewareTest extends TestCase
         $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Identity repository must return an instance of \Yiisoft\User\CookieLoginIdentityInterface in order for auto-login to function.');
+        $this->expectExceptionMessage(
+            'Identity repository must return an instance of Yiisoft\\User\\Login\\Cookie\\CookieLoginIdentityInterface '
+            . 'in order for auto-login to function.'
+        );
 
         $middleware->process($request, $this->getRequestHandlerThatIsNotCalled());
     }
@@ -332,7 +335,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
 
         self::assertMatchesRegularExpression(
-            '#autoLogin=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            '#autoLogin=; Expires=.*?; Max-Age=-\d++; Path=/; Secure; HttpOnly; SameSite=Lax#',
             $response->getHeaderLine('Set-Cookie')
         );
     }

@@ -30,7 +30,7 @@ final class CookieLoginTest extends TestCase
         $response = new Response();
         $response = $cookieLogin->expireCookie($response);
 
-        $this->assertMatchesRegularExpression('#autoLogin=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+        $this->assertMatchesRegularExpression('#autoLogin=; Expires=.*?; Max-Age=-\d++; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
 
     public function testAddCookieWithCustomName(): void
@@ -56,6 +56,6 @@ final class CookieLoginTest extends TestCase
         $response = new Response();
         $response = $cookieLogin->expireCookie($response);
 
-        $this->assertMatchesRegularExpression('#' . $cookieName . '=; Expires=.*?; Max-Age=-31622400; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
+        $this->assertMatchesRegularExpression('#' . $cookieName . '=; Expires=.*?; Max-Age=-\d++; Path=/; Secure; HttpOnly; SameSite=Lax#', $response->getHeaderLine('Set-Cookie'));
     }
 }
