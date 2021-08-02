@@ -22,7 +22,7 @@
         "ext-json": "*",
         "psr/event-dispatcher": "^1.0",
         "psr/http-factory": "^1.0",
-        "psr/log": "^1.1",
+        "psr/log": "^3.0",
         "yiisoft/access": "^1.0",
         "yiisoft/auth": "^2.0|^3.0",
         "yiisoft/cookies": "^1.0",
