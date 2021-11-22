@@ -10,6 +10,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
+use Yiisoft\User\Event\AfterLogin;
+use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\Tests\Mock\MockArraySessionStorage;
@@ -54,6 +56,39 @@ final class CookieLoginMiddlewareTest extends TestCase
 
         self::assertNull($this->getLastLogMessage());
         self::assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+    }
+
+    public function testCorrectProcessWithNonGuestUser(): void
+    {
+        $eventDispatcher = $this->createEventDispatcher();
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $eventDispatcher,
+            $this->createSession()
+        );
+
+        $cookieLogin = $this->getCookieLogin();
+        $middleware = new CookieLoginMiddleware(
+            $currentUser,
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $cookieLogin
+        );
+
+        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT);
+        $middleware->process($request, $this->getRequestHandler());
+
+        $this->assertNull($this->getLastLogMessage());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+        $this->assertCount(2, $eventDispatcher->getEvents());
+        $this->assertSame([BeforeLogin::class, AfterLogin::class], $eventDispatcher->getClassesEvents());
+
+        $middleware->process($request, $this->getRequestHandler());
+
+        $this->assertNull($this->getLastLogMessage());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+        $this->assertCount(2, $eventDispatcher->getEvents());
+        $this->assertSame([BeforeLogin::class, AfterLogin::class], $eventDispatcher->getClassesEvents());
     }
 
     public function testInvalidKey(): void

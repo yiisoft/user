@@ -44,7 +44,10 @@ final class CookieLoginMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->authenticateUserByCookieFromRequest($request);
+        if ($this->currentUser->isGuest()) {
+            $this->authenticateUserByCookieFromRequest($request);
+        }
+
         $guestBeforeHandle = $this->currentUser->isGuest();
         $response = $handler->handle($request);
         $guestAfterHandle = $this->currentUser->isGuest();
