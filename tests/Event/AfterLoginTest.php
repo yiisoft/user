@@ -6,7 +6,7 @@ namespace Yiisoft\User\Tests\Event;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Event\AfterLogin;
-use Yiisoft\User\Tests\Mock\MockIdentity;
+use Yiisoft\User\Tests\Support\MockIdentity;
 
 final class AfterLoginTest extends TestCase
 {
@@ -16,6 +16,6 @@ final class AfterLoginTest extends TestCase
 
         $event = new AfterLogin($identity);
 
-        self::assertSame($identity, $event->getIdentity());
+        $this->assertSame($identity, $event->getIdentity());
     }
 }

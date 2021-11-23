@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\Mock;
+namespace Yiisoft\User\Tests\Support;
 
 use Yiisoft\Session\SessionInterface;
 
-class MockArraySessionStorage implements SessionInterface
+use function hash;
+use function uniqid;
+
+final class MockArraySessionStorage implements SessionInterface
 {
     private ?string $id = '';
 

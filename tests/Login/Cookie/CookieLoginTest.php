@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Login\Cookie;
 
-use Nyholm\Psr7\Response;
+use DateInterval;
+use HttpSoft\Message\Response;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Tests\Support\CookieLoginIdentity;
@@ -13,7 +14,7 @@ final class CookieLoginTest extends TestCase
 {
     public function testAddCookie(): void
     {
-        $cookieLogin = new CookieLogin(new \DateInterval('P1W'));
+        $cookieLogin = new CookieLogin(new DateInterval('P1W'));
 
         $identity = new CookieLoginIdentity();
 
@@ -25,7 +26,7 @@ final class CookieLoginTest extends TestCase
 
     public function testRemoveCookie(): void
     {
-        $cookieLogin = new CookieLogin(new \DateInterval('P1W'));
+        $cookieLogin = new CookieLogin(new DateInterval('P1W'));
 
         $response = new Response();
         $response = $cookieLogin->expireCookie($response);
@@ -36,8 +37,7 @@ final class CookieLoginTest extends TestCase
     public function testAddCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $cookieLogin = (new CookieLogin(new \DateInterval('P1W')))
-            ->withCookieName($cookieName);
+        $cookieLogin = (new CookieLogin(new DateInterval('P1W')))->withCookieName($cookieName);
 
         $identity = new CookieLoginIdentity();
 
@@ -50,8 +50,7 @@ final class CookieLoginTest extends TestCase
     public function testRemoveCookieWithCustomName(): void
     {
         $cookieName = 'testName';
-        $cookieLogin = (new CookieLogin(new \DateInterval('P1W')))
-            ->withCookieName($cookieName);
+        $cookieLogin = (new CookieLogin(new DateInterval('P1W')))->withCookieName($cookieName);
 
         $response = new Response();
         $response = $cookieLogin->expireCookie($response);

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\Mock;
+namespace Yiisoft\User\Tests\Support;
 
 use Yiisoft\Auth\IdentityInterface;
 
-class MockIdentity implements IdentityInterface
+final class MockIdentity implements IdentityInterface
 {
     private string $id;
 
