@@ -13,8 +13,19 @@
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
+        "chat": "https://t.me/yii3en",
         "source": "https://github.com/yiisoft/user"
     },
+    "funding": [
+        {
+            "type": "opencollective",
+            "url": "https://opencollective.com/yiisoft"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/yiisoft"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
