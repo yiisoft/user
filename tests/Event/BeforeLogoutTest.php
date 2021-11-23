@@ -6,9 +6,9 @@ namespace Yiisoft\User\Tests\Event;
 
 use Yiisoft\User\Event\BeforeLogout;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\User\Tests\Mock\MockIdentity;
+use Yiisoft\User\Tests\Support\MockIdentity;
 
-class BeforeLogoutTest extends TestCase
+final class BeforeLogoutTest extends TestCase
 {
     public function testGetIdentity(): void
     {
@@ -16,7 +16,7 @@ class BeforeLogoutTest extends TestCase
 
         $event = new BeforeLogout($identity);
 
-        self::assertSame($identity, $event->getIdentity());
+        $this->assertSame($identity, $event->getIdentity());
     }
 
     public function testInvalidate(): void
@@ -24,6 +24,6 @@ class BeforeLogoutTest extends TestCase
         $event = new BeforeLogout(new MockIdentity('test'));
         $event->invalidate();
 
-        self::assertFalse($event->isValid());
+        $this->assertFalse($event->isValid());
     }
 }

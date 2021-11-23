@@ -6,7 +6,7 @@ namespace Yiisoft\User\Tests\Support;
 
 use Psr\Log\AbstractLogger;
 
-class LastMessageLogger extends AbstractLogger
+final class LastMessageLogger extends AbstractLogger
 {
     private ?string $lastMessage = null;
 

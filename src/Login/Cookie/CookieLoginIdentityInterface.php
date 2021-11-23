@@ -29,12 +29,17 @@ interface CookieLoginIdentityInterface extends IdentityInterface
      * Make sure to invalidate earlier issued keys when you implement force user logout, password change and
      * other scenarios, that require forceful access revocation for old sessions.
      *
-     * @return string a key that is used to check the validity of a given identity ID.
+     * @return string A key that is used to check the validity of a given identity ID.
      *
      * @see validateCookieLoginKey()
      */
     public function getCookieLoginKey(): string;
 
+    /**
+     * Returns an interval until the expires.
+     *
+     * @return DateInterval|null Interval until the expires.
+     */
     public function getCookieLoginDuration(): ?DateInterval;
 
     /**

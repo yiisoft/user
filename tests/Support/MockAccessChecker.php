@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\User\Tests\Mock;
+namespace Yiisoft\User\Tests\Support;
 
 use Yiisoft\Access\AccessCheckerInterface;
 
-class MockAccessChecker implements AccessCheckerInterface
+final class MockAccessChecker implements AccessCheckerInterface
 {
     private bool $userHasPermission;
 
