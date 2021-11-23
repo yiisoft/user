@@ -14,6 +14,8 @@ use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\Event\BeforeLogin;
 
+use function time;
+
 /**
  * Maintains current identity and allows logging in and out using it.
  */
@@ -31,17 +33,7 @@ final class CurrentUser
     private ?IdentityInterface $identity = null;
     private ?IdentityInterface $identityOverride = null;
 
-    /**
-     * @var int|null the number of seconds in which the user will be logged out automatically in case of
-     * remaining inactive. If this property is not set, the user will be logged out after
-     * the current session expires.
-     */
     private ?int $authTimeout = null;
-
-    /**
-     * @var int|null the number of seconds in which the user will be logged out automatically
-     * regardless of activity.
-     */
     private ?int $absoluteAuthTimeout = null;
 
     public function __construct(
@@ -54,17 +46,41 @@ final class CurrentUser
         $this->session = $session;
     }
 
-    public function setAccessChecker(AccessCheckerInterface $accessChecker): void
+    /**
+     * Sets an access checker to check user permissions {@see can()}.
+     *
+     * @param AccessCheckerInterface $accessChecker The access checker instance.
+     *
+     * @return self
+     */
+    public function setAccessChecker(AccessCheckerInterface $accessChecker): self
     {
         $this->accessChecker = $accessChecker;
+        return $this;
     }
 
+    /**
+     * Sets a number of seconds in which the user will be logged out automatically in case of remaining inactive.
+     *
+     * @param int|null $timeout The number of seconds in which the user will be logged out automatically in case of
+     * remaining inactive. If this property is not set, the user will be logged out after the current session expires.
+     *
+     * @return self
+     */
     public function setAuthTimeout(int $timeout = null): self
     {
         $this->authTimeout = $timeout;
         return $this;
     }
 
+    /**
+     * Sets a number of seconds in which the user will be logged out automatically regardless of activity.
+     *
+     * @param int|null $timeout The number of seconds in which the user will be
+     * logged out automatically regardless of activity.
+     *
+     * @return self
+     */
     public function setAbsoluteAuthTimeout(int $timeout = null): self
     {
         $this->absoluteAuthTimeout = $timeout;
@@ -82,11 +98,12 @@ final class CurrentUser
             $identity = null;
 
             $id = $this->getSavedId();
+
             if ($id !== null) {
                 $identity = $this->identityRepository->findIdentity($id);
             }
-            $identity = $identity ?? new GuestIdentity();
 
+            $identity = $identity ?? new GuestIdentity();
             $this->identity = $identity;
         }
 
@@ -96,9 +113,9 @@ final class CurrentUser
     /**
      * Returns a value that uniquely represents the user.
      *
-     * @see CurrentUser::getIdentity()
+     * @return string|null The unique identifier for the user. If `null`, it means the user is a guest.
      *
-     * @return string|null The unique identifier for the user. If `null`, it means the user is a guest.     *
+     * @see getIdentity()
      */
     public function getId(): ?string
     {
@@ -108,9 +125,9 @@ final class CurrentUser
     /**
      * Returns a value indicating whether the user is a guest (not authenticated).
      *
-     * @see getIdentity()
-     *
      * @return bool Whether the current user is a guest.
+     *
+     * @see getIdentity()
      */
     public function isGuest(): bool
     {
@@ -120,8 +137,8 @@ final class CurrentUser
     /**
      * Checks if the user can perform the operation as specified by the given permission.
      *
-     * Note that you must provide access checker via {@see CurrentUser::setAccessChecker()} in order to use this
-     * method. Otherwise it will always return `false`.
+     * Note that you must provide access checker via {@see setAccessChecker()} in order to use this
+     * method. Otherwise, it will always return `false`.
      *
      * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
      * @param array $params Name-value pairs that would be passed to the rules associated with the roles and
@@ -151,7 +168,47 @@ final class CurrentUser
             $this->switchIdentity($identity);
             $this->afterLogin($identity);
         }
+
         return !$this->isGuest();
+    }
+
+    /**
+     * Logs out the current user.
+     *
+     * @return bool Whether the user is logged out.
+     */
+    public function logout(): bool
+    {
+        if ($this->isGuest()) {
+            return false;
+        }
+
+        $identity = $this->getIdentity();
+
+        if ($this->beforeLogout($identity)) {
+            $this->switchIdentity(new GuestIdentity());
+            $this->afterLogout($identity);
+        }
+
+        return $this->isGuest();
+    }
+
+    /**
+     * Overrides identity.
+     *
+     * @param IdentityInterface $identity The identity instance to overriding.
+     */
+    public function overrideIdentity(IdentityInterface $identity): void
+    {
+        $this->identityOverride = $identity;
+    }
+
+    /**
+     * Clears the identity override.
+     */
+    public function clearIdentityOverride(): void
+    {
+        $this->identityOverride = null;
     }
 
     /**
@@ -180,27 +237,7 @@ final class CurrentUser
     }
 
     /**
-     * Logs out the current user.
-     *
-     * @return bool Whether the user is logged out.
-     */
-    public function logout(): bool
-    {
-        if ($this->isGuest()) {
-            return false;
-        }
-
-        $identity = $this->getIdentity();
-        if ($this->beforeLogout($identity)) {
-            $this->switchIdentity(new GuestIdentity());
-            $this->afterLogout($identity);
-        }
-
-        return $this->isGuest();
-    }
-
-    /**
-     * This method is invoked when calling {@see CurrentUser::logout()} to log out a user.
+     * This method is invoked when calling {@see logout()} to log out a user.
      *
      * @param IdentityInterface $identity The user identity information.
      *
@@ -214,7 +251,7 @@ final class CurrentUser
     }
 
     /**
-     * This method is invoked right after a user is logged out via {@see CurrentUser::logout()}.
+     * This method is invoked right after a user is logged out via {@see logout()}.
      *
      * @param IdentityInterface $identity The user identity information.
      */
@@ -223,21 +260,11 @@ final class CurrentUser
         $this->eventDispatcher->dispatch(new AfterLogout($identity));
     }
 
-    public function overrideIdentity(IdentityInterface $identity): void
-    {
-        $this->identityOverride = $identity;
-    }
-
-    public function clearIdentityOverride(): void
-    {
-        $this->identityOverride = null;
-    }
-
     /**
      * Switches to a new identity for the current user.
      *
-     * This method is called by {@see CurrentUser::login()} and {@see CurrentUser::logout()}
-     * when the current user needs to be associated with the corresponding identity information.
+     * This method is called by {@see login()} and {@see logout()} when the current
+     * user needs to be associated with the corresponding identity information.
      *
      * @param IdentityInterface $identity The identity information to be associated with the current user.
      * In order to indicate that the user is guest, use {@see GuestIdentity}.
@@ -257,17 +284,11 @@ final class CurrentUser
         /** @var mixed $id */
         $id = $this->session->get(self::SESSION_AUTH_ID);
 
-        if (
-            $id !== null &&
-            ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)
-        ) {
+        if ($id !== null && ($this->authTimeout !== null || $this->absoluteAuthTimeout !== null)) {
             $expire = $this->getExpire();
             $expireAbsolute = $this->getExpireAbsolute();
 
-            if (
-                ($expire !== null && $expire < time()) ||
-                ($expireAbsolute !== null && $expireAbsolute < time())
-            ) {
+            if (($expire !== null && $expire < time()) || ($expireAbsolute !== null && $expireAbsolute < time())) {
                 $this->saveId(null);
                 return null;
             }
@@ -277,7 +298,7 @@ final class CurrentUser
             }
         }
 
-        return $id === null ? null : (string)$id;
+        return $id === null ? null : (string) $id;
     }
 
     private function getExpire(): ?int
@@ -288,8 +309,10 @@ final class CurrentUser
          */
         $expire = $this->authTimeout !== null
             ? $this->session->get(self::SESSION_AUTH_EXPIRE)
-            : null;
-        return $expire !== null ? (int)$expire : null;
+            : null
+        ;
+
+        return $expire !== null ? (int) $expire : null;
     }
 
     private function getExpireAbsolute(): ?int
@@ -300,8 +323,10 @@ final class CurrentUser
          */
         $expire = $this->absoluteAuthTimeout !== null
             ? $this->session->get(self::SESSION_AUTH_ABSOLUTE_EXPIRE)
-            : null;
-        return $expire !== null ? (int)$expire : null;
+            : null
+        ;
+
+        return $expire !== null ? (int) $expire : null;
     }
 
     private function saveId(?string $id): void
@@ -320,9 +345,11 @@ final class CurrentUser
         }
 
         $this->session->set(self::SESSION_AUTH_ID, $id);
+
         if ($this->authTimeout !== null) {
             $this->session->set(self::SESSION_AUTH_EXPIRE, time() + $this->authTimeout);
         }
+
         if ($this->absoluteAuthTimeout !== null) {
             $this->session->set(self::SESSION_AUTH_ABSOLUTE_EXPIRE, time() + $this->absoluteAuthTimeout);
         }

@@ -17,6 +17,7 @@ return [
             $this->identityOverride = null;
         },
     ],
+
     UserAuth::class => [
         'class' => UserAuth::class,
         'withAuthUrl()' => [$params['yiisoft/user']['authUrl']],
