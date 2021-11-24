@@ -13,7 +13,7 @@ use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
-use Yiisoft\User\GuestIdentity;
+use Yiisoft\User\Guest\GuestIdentity;
 use Yiisoft\User\Tests\Support\MockAccessChecker;
 use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;

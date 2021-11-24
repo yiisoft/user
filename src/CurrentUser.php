@@ -13,6 +13,10 @@ use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\Event\BeforeLogin;
+use Yiisoft\User\Guest\GuestIdentity;
+use Yiisoft\User\Guest\GuestIdentityFactory;
+use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
+use Yiisoft\User\Guest\GuestIdentityInterface;
 
 use function time;
 
@@ -27,6 +31,7 @@ final class CurrentUser
 
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
+    private GuestIdentityFactoryInterface $guestIdentityFactory;
     private ?SessionInterface $session;
     private ?AccessCheckerInterface $accessChecker = null;
 
@@ -39,11 +44,13 @@ final class CurrentUser
     public function __construct(
         IdentityRepositoryInterface $identityRepository,
         EventDispatcherInterface $eventDispatcher,
-        ?SessionInterface $session = null
+        SessionInterface $session = null,
+        GuestIdentityFactoryInterface $guestIdentityFactory = null
     ) {
         $this->identityRepository = $identityRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->session = $session;
+        $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
     }
 
     /**
@@ -95,15 +102,13 @@ final class CurrentUser
         $identity = $this->identityOverride ?? $this->identity;
 
         if ($identity === null) {
-            $identity = null;
-
             $id = $this->getSavedId();
 
             if ($id !== null) {
                 $identity = $this->identityRepository->findIdentity($id);
             }
 
-            $identity = $identity ?? new GuestIdentity();
+            $identity ??= $this->guestIdentityFactory->create();
             $this->identity = $identity;
         }
 
@@ -131,7 +136,7 @@ final class CurrentUser
      */
     public function isGuest(): bool
     {
-        return $this->getIdentity() instanceof GuestIdentity;
+        return $this->getIdentity() instanceof GuestIdentityInterface;
     }
 
     /**
@@ -186,7 +191,7 @@ final class CurrentUser
         $identity = $this->getIdentity();
 
         if ($this->beforeLogout($identity)) {
-            $this->switchIdentity(new GuestIdentity());
+            $this->switchIdentity($this->guestIdentityFactory->create());
             $this->afterLogout($identity);
         }
 
@@ -267,12 +272,12 @@ final class CurrentUser
      * user needs to be associated with the corresponding identity information.
      *
      * @param IdentityInterface $identity The identity information to be associated with the current user.
-     * In order to indicate that the user is guest, use {@see GuestIdentity}.
+     * In order to indicate that the user is guest, use {@see GuestIdentityInterface, GuestIdentity}.
      */
     private function switchIdentity(IdentityInterface $identity): void
     {
         $this->identity = $identity;
-        $this->saveId($identity->getId());
+        $this->saveId($identity instanceof GuestIdentityInterface ? null : $identity->getId());
     }
 
     private function getSavedId(): ?string
@@ -339,6 +344,7 @@ final class CurrentUser
 
         $this->session->remove(self::SESSION_AUTH_ID);
         $this->session->remove(self::SESSION_AUTH_EXPIRE);
+        $this->session->remove(self::SESSION_AUTH_ABSOLUTE_EXPIRE);
 
         if ($id === null) {
             return;
