@@ -13,7 +13,7 @@ use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
-use Yiisoft\User\GuestIdentity;
+use Yiisoft\User\Guest\GuestIdentity;
 use Yiisoft\User\Tests\Support\MockAccessChecker;
 use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;
@@ -392,12 +392,14 @@ final class CurrentUserTest extends TestCase
         );
 
         $currentUser->setAuthTimeout(60);
+        $currentUser->setAbsoluteAuthTimeout(3600);
         $currentUser->login($this->createIdentity('test-id'));
         $currentUser->logout();
 
         $this->assertNotSame($sessionId, $session->getId());
         $this->assertFalse($session->has('__auth_id'));
         $this->assertFalse($session->has('__auth_expire'));
+        $this->assertFalse($session->has('__auth_absolute_expire'));
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
