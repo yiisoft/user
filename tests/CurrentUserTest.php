@@ -392,12 +392,14 @@ final class CurrentUserTest extends TestCase
         );
 
         $currentUser->setAuthTimeout(60);
+        $currentUser->setAbsoluteAuthTimeout(3600);
         $currentUser->login($this->createIdentity('test-id'));
         $currentUser->logout();
 
         $this->assertNotSame($sessionId, $session->getId());
         $this->assertFalse($session->has('__auth_id'));
         $this->assertFalse($session->has('__auth_expire'));
+        $this->assertFalse($session->has('__auth_absolute_expire'));
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
