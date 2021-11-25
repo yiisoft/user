@@ -73,7 +73,7 @@ final class CookieLoginMiddleware implements MiddlewareInterface
         if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
             $identity = $this->currentUser->getIdentity();
 
-            if ($identity instanceof CookieLoginIdentityInterface) {
+            if ($identity instanceof CookieLoginIdentityInterface && $identity->shouldRememberMe()) {
                 $response = $this->cookieLogin->addCookie($identity, $response);
             }
         }

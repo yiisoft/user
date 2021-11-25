@@ -279,11 +279,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             $request,
         );
 
-        $this->assertMatchesRegularExpression(
-            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; ' .
-            'Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
-            $response->getHeaderLine('Set-Cookie'),
-        );
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
     public function testNotAddCookieAfterLogin(): void
@@ -309,6 +305,42 @@ final class CookieLoginMiddlewareTest extends TestCase
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
                 $currentUser->login(new CookieLoginIdentity());
+                return new Response();
+            });
+
+        $response = $middleware->process(
+            $this->getRequestWithCookies([]),
+            $request,
+        );
+
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+    }
+
+    public function testNotAddCookieAfterLoginUsingRememberMe(): void
+    {
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession(),
+        );
+
+        $cookieLogin = $this->getCookieLogin();
+
+        $middleware = new CookieLoginMiddleware(
+            $currentUser,
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $cookieLogin,
+        );
+
+        $request = $this->createMock(RequestHandlerInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('handle')
+            ->willReturnCallback(static function () use ($currentUser) {
+                $identity = new CookieLoginIdentity();
+                $identity->rememberMe = true;
+                $currentUser->login($identity);
                 return new Response();
             });
 
@@ -356,7 +388,7 @@ final class CookieLoginMiddlewareTest extends TestCase
 
         $this->assertMatchesRegularExpression(
             '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; ' .
-            'Max-Age=1209600; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            'Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
             $response->getHeaderLine('Set-Cookie'),
         );
     }
