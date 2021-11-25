@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests\Support;
 
-use DateInterval;
 use Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface;
 
 final class CookieLoginIdentity implements CookieLoginIdentityInterface
@@ -29,8 +28,8 @@ final class CookieLoginIdentity implements CookieLoginIdentityInterface
         return self::ID;
     }
 
-    public function getCookieLoginDuration(): ?DateInterval
+    public function shouldLoginByCookie(): bool
     {
-        return $this->rememberMe ? new DateInterval('P2W') : null;
+        return $this->rememberMe;
     }
 }
