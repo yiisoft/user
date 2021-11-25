@@ -28,7 +28,7 @@ final class CookieLoginIdentity implements CookieLoginIdentityInterface
         return self::ID;
     }
 
-    public function shouldAddLoginCookie(): bool
+    public function shouldLoginByCookie(): bool
     {
         return $this->rememberMe;
     }
