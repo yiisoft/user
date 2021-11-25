@@ -52,5 +52,5 @@ interface CookieLoginIdentityInterface extends IdentityInterface
      *
      * @see getCookieLoginKey()
      */
-    public function shouldRememberMe(): bool;
+    public function shouldAddLoginCookie(): bool;
 }
