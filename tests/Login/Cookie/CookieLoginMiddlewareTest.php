@@ -23,6 +23,9 @@ use Yiisoft\User\Tests\Support\CookieLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
 use Yiisoft\User\CurrentUser;
 
+use function json_encode;
+use function time;
+
 final class CookieLoginMiddlewareTest extends TestCase
 {
     private LastMessageLogger $logger;
@@ -54,9 +57,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT);
-
-        $middleware->process($request, $this->getRequestHandler());
+        $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
 
         $this->assertNull($this->getLastLogMessage());
         $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
@@ -81,7 +82,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT);
+        $request = $this->getRequestWithAutoLoginCookie();
 
         $middleware->process($request, $this->getRequestHandler());
 
@@ -115,11 +116,37 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_INCORRECT);
+        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_INCORRECT);
 
-        $middleware->process($request, $this->getRequestHandler());
+        $response = $middleware->process($request, $this->getRequestHandler());
 
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
         $this->assertSame('Unable to authenticate user by cookie. Invalid key.', $this->getLastLogMessage());
+    }
+
+    public function testInvalidExpires(): void
+    {
+        $user = new CurrentUser(
+            $this->createIdentityRepository(),
+            $this->createEventDispatcher(),
+            $this->createSession(),
+        );
+
+        $cookieLogin = $this->getCookieLogin();
+
+        $middleware = new CookieLoginMiddleware(
+            $user,
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $cookieLogin,
+        );
+
+        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_CORRECT, time() -1);
+
+        $response = $middleware->process($request, $this->getRequestHandler());
+
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertSame('Unable to authenticate user by cookie. Lifetime has expired.', $this->getLastLogMessage());
     }
 
     public function testNoCookie(): void
@@ -141,9 +168,10 @@ final class CookieLoginMiddlewareTest extends TestCase
 
         $request = $this->getRequestWithCookies([]);
 
-        $middleware->process($request, $this->getRequestHandler());
+        $response = $middleware->process($request, $this->getRequestHandler());
 
         $this->assertNull($this->getLastLogMessage());
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
     public function testEmptyCookie(): void
@@ -165,8 +193,9 @@ final class CookieLoginMiddlewareTest extends TestCase
 
         $request = $this->getRequestWithCookies(['autoLogin' => '']);
 
-        $middleware->process($request, $this->getRequestHandler());
+        $response = $middleware->process($request, $this->getRequestHandler());
 
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
         $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
     }
 
@@ -187,14 +216,18 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->getRequestWithCookies(
-            [
-                'autoLogin' => json_encode([CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT, 'weird stuff']),
-            ],
-        );
+        $request = $this->getRequestWithCookies([
+            'autoLogin' => json_encode([
+                CookieLoginIdentity::ID,
+                CookieLoginIdentity::KEY_CORRECT,
+                time() + 3600,
+                'weird stuff',
+            ]),
+        ]);
 
-        $middleware->process($request, $this->getRequestHandler());
+        $response = $middleware->process($request, $this->getRequestHandler());
 
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
         $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
     }
 
@@ -213,15 +246,13 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->getCookieLogin(),
         );
 
-        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT);
-
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
-            'Identity repository must return an instance of Yiisoft\\User\\Login\\Cookie\\CookieLoginIdentityInterface '
-            . 'in order for auto-login to function.',
+            'Identity repository must return an instance of Yiisoft\\User\\Login\\Cookie\\CookieLoginIdentityInterface'
+            . ' in order for auto-login to function.',
         );
 
-        $middleware->process($request, $this->getRequestHandlerThatIsNotCalled());
+        $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandlerThatIsNotCalled());
     }
 
     public function testIdentityNotFound(): void
@@ -239,12 +270,13 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->getCookieLogin(),
         );
 
-        $identityId = CookieLoginIdentity::ID;
-        $request = $this->getRequestWithAutoLoginCookie($identityId, CookieLoginIdentity::KEY_CORRECT);
+        $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
 
-        $middleware->process($request, $this->getRequestHandler());
-
-        $this->assertSame("Unable to authenticate user by cookie. Identity \"$identityId\" not found.", $this->getLastLogMessage());
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertSame(
+            'Unable to authenticate user by cookie. Identity "' . CookieLoginIdentity::ID . '" not found.',
+            $this->getLastLogMessage(),
+        );
     }
 
     public function testAddCookieAfterLogin(): void
@@ -265,8 +297,8 @@ final class CookieLoginMiddlewareTest extends TestCase
             true,
         );
 
-        $request = $this->createMock(RequestHandlerInterface::class);
-        $request
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
@@ -274,11 +306,9 @@ final class CookieLoginMiddlewareTest extends TestCase
                 return new Response();
             });
 
-        $response = $middleware->process(
-            $this->getRequestWithCookies([]),
-            $request,
-        );
+        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
+        $this->assertNull($this->getLastLogMessage());
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
@@ -299,8 +329,8 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->createMock(RequestHandlerInterface::class);
-        $request
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
@@ -308,11 +338,9 @@ final class CookieLoginMiddlewareTest extends TestCase
                 return new Response();
             });
 
-        $response = $middleware->process(
-            $this->getRequestWithCookies([]),
-            $request,
-        );
+        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
+        $this->assertNull($this->getLastLogMessage());
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
@@ -333,8 +361,8 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->createMock(RequestHandlerInterface::class);
-        $request
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
@@ -344,11 +372,9 @@ final class CookieLoginMiddlewareTest extends TestCase
                 return new Response();
             });
 
-        $response = $middleware->process(
-            $this->getRequestWithCookies([]),
-            $request,
-        );
+        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
+        $this->assertNull($this->getLastLogMessage());
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
@@ -370,8 +396,8 @@ final class CookieLoginMiddlewareTest extends TestCase
             true,
         );
 
-        $request = $this->createMock(RequestHandlerInterface::class);
-        $request
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
@@ -381,14 +407,12 @@ final class CookieLoginMiddlewareTest extends TestCase
                 return new Response();
             });
 
-        $response = $middleware->process(
-            $this->getRequestWithCookies([]),
-            $request,
-        );
+        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
+        $this->assertNull($this->getLastLogMessage());
         $this->assertMatchesRegularExpression(
-            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%5D; Expires=.*?; ' .
-            'Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
+            . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
             $response->getHeaderLine('Set-Cookie'),
         );
     }
@@ -410,8 +434,8 @@ final class CookieLoginMiddlewareTest extends TestCase
             $cookieLogin,
         );
 
-        $request = $this->createMock(RequestHandlerInterface::class);
-        $request
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(function () use ($currentUser) {
@@ -419,11 +443,9 @@ final class CookieLoginMiddlewareTest extends TestCase
                 return new Response();
             });
 
-        $response = $middleware->process(
-            $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::ID, CookieLoginIdentity::KEY_CORRECT),
-            $request,
-        );
+        $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $handler);
 
+        $this->assertNull($this->getLastLogMessage());
         $this->assertMatchesRegularExpression(
             '#autoLogin=; Expires=.*?; Max-Age=-\d++; Path=/; Secure; HttpOnly; SameSite=Lax#',
             $response->getHeaderLine('Set-Cookie'),
@@ -482,9 +504,13 @@ final class CookieLoginMiddlewareTest extends TestCase
         return $identityRepository;
     }
 
-    private function getRequestWithAutoLoginCookie(string $userId, string $authKey): ServerRequestInterface
-    {
-        return $this->getRequestWithCookies(['autoLogin' => json_encode([$userId, $authKey])]);
+    private function getRequestWithAutoLoginCookie(
+        string $authKey = CookieLoginIdentity::KEY_CORRECT,
+        int $expires = null
+    ): ServerRequestInterface {
+        return $this->getRequestWithCookies([
+            'autoLogin' => json_encode([CookieLoginIdentity::ID, $authKey, $expires ?? time() + 3600]),
+        ]);
     }
 
     private function getRequestWithCookies(array $cookies): ServerRequestInterface
@@ -510,9 +536,9 @@ final class CookieLoginMiddlewareTest extends TestCase
         return new MockArraySessionStorage($data);
     }
 
-    private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
+    private function createIdentityRepository(): IdentityRepositoryInterface
     {
-        return new MockIdentityRepository($identity);
+        return new MockIdentityRepository();
     }
 
     private function createEventDispatcher(): SimpleEventDispatcher

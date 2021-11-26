@@ -20,6 +20,7 @@ use function count;
 use function is_array;
 use function json_decode;
 use function sprintf;
+use function time;
 
 /**
  * `CookieLoginMiddleware` automatically logs user in based on cookie.
@@ -109,14 +110,15 @@ final class CookieLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        if (!is_array($data) || count($data) !== 2) {
+        if (!is_array($data) || count($data) !== 3) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
             return;
         }
 
-        [$id, $key] = $data;
+        [$id, $key, $expires] = $data;
         $id = (string) $id;
         $key = (string) $key;
+        $expires = (int) $expires;
 
         $identity = $this->identityRepository->findIdentity($id);
 
@@ -136,6 +138,11 @@ final class CookieLoginMiddleware implements MiddlewareInterface
 
         if (!$identity->validateCookieLoginKey($key)) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid key.');
+            return;
+        }
+
+        if ($expires < time()) {
+            $this->logger->warning('Unable to authenticate user by cookie. Lifetime has expired.');
             return;
         }
 

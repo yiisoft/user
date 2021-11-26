@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\User\Login\Cookie;
 
 use DateInterval;
+use DateTimeImmutable;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\Cookies\Cookie;
@@ -57,13 +58,16 @@ final class CookieLogin
      */
     public function addCookie(CookieLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
     {
+        $expires = (new DateTimeImmutable())->add($this->duration);
+
         $data = json_encode([
             $identity->getId(),
             $identity->getCookieLoginKey(),
+            $expires->getTimestamp(),
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         return (new Cookie($this->cookieName, $data))
-            ->withMaxAge($this->duration)
+            ->withExpires($expires)
             ->addToResponse($response);
     }
 
