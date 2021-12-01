@@ -235,7 +235,7 @@ final class CurrentUserTest extends TestCase
     public function testClear(): void
     {
         $id = 'test-id';
-        $identity = new class($id) implements IdentityInterface {
+        $identity = new class ($id) implements IdentityInterface {
             private ?string $id;
 
             public function __construct(string $id)
