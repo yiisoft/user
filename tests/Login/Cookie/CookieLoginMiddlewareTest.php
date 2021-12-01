@@ -201,7 +201,7 @@ final class CookieLoginMiddlewareTest extends TestCase
     }
 
     public function testIdentityNotFound(): void
-    {;
+    {
         $middleware = new CookieLoginMiddleware(
             $this->createCurrentUser(),
             $this->getEmptyIdentityRepository(),
