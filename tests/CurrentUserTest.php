@@ -23,22 +23,16 @@ final class CurrentUserTest extends TestCase
 {
     public function testGetIdentityWithoutLogin(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withSession($this->createSession())
+        ;
 
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
     public function testGetIdentityWithoutLoginAndSession(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            null,
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()));
 
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
@@ -48,11 +42,9 @@ final class CurrentUserTest extends TestCase
         $id = 'test-id';
         $identity = new MockIdentity($id);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $this->createSession(['__auth_id' => $id]),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withSession($this->createSession(['__auth_id' => $id]))
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
         $this->assertSame($id, $currentUser->getId());
@@ -63,18 +55,10 @@ final class CurrentUserTest extends TestCase
         $id = 'test-id';
         $identity = new MockIdentity($id);
 
-        $session = $this->createSession([
-            '__auth_id' => $id,
-            '__auth_expire' => time(),
-        ]);
-
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withSession($this->createSession(['__auth_id' => $id, '__auth_expire' => time()]))
+            ->withAuthTimeout(60)
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
     }
@@ -86,13 +70,10 @@ final class CurrentUserTest extends TestCase
             '__auth_expire' => strtotime('-1 day'),
         ]);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
         $this->assertFalse($session->has('__auth_id'));
@@ -109,13 +90,10 @@ final class CurrentUserTest extends TestCase
             '__auth_absolute_expire' => strtotime('-1 day'),
         ]);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAbsoluteAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAbsoluteAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
@@ -130,13 +108,10 @@ final class CurrentUserTest extends TestCase
             '__auth_absolute_expire' => time(),
         ]);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAbsoluteAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAbsoluteAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
     }
@@ -150,13 +125,10 @@ final class CurrentUserTest extends TestCase
             '__auth_id' => $id,
         ]);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
         $this->assertTrue($session->has('__auth_expire'));
@@ -168,13 +140,10 @@ final class CurrentUserTest extends TestCase
             '__auth_expire' => strtotime('-1 day'),
         ]);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
         $this->assertTrue($session->has('__auth_expire'));
@@ -185,11 +154,9 @@ final class CurrentUserTest extends TestCase
         $id = 'test-id';
         $identity = new MockIdentity($id);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $this->createSession(['__auth_id' => $id]),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withSession($this->createSession(['__auth_id' => $id]))
+        ;
 
         $overriddenIdentity = new MockIdentity('temp-id');
         $currentUser->overrideIdentity($overriddenIdentity);
@@ -202,11 +169,9 @@ final class CurrentUserTest extends TestCase
         $id = 'test-id';
         $identity = new MockIdentity($id);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withSession($this->createSession())
+        ;
 
         $currentUser->login($identity);
         $overriddenIdentity = new MockIdentity('temp-id');
@@ -220,11 +185,9 @@ final class CurrentUserTest extends TestCase
         $id = 'test-id';
         $identity = new MockIdentity($id);
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $this->createSession(['__auth_id' => $id]),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withSession($this->createSession(['__auth_id' => $id]))
+        ;
 
         $currentUser->overrideIdentity(new MockIdentity('temp-id'));
         $currentUser->clearIdentityOverride();
@@ -251,11 +214,9 @@ final class CurrentUserTest extends TestCase
             }
         };
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $this->createSession(['__auth_id' => $id]),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withSession($this->createSession(['__auth_id' => $id]))
+        ;
 
         $this->assertSame($id, $currentUser->getId());
 
@@ -268,11 +229,9 @@ final class CurrentUserTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $eventDispatcher,
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $eventDispatcher))
+            ->withSession($this->createSession())
+        ;
 
         $identity = $this->createIdentity('test-id');
 
@@ -285,13 +244,7 @@ final class CurrentUserTest extends TestCase
     public function testLoginWithoutSession(): void
     {
         $eventDispatcher = $this->createEventDispatcher();
-
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $eventDispatcher,
-            null,
-        );
-
+        $currentUser = new CurrentUser($this->createIdentityRepository(), $eventDispatcher);
         $identity = $this->createIdentity('test-id');
 
         $this->assertTrue($currentUser->login($identity));
@@ -306,13 +259,11 @@ final class CurrentUserTest extends TestCase
         $identity = $this->createIdentity($id);
         $session = $this->createSession();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $session,
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAbsoluteAuthTimeout(60)
+            ->withSession($session)
+        ;
 
-        $currentUser->setAbsoluteAuthTimeout(60);
         $currentUser->login($identity);
 
         $this->assertSame($identity, $currentUser->getIdentity());
@@ -320,12 +271,11 @@ final class CurrentUserTest extends TestCase
         $this->assertTrue($session->has('__auth_absolute_expire'));
 
         // Second getting
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-        $currentUser->setAbsoluteAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAbsoluteAuthTimeout(60)
+            ->withSession($session)
+        ;
+
         $this->assertSame($identity, $currentUser->getIdentity());
     }
 
@@ -335,37 +285,29 @@ final class CurrentUserTest extends TestCase
         $identity = $this->createIdentity($id);
         $session = $this->createSession();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $session,
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
-        $currentUser->setAuthTimeout(60);
         $currentUser->login($identity);
 
         $this->assertTrue($session->has('__auth_expire'));
         $this->assertSame($identity, $currentUser->getIdentity());
 
         // Second getting
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
 
         // Third getting
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository($identity),
-            $this->createEventDispatcher(),
-            $session,
-        );
-
-        $currentUser->setAuthTimeout(60);
+        $currentUser = (new CurrentUser($this->createIdentityRepository($identity), $this->createEventDispatcher()))
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
         $this->assertSame($identity, $currentUser->getIdentity());
     }
@@ -374,11 +316,9 @@ final class CurrentUserTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $eventDispatcher,
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $eventDispatcher))
+            ->withSession($this->createSession())
+        ;
 
         $currentUser->login($this->createIdentity('test-id'));
 
@@ -401,11 +341,9 @@ final class CurrentUserTest extends TestCase
     {
         $eventDispatcher = $this->createEventDispatcher();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $eventDispatcher,
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $eventDispatcher))
+            ->withSession($this->createSession())
+        ;
 
         $this->assertFalse($currentUser->logout());
         $this->assertEmpty($eventDispatcher->getEvents());
@@ -417,14 +355,12 @@ final class CurrentUserTest extends TestCase
         $session = $this->createSession();
         $sessionId = $session->getId();
 
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $session,
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAbsoluteAuthTimeout(3600)
+            ->withAuthTimeout(60)
+            ->withSession($session)
+        ;
 
-        $currentUser->setAuthTimeout(60);
-        $currentUser->setAbsoluteAuthTimeout(3600);
         $currentUser->login($this->createIdentity('test-id'));
         $currentUser->logout();
 
@@ -437,26 +373,31 @@ final class CurrentUserTest extends TestCase
 
     public function testCanWithoutAccessChecker(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withSession($this->createSession())
+        ;
 
         $this->assertFalse($currentUser->can('permission'));
     }
 
     public function testCanWithAccessChecker(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $currentUser->setAccessChecker(new MockAccessChecker(true));
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAccessChecker($this->createAccessChecker(true))
+            ->withSession($this->createSession())
+        ;
 
         $this->assertTrue($currentUser->can('permission'));
+    }
+
+    public function testImmutable()
+    {
+        $currentUser = new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher());
+
+        $this->assertNotSame($currentUser, $currentUser->withSession($this->createSession()));
+        $this->assertNotSame($currentUser, $currentUser->withAccessChecker($this->createAccessChecker()));
+        $this->assertNotSame($currentUser, $currentUser->withAbsoluteAuthTimeout(3600));
+        $this->assertNotSame($currentUser, $currentUser->withAuthTimeout(60));
     }
 
     private function createIdentity(string $id): IdentityInterface
@@ -467,6 +408,11 @@ final class CurrentUserTest extends TestCase
     private function createSession(array $data = []): MockArraySessionStorage
     {
         return new MockArraySessionStorage($data);
+    }
+
+    private function createAccessChecker(bool $userHasPermission = false): MockAccessChecker
+    {
+        return new MockAccessChecker($userHasPermission);
     }
 
     private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface

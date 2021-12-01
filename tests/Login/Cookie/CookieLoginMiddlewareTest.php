@@ -42,19 +42,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testCorrectLogin(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
@@ -70,16 +64,13 @@ final class CookieLoginMiddlewareTest extends TestCase
         $currentUser = new CurrentUser(
             $this->createIdentityRepository(),
             $eventDispatcher,
-            $this->createSession(),
         );
-
-        $cookieLogin = $this->getCookieLogin();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithAutoLoginCookie();
@@ -101,19 +92,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testInvalidKey(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_INCORRECT);
@@ -126,19 +109,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testInvalidExpires(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_CORRECT, time() -1);
@@ -151,19 +126,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testNoCookie(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithCookies([]);
@@ -176,19 +143,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testEmptyCookie(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithCookies(['autoLogin' => '']);
@@ -201,19 +160,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testInvalidCookie(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $request = $this->getRequestWithCookies([
@@ -233,17 +184,11 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testIncorrectIdentity(): void
     {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getIncorrectIdentityRepository(),
             $this->logger,
-            $this->getCookieLogin(),
+            $this->createCookieLogin(),
         );
 
         $this->expectException(RuntimeException::class);
@@ -256,18 +201,12 @@ final class CookieLoginMiddlewareTest extends TestCase
     }
 
     public function testIdentityNotFound(): void
-    {
-        $user = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
+    {;
         $middleware = new CookieLoginMiddleware(
-            $user,
+            $this->createCurrentUser(),
             $this->getEmptyIdentityRepository(),
             $this->logger,
-            $this->getCookieLogin(),
+            $this->createCookieLogin(),
         );
 
         $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
@@ -281,19 +220,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLogin(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
             true,
         );
 
@@ -314,19 +247,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testNotAddCookieAfterLogin(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -346,19 +273,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testNotAddCookieAfterLoginUsingRememberMe(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -380,19 +301,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testAddCookieAfterLoginUsingRememberMe(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
             true,
         );
 
@@ -419,19 +334,13 @@ final class CookieLoginMiddlewareTest extends TestCase
 
     public function testRemoveCookieAfterLogout(): void
     {
-        $currentUser = new CurrentUser(
-            $this->createIdentityRepository(),
-            $this->createEventDispatcher(),
-            $this->createSession(),
-        );
-
-        $cookieLogin = $this->getCookieLogin();
+        $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
             $currentUser,
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
-            $cookieLogin,
+            $this->createCookieLogin(),
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -526,9 +435,15 @@ final class CookieLoginMiddlewareTest extends TestCase
         return $request;
     }
 
-    private function getCookieLogin(): CookieLogin
+    private function createCookieLogin(): CookieLogin
     {
         return new CookieLogin(new DateInterval('P1W'));
+    }
+
+    private function createCurrentUser(): CurrentUser
+    {
+        return (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withSession($this->createSession());
     }
 
     private function createSession(array $data = []): MockArraySessionStorage
