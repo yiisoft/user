@@ -217,6 +217,15 @@ final class CurrentUser
     }
 
     /**
+     * Clears the data for working with the event loop.
+     */
+    public function clear(): void
+    {
+        $this->identity = null;
+        $this->identityOverride = null;
+    }
+
+    /**
      * This method is called before logging in a user.
      * The default implementation will trigger the {@see BeforeLogin} event.
      *
