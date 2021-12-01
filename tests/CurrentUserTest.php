@@ -232,6 +232,38 @@ final class CurrentUserTest extends TestCase
         $this->assertSame($identity, $currentUser->getIdentity());
     }
 
+    public function testClear(): void
+    {
+        $id = 'test-id';
+        $identity = new class ($id) implements IdentityInterface {
+            private ?string $id;
+
+            public function __construct(string $id)
+            {
+                $this->id = $id;
+            }
+
+            public function getId(): ?string
+            {
+                $id = $this->id;
+                $this->id = null;
+                return $id;
+            }
+        };
+
+        $currentUser = new CurrentUser(
+            $this->createIdentityRepository($identity),
+            $this->createEventDispatcher(),
+            $this->createSession(['__auth_id' => $id]),
+        );
+
+        $this->assertSame($id, $currentUser->getId());
+
+        $currentUser->clear();
+
+        $this->assertNull($currentUser->getId());
+    }
+
     public function testLogin(): void
     {
         $eventDispatcher = $this->createEventDispatcher();

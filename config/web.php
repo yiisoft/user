@@ -15,8 +15,7 @@ use Yiisoft\User\UserAuth;
 return [
     CurrentUser::class => [
         'reset' => function () {
-            $this->identity = null;
-            $this->identityOverride = null;
+            $this->clear();
         },
     ],
 
