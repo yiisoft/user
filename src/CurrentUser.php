@@ -32,8 +32,8 @@ final class CurrentUser
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
     private GuestIdentityFactoryInterface $guestIdentityFactory;
-    private ?SessionInterface $session;
     private ?AccessCheckerInterface $accessChecker = null;
+    private ?SessionInterface $session = null;
 
     private ?IdentityInterface $identity = null;
     private ?IdentityInterface $identityOverride = null;
@@ -44,12 +44,10 @@ final class CurrentUser
     public function __construct(
         IdentityRepositoryInterface $identityRepository,
         EventDispatcherInterface $eventDispatcher,
-        SessionInterface $session = null,
         GuestIdentityFactoryInterface $guestIdentityFactory = null
     ) {
         $this->identityRepository = $identityRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->session = $session;
         $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
     }
 
@@ -63,6 +61,19 @@ final class CurrentUser
     public function setAccessChecker(AccessCheckerInterface $accessChecker): self
     {
         $this->accessChecker = $accessChecker;
+        return $this;
+    }
+
+    /**
+     * Sets a session to store user ID and auth timeouts.
+     *
+     * @param SessionInterface $session The session instance.
+     *
+     * @return self
+     */
+    public function setSession(SessionInterface $session): self
+    {
+        $this->session = $session;
         return $this;
     }
 
