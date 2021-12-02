@@ -64,10 +64,7 @@ final class UserAuthTest extends TestCase
 
     private function createCurrentUser(): CurrentUser
     {
-        return new CurrentUser(
-            new MockIdentityRepository(),
-            new SimpleEventDispatcher(),
-            new MockArraySessionStorage(),
-        );
+        return (new CurrentUser(new MockIdentityRepository(), new SimpleEventDispatcher()))
+            ->withSession(new MockArraySessionStorage());
     }
 }

@@ -32,8 +32,8 @@ final class CurrentUser
     private IdentityRepositoryInterface $identityRepository;
     private EventDispatcherInterface $eventDispatcher;
     private GuestIdentityFactoryInterface $guestIdentityFactory;
-    private ?SessionInterface $session;
     private ?AccessCheckerInterface $accessChecker = null;
+    private ?SessionInterface $session = null;
 
     private ?IdentityInterface $identity = null;
     private ?IdentityInterface $identityOverride = null;
@@ -44,54 +44,71 @@ final class CurrentUser
     public function __construct(
         IdentityRepositoryInterface $identityRepository,
         EventDispatcherInterface $eventDispatcher,
-        SessionInterface $session = null,
         GuestIdentityFactoryInterface $guestIdentityFactory = null
     ) {
         $this->identityRepository = $identityRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->session = $session;
         $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
     }
 
     /**
-     * Sets an access checker to check user permissions {@see can()}.
+     * Returns a new instance with the specified session to store current user ID and auth timeouts.
+     *
+     * @param SessionInterface $session The session instance.
+     *
+     * @return self
+     */
+    public function withSession(SessionInterface $session): self
+    {
+        $new = clone $this;
+        $new->session = $session;
+        return $new;
+    }
+
+    /**
+     * Returns a new instance with the specified access checker to check user permissions {@see can()}.
      *
      * @param AccessCheckerInterface $accessChecker The access checker instance.
      *
      * @return self
      */
-    public function setAccessChecker(AccessCheckerInterface $accessChecker): self
+    public function withAccessChecker(AccessCheckerInterface $accessChecker): self
     {
-        $this->accessChecker = $accessChecker;
-        return $this;
+        $new = clone $this;
+        $new->accessChecker = $accessChecker;
+        return $new;
     }
 
     /**
-     * Sets a number of seconds in which the user will be logged out automatically in case of remaining inactive.
+     * Returns a new instance with the specified number of seconds in which
+     * the user will be logged out automatically in case of remaining inactive.
      *
-     * @param int|null $timeout The number of seconds in which the user will be logged out automatically in case of
-     * remaining inactive. If this property is not set, the user will be logged out after the current session expires.
+     * @param int $timeout The number of seconds in which the user will be logged out automatically in case of
+     * remaining inactive. Default is `null`, the user will be logged out after the current session expires.
      *
      * @return self
      */
-    public function setAuthTimeout(int $timeout = null): self
+    public function withAuthTimeout(int $timeout): self
     {
-        $this->authTimeout = $timeout;
-        return $this;
+        $new = clone $this;
+        $new->authTimeout = $timeout;
+        return $new;
     }
 
     /**
-     * Sets a number of seconds in which the user will be logged out automatically regardless of activity.
+     * Returns a new instance with the specified number of seconds in which
+     * the user will be logged out automatically regardless of activity.
      *
-     * @param int|null $timeout The number of seconds in which the user will be
+     * @param int $timeout The number of seconds in which the user will be
      * logged out automatically regardless of activity.
      *
      * @return self
      */
-    public function setAbsoluteAuthTimeout(int $timeout = null): self
+    public function withAbsoluteAuthTimeout(int $timeout): self
     {
-        $this->absoluteAuthTimeout = $timeout;
-        return $this;
+        $new = clone $this;
+        $new->absoluteAuthTimeout = $timeout;
+        return $new;
     }
 
     /**
@@ -142,7 +159,7 @@ final class CurrentUser
     /**
      * Checks if the user can perform the operation as specified by the given permission.
      *
-     * Note that you must provide access checker via {@see setAccessChecker()} in order to use this
+     * Note that you must provide access checker via {@see withAccessChecker()} in order to use this
      * method. Otherwise, it will always return `false`.
      *
      * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
