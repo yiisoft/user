@@ -7,7 +7,7 @@ return [
         'authUrl' => '/login',
         'cookieLogin' => [
             'forceAddCookie' => false,
-            'duration' => 'P5D', // 5 days, see format on http://php.net/manual/dateinterval.construct.php
+            'duration' => 'P5D', // 5 days, see format on https://www.php.net/manual/ru/dateinterval.construct.php
         ],
     ],
 ];
