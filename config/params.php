@@ -6,8 +6,8 @@ return [
     'yiisoft/user' => [
         'authUrl' => '/login',
         'cookieLogin' => [
-            'addCookie' => false,
-            'duration' => 'P5D', // 5 days, see format on http://php.net/manual/dateinterval.construct.php
+            'forceAddCookie' => false,
+            'duration' => 'P5D', // 5 days, see format on https://www.php.net/manual/dateinterval.construct.php
         ],
     ],
 ];

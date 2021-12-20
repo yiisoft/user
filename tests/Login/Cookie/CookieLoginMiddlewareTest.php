@@ -213,7 +213,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
     }
 
-    public function testAddCookieAfterLogin(): void
+    public function testForceAddCookieAfterLogin(): void
     {
         $currentUser = $this->createCurrentUser();
 
@@ -237,10 +237,14 @@ final class CookieLoginMiddlewareTest extends TestCase
         $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
+            . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie'),
+        );
     }
 
-    public function testNotAddCookieAfterLogin(): void
+    public function testNotForceAddCookieAfterLoginNotUsingRememberMe(): void
     {
         $currentUser = $this->createCurrentUser();
 
@@ -266,7 +270,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testNotAddCookieAfterLoginUsingRememberMe(): void
+    public function testNotForceAddCookieAfterLoginUsingRememberMe(): void
     {
         $currentUser = $this->createCurrentUser();
 
@@ -291,10 +295,14 @@ final class CookieLoginMiddlewareTest extends TestCase
         $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
+            . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie'),
+        );
     }
 
-    public function testAddCookieAfterLoginUsingRememberMe(): void
+    public function testForceAddCookieAfterLoginUsingRememberMe(): void
     {
         $currentUser = $this->createCurrentUser();
 

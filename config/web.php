@@ -29,7 +29,7 @@ return [
 
     CookieLoginMiddleware::class => [
         '__construct()' => [
-            'addCookie' => $params['yiisoft/user']['cookieLogin']['addCookie'],
+            'forceAddCookie' => $params['yiisoft/user']['cookieLogin']['forceAddCookie'],
         ],
     ],
 

@@ -51,7 +51,7 @@ final class ConfigTest extends TestCase
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
         $this->assertInstanceOf(CookieLoginMiddleware::class, $cookieLoginMiddleware);
-        $this->assertFalse($this->getInaccessibleProperty($cookieLoginMiddleware, 'addCookie'));
+        $this->assertFalse($this->getInaccessibleProperty($cookieLoginMiddleware, 'forceAddCookie'));
     }
 
     public function testOverrideParams(): void
@@ -60,7 +60,7 @@ final class ConfigTest extends TestCase
             'yiisoft/user' => [
                 'authUrl' => '/override',
                 'cookieLogin' => [
-                    'addCookie' => true,
+                    'forceAddCookie' => true,
                     'duration' => 'P2D',
                 ],
             ],
@@ -79,7 +79,7 @@ final class ConfigTest extends TestCase
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
         $this->assertInstanceOf(CookieLoginMiddleware::class, $cookieLoginMiddleware);
-        $this->assertTrue($this->getInaccessibleProperty($cookieLoginMiddleware, 'addCookie'));
+        $this->assertTrue($this->getInaccessibleProperty($cookieLoginMiddleware, 'forceAddCookie'));
     }
 
     private function createContainer(?array $params = null): Container
