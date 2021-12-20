@@ -14,8 +14,8 @@ use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\User\CurrentUser;
 
 /**
- * `LoginMiddleware` automatically logs user in based on identity {@see IdentityInterface} previously placing by an
- * authentication middleware {@see \Yiisoft\Auth\Middleware\Authentication} in the corresponding request attribute.
+ * `LoginMiddleware` automatically logs user in if {@see IdentityInterface} instance presents in a request
+ * attribute. It is usually put there by {@see \Yiisoft\Auth\Middleware\Authentication}.
  */
 final class LoginMiddleware implements MiddlewareInterface
 {
@@ -35,9 +35,8 @@ final class LoginMiddleware implements MiddlewareInterface
     /**
      * {@inheritDoc}
      *
-     * Before this middleware, there should be an authentication middleware
-     * {@see \Yiisoft\Auth\Middleware\Authentication} in the stack, that authenticates the user
-     * by placing the identity {@see IdentityInterface} in the corresponding request attribute.
+     * Before this middleware, there should be {@see \Yiisoft\Auth\Middleware\Authentication} in the middleware stack.
+     * It authenticates the user and places {@see IdentityInterface} instance in the corresponding request attribute.
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
