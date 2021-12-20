@@ -35,11 +35,6 @@ final class CookieLoginMiddlewareTest extends TestCase
         $this->logger = new LastMessageLogger();
     }
 
-    private function getLastLogMessage(): ?string
-    {
-        return $this->logger->getLastMessage();
-    }
-
     public function testCorrectLogin(): void
     {
         $currentUser = $this->createCurrentUser();
@@ -459,5 +454,10 @@ final class CookieLoginMiddlewareTest extends TestCase
     private function createEventDispatcher(): SimpleEventDispatcher
     {
         return new SimpleEventDispatcher();
+    }
+
+    private function getLastLogMessage(): ?string
+    {
+        return $this->logger->getLastMessage();
     }
 }
