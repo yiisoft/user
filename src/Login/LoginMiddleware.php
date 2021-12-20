@@ -14,7 +14,8 @@ use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\User\CurrentUser;
 
 /**
- * `LoginMiddleware` automatically logs user in based on identity {@see IdentityInterface} from request attribute.
+ * `LoginMiddleware` automatically logs user in based on identity {@see IdentityInterface} previously placing by an
+ * authentication middleware {@see \Yiisoft\Auth\Middleware\Authentication} in the corresponding request attribute.
  */
 final class LoginMiddleware implements MiddlewareInterface
 {
