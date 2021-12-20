@@ -31,27 +31,27 @@ final class CookieLoginMiddleware implements MiddlewareInterface
     private IdentityRepositoryInterface $identityRepository;
     private LoggerInterface $logger;
     private CookieLogin $cookieLogin;
-    private bool $addCookie;
+    private bool $forceAddCookie;
 
     /**
      * @param CurrentUser $currentUser The current user instance.
      * @param IdentityRepositoryInterface $identityRepository The identity repository instance.
      * @param LoggerInterface $logger The logger instance.
      * @param CookieLogin $cookieLogin The cookie login instance.
-     * @param bool $addCookie Whether to add a cookie.
+     * @param bool $forceAddCookie Whether to force add a cookie.
      */
     public function __construct(
         CurrentUser $currentUser,
         IdentityRepositoryInterface $identityRepository,
         LoggerInterface $logger,
         CookieLogin $cookieLogin,
-        bool $addCookie = false
+        bool $forceAddCookie = false
     ) {
         $this->currentUser = $currentUser;
         $this->identityRepository = $identityRepository;
         $this->logger = $logger;
         $this->cookieLogin = $cookieLogin;
-        $this->addCookie = $addCookie;
+        $this->forceAddCookie = $forceAddCookie;
     }
 
     /**
@@ -71,11 +71,14 @@ final class CookieLoginMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $guestAfterHandle = $this->currentUser->isGuest();
 
-        if ($this->addCookie && $guestBeforeHandle && !$guestAfterHandle) {
+        if ($guestBeforeHandle && !$guestAfterHandle) {
             $identity = $this->currentUser->getIdentity();
 
-            if ($identity instanceof CookieLoginIdentityInterface && $identity->shouldLoginByCookie()) {
-                $response = $this->cookieLogin->addCookie($identity, $response);
+            if (
+                $identity instanceof CookieLoginIdentityInterface &&
+                ($this->forceAddCookie || $identity->shouldLoginByCookie())
+            ) {
+                return $this->cookieLogin->addCookie($identity, $response);
             }
         }
 
@@ -116,6 +119,7 @@ final class CookieLoginMiddleware implements MiddlewareInterface
         }
 
         [$id, $key, $expires] = $data;
+
         $id = (string) $id;
         $key = (string) $key;
         $expires = (int) $expires;
