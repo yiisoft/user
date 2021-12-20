@@ -14,9 +14,9 @@ use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\User\CurrentUser;
 
 /**
- * `TokenLoginMiddleware` automatically logs user in based on token.
+ * `LoginMiddleware` automatically logs user in based on identity {@see IdentityInterface}.
  */
-final class TokenLoginMiddleware implements MiddlewareInterface
+final class LoginMiddleware implements MiddlewareInterface
 {
     private CurrentUser $currentUser;
     private LoggerInterface $logger;

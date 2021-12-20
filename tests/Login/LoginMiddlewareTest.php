@@ -13,13 +13,13 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Guest\GuestIdentity;
-use Yiisoft\User\Login\TokenLoginMiddleware;
+use Yiisoft\User\Login\LoginMiddleware;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
 use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
 
-final class TokenLoginMiddlewareTest extends TestCase
+final class LoginMiddlewareTest extends TestCase
 {
     private const IDENTITY_ID = 'test-id';
 
@@ -38,7 +38,7 @@ final class TokenLoginMiddlewareTest extends TestCase
 
     public function testCorrectLogin(): void
     {
-        $middleware = new TokenLoginMiddleware($this->currentUser, $this->logger);
+        $middleware = new LoginMiddleware($this->currentUser, $this->logger);
 
         $middleware->process($this->createServerRequest(), $this->createRequestHandler());
 
@@ -50,7 +50,7 @@ final class TokenLoginMiddlewareTest extends TestCase
     public function testCorrectProcessWithNonGuestUser(): void
     {
         $currentUser = new CurrentUser(new MockIdentityRepository($this->identity), $this->eventDispatcher);
-        $middleware = new TokenLoginMiddleware($currentUser, $this->logger);
+        $middleware = new LoginMiddleware($currentUser, $this->logger);
 
         $middleware->process($this->createServerRequest(), $this->createRequestHandler());
 
@@ -71,7 +71,7 @@ final class TokenLoginMiddlewareTest extends TestCase
 
     public function testIdentityNotFound(): void
     {
-        $middleware = new TokenLoginMiddleware($this->currentUser, $this->logger);
+        $middleware = new LoginMiddleware($this->currentUser, $this->logger);
 
         $middleware->process($this->createServerRequest(false), $this->createRequestHandler());
 
