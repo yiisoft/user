@@ -99,8 +99,8 @@ final class CurrentUser
      * Returns a new instance with the specified number of seconds in which
      * the user will be logged out automatically regardless of activity.
      *
-     * @param int $timeout The number of seconds in which the user will be
-     * logged out automatically regardless of activity.
+     * @param int $timeout The number of seconds in which the user will be logged out automatically regardless
+     * of activity. Default is `null`, the user will be logged out after the current session expires.
      *
      * @return self
      */
