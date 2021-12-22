@@ -44,13 +44,4 @@ interface CookieLoginIdentityInterface extends IdentityInterface
      * @see getCookieLoginKey()
      */
     public function validateCookieLoginKey(string $key): bool;
-
-    /**
-     * Whether to add a cookie with login key to response.
-     *
-     * @return bool Whether to add a cookie.
-     *
-     * @see getCookieLoginKey()
-     */
-    public function shouldLoginByCookie(): bool;
 }

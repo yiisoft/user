@@ -213,38 +213,18 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
     }
 
-    public function testForceAddCookieAfterLogin(): void
+    public function forceAddCookieDataProvider(): array
     {
-        $currentUser = $this->createCurrentUser();
-
-        $middleware = new CookieLoginMiddleware(
-            $currentUser,
-            $this->getCookieLoginIdentityRepository(),
-            $this->logger,
-            $this->createCookieLogin(),
-            true,
-        );
-
-        $handler = $this->createMock(RequestHandlerInterface::class);
-        $handler
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturnCallback(static function () use ($currentUser) {
-                $currentUser->login(new CookieLoginIdentity());
-                return new Response();
-            });
-
-        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
-
-        $this->assertNull($this->getLastLogMessage());
-        $this->assertMatchesRegularExpression(
-            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
-            . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
-            $response->getHeaderLine('Set-Cookie'),
-        );
+        return [
+            'true' => [true],
+            'false' => [false],
+        ];
     }
 
-    public function testNotForceAddCookieAfterLoginNotUsingRememberMe(): void
+    /**
+     * @dataProvider forceAddCookieDataProvider
+     */
+    public function testForceAddCookieAfterLoginAndNotManualLogin(bool $forceAddCookie): void
     {
         $currentUser = $this->createCurrentUser();
 
@@ -253,25 +233,24 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
             $this->createCookieLogin(),
+            $forceAddCookie,
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
-        $handler
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturnCallback(static function () use ($currentUser) {
-                $currentUser->login(new CookieLoginIdentity());
-                return new Response();
-            });
-
-        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
+        $handler->expects($this->once())->method('handle')->willReturn(new Response());
+        $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $handler);
 
         $this->assertNull($this->getLastLogMessage());
+        $this->assertFalse($currentUser->isGuest());
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
-    public function testNotForceAddCookieAfterLoginUsingRememberMe(): void
+    /**
+     * @dataProvider forceAddCookieDataProvider
+     */
+    public function testForceAddCookieAfterLoginAndManualLoginAndManualAddCookie(bool $forceAddCookie): void
     {
+        $cookieLogin = $this->createCookieLogin();
         $currentUser = $this->createCurrentUser();
 
         $middleware = new CookieLoginMiddleware(
@@ -279,22 +258,23 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
             $this->createCookieLogin(),
+            $forceAddCookie,
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler
             ->expects($this->once())
             ->method('handle')
-            ->willReturnCallback(static function () use ($currentUser) {
+            ->willReturnCallback(static function () use ($cookieLogin, $currentUser) {
                 $identity = new CookieLoginIdentity();
-                $identity->rememberMe = true;
                 $currentUser->login($identity);
-                return new Response();
+                return $cookieLogin->addCookie($identity, new Response());
             });
 
-        $response = $middleware->process($this->getRequestWithCookies([]), $handler);
+        $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $handler);
 
         $this->assertNull($this->getLastLogMessage());
+        $this->assertFalse($currentUser->isGuest());
         $this->assertMatchesRegularExpression(
             '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
             . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
@@ -302,7 +282,10 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
     }
 
-    public function testForceAddCookieAfterLoginUsingRememberMe(): void
+    /**
+     * @dataProvider forceAddCookieDataProvider
+     */
+    public function testForceAddCookieAfterLoginAndManualLoginAndNotManualAddCookie(bool $forceAddCookie): void
     {
         $currentUser = $this->createCurrentUser();
 
@@ -311,7 +294,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->getCookieLoginIdentityRepository(),
             $this->logger,
             $this->createCookieLogin(),
-            true,
+            $forceAddCookie,
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
@@ -319,20 +302,24 @@ final class CookieLoginMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function () use ($currentUser) {
-                $identity = new CookieLoginIdentity();
-                $identity->rememberMe = true;
-                $currentUser->login($identity);
+                $currentUser->login(new CookieLoginIdentity());
                 return new Response();
             });
 
         $response = $middleware->process($this->getRequestWithCookies([]), $handler);
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertMatchesRegularExpression(
-            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
-            . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
-            $response->getHeaderLine('Set-Cookie'),
-        );
+        $this->assertFalse($currentUser->isGuest());
+
+        if ($forceAddCookie) {
+            $this->assertMatchesRegularExpression(
+                '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D;'
+                . ' Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+                $response->getHeaderLine('Set-Cookie'),
+            );
+        } else {
+            $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        }
     }
 
     public function testRemoveCookieAfterLogout(): void
@@ -449,9 +436,9 @@ final class CookieLoginMiddlewareTest extends TestCase
             ->withSession($this->createSession());
     }
 
-    private function createSession(array $data = []): MockArraySessionStorage
+    private function createSession(): MockArraySessionStorage
     {
-        return new MockArraySessionStorage($data);
+        return new MockArraySessionStorage();
     }
 
     private function createIdentityRepository(): IdentityRepositoryInterface

@@ -11,7 +11,6 @@ final class CookieLoginIdentity implements CookieLoginIdentityInterface
     public const ID = '42';
     public const KEY_CORRECT = 'auto-login-key-correct';
     public const KEY_INCORRECT = 'auto-login-key-incorrect';
-    public bool $rememberMe = false;
 
     public function getCookieLoginKey(): string
     {
@@ -26,10 +25,5 @@ final class CookieLoginIdentity implements CookieLoginIdentityInterface
     public function getId(): ?string
     {
         return self::ID;
-    }
-
-    public function shouldLoginByCookie(): bool
-    {
-        return $this->rememberMe;
     }
 }
