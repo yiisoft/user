@@ -253,7 +253,8 @@ final class CurrentUser
     private function beforeLogin(IdentityInterface $identity): bool
     {
         $event = new BeforeLogin($identity);
-        $this->eventDispatcher->dispatch($event);
+        /** @var BeforeLogin $event */
+        $event = $this->eventDispatcher->dispatch($event);
         return $event->isValid();
     }
 
@@ -277,7 +278,8 @@ final class CurrentUser
     private function beforeLogout(IdentityInterface $identity): bool
     {
         $event = new BeforeLogout($identity);
-        $this->eventDispatcher->dispatch($event);
+        /** @var BeforeLogout $event */
+        $event = $this->eventDispatcher->dispatch($event);
         return $event->isValid();
     }
 
