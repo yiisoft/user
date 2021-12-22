@@ -43,7 +43,7 @@ and provides additional functionality for interacting with user identity.
 
 ### Working with identity
 
-The `CurrentUser` class is responsible for login and logout, as well as receiving data about the current user.
+The `CurrentUser` class is responsible for login and logout, as well as for providing data about the current user identity.
 
 ```php
 /** 
@@ -54,7 +54,7 @@ The `CurrentUser` class is responsible for login and logout, as well as receivin
 $currentUser = new \Yiisoft\User\CurrentUser($identityRepository, $eventDispatcher);
 ```
 
-If the user has not been logged in, then it is the guest user that will be used by default:
+If the user has not been logged in, then the current user is a guest:
 
 ```php
 $currentUser->getIdentity(); // \Yiisoft\User\Guest\GuestIdentity instance
@@ -62,8 +62,8 @@ $currentUser->getId(); // null
 $currentUser->isGuest(); // bool
 ```
 
-With the third optional parameter, you can pass the implementation of the `GuestIdentityFactoryInterface`
-to create an identity interface for a guest non-authenticated user:
+If you need to use a custom identity class to represent guest user, you should pass an instance
+of `GuestIdentityFactoryInterface` as a third optional parameter when creating `CurrentUser`:
 
 ```php
 /** 
@@ -89,11 +89,11 @@ $currentUser->clearIdentityOverride();
 $currentUser->getIdentity(); // Original identity instance
 ```
 
-This can be useful to check the user's problems during administration.
+It can be useful to allow admin or developer to validate another user's problems.
 
 #### Login and logout
 
-Methods of the same name are provided for login and logout:
+There are two methods for login and logout:
 
 ```php
 /**
@@ -113,7 +113,7 @@ if ($currentUser->logout()) {
 }
 ```
 
-In the process of login and logout triggers several events. Events are classes:
+Both methods trigger events. Events are of the following classes:
 
 - `Yiisoft\User\Event\BeforeLogin` - triggered at the beginning of login process.
   Listeners of this event may call `$event->invalidate()` to cancel the login process.
@@ -122,13 +122,13 @@ In the process of login and logout triggers several events. Events are classes:
   Listeners of this event may call `$event->invalidate()` to cancel the logout process.
 - `Yiisoft\User\Event\AfterLogout` - triggered at the ending of logout process.
 
-Listeners of all these events can get an identity instance participating in the process using `$event->getIdentity()`.
-These events are passed to the `Psr\EventDispatcher\EventDispatcherInterface` implementation, which is specified in the
+Listeners of these events can get an identity instance participating in the process using `$event->getIdentity()`.
+Events are dispatched by `Psr\EventDispatcher\EventDispatcherInterface` instance, which is specified in the
 constructor when the `Yiisoft\User\CurrentUser` instance is initialized.
 
 #### Checking user access
 
-To check whether the user can perform the operation as specified by the given permission,
+To be able to check whether the current user can perform an operation corresponding to a given permission,
 you need to set an access checker (see [yiisoft/access](https://github.com/yiisoft/access)) instance:
 
 ```php
@@ -139,7 +139,7 @@ you need to set an access checker (see [yiisoft/access](https://github.com/yiiso
 $currentUser = $currentUser->withAccessChecker($accessChecker);
 ```
 
-And to check, you need to use the `can()` method:
+To perform the check, use `can()` method:
 
 ```php
 // The name of the permission (e.g. "edit post") that needs access check.
@@ -153,13 +153,12 @@ if ($currentUser->can($permissionName, $params)) {
 }
 ```
 
-Note that you must first provide access checker via `withAccessChecker()` method.
-Otherwise, the `can()` method will always return `false`.
+Note that in case access checker is not provided via `withAccessChecker()` method, `can()` will always return `false`.
 
 #### Session usage
 
-The current user can store in the session the necessary user ID and auth timeouts for auto login.
-To do this, you need to set a session (see [yiisoft/session](https://github.com/yiisoft/session)) instance:
+The current user can store user ID and authentication timeouts for auto-login in the session.
+To do this, you need to provide a session (see [yiisoft/session](https://github.com/yiisoft/session)) instance:
 
 ```php
 /** 
@@ -187,19 +186,19 @@ By default, timeouts are not used, the user will be logged out after the current
 
 #### Using with event loop
 
-The `Yiisoft\User\CurrentUser` instance are stateful, so when you build long-running applications
+The `Yiisoft\User\CurrentUser` instance is stateful, so when you build long-running applications
 with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should reset
 the state at every request. For this purpose, you can use the `clear()` method.
 
 ### Auto login through identity from request attribute
 
-When using authentication methods and an authentication middleware that authenticates
-the user and places an `Yiisoft\Auth\IdentityInterface` instance in the corresponding
-request attribute(see [yiisoft/auth](https://github.com/yiisoft/auth)).
-For auto login, use `Yiisoft\User\Login\LoginMiddleware`.
+For auto login, you can use the `Yiisoft\User\Login\LoginMiddleware`. This middleware  automatically logs user
+in if `Yiisoft\Auth\IdentityInterface` instance presents in a request attribute. It is usually put there by
+`Yiisoft\Auth\Middleware\Authentication`. For more information about the authentication middleware and
+authentication methods, see the [yiisoft/auth](https://github.com/yiisoft/auth).
 
-> Please note that is mandatory before `Yiisoft\User\Login\LoginMiddleware`,
-> in the middleware stack should be located `Yiisoft\Auth\Middleware\Authentication`.
+> Please note that `Yiisoft\Auth\Middleware\Authentication` should be located before
+> `Yiisoft\User\Login\LoginMiddleware` in the middleware stack.
 
 ### Auto login through cookie
 
@@ -230,7 +229,8 @@ final class CookieLoginIdentityRepository implements IdentityRepositoryInterface
 }
 ```
 
-The login process itself when requested, the `CookieLoginMiddleware` will do automatically.
+The `CookieLoginMiddleware` will check for the existence of a cookie in the request,
+validate it and login the user automatically.
 
 #### Creating a cookie
 
@@ -246,7 +246,7 @@ public function login(
     $response = $responseFactory->createResponse();
     $body = $request->getParsedBody();
     
-    // Get user identity in based on body contents.
+    // Get user identity based on body content.
     
     /** @var \Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface $identity */
     
@@ -278,13 +278,12 @@ return [
 
 The login cookie value is stored raw. To prevent the substitution of the cookie value,
 you can use a `Yiisoft\Cookies\CookieMiddleware`. For more information, see
-[Yii guide to cookies ](https://github.com/yiisoft/docs/blob/master/guide/en/runtime/cookies.md).
+[Yii guide to cookies](https://github.com/yiisoft/docs/blob/master/guide/en/runtime/cookies.md).
 
-> Please note that is mandatory before `Yiisoft\User\Login\Cookie\CookieLoginMiddleware`,
-> in the middleware stack should be located `Yiisoft\Cookies\CookieMiddleware`.
+> Please note that `Yiisoft\Cookies\CookieMiddleware` should be located before
+> `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` in the middleware stack.
 
-You can see an example of all the above described use of the login functionality using cookies
-in the [yiisoft/demo](https://github.com/yiisoft/demo).
+You can find examples of the above features in the [yiisoft/demo](https://github.com/yiisoft/demo).
 
 ## Testing
 
