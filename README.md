@@ -274,6 +274,28 @@ return [
 ];
 ```
 
+#### Removing a cookie
+
+The `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` automatically removes the cookie after the logout.
+But you can also remove the cookie manually:
+
+```php
+public function logout(
+    \Psr\Http\Message\ResponseFactoryInterface $responseFactory,
+    \Yiisoft\User\Login\Cookie\CookieLogin $cookieLogin,
+    \Yiisoft\User\CurrentUser $currentUser
+): \Psr\Http\Message\ResponseInterface {
+    $response = $responseFactory->createResponse(302)->withHeader('Location', '/');
+    $identity = $this->currentUser->getIdentity();
+    
+    if ($currentUser->logout()) {
+        $response = $cookieLogin->expireCookie($response);
+    }
+    
+    return $response;
+}
+```
+
 #### Preventing the substitution of cookies
 
 The login cookie value is stored raw. To prevent the substitution of the cookie value,
