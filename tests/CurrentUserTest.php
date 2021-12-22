@@ -390,7 +390,7 @@ final class CurrentUserTest extends TestCase
         $this->assertTrue($currentUser->can('permission'));
     }
 
-    public function testImmutable()
+    public function testImmutable(): void
     {
         $currentUser = new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher());
 
