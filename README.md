@@ -250,7 +250,7 @@ public function login(
     
     /** @var \Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface $identity */
     
-    if ($currentUser->login($identity) && $body['rememberMe'] ?? false) {
+    if ($currentUser->login($identity) && ($body['rememberMe'] ?? false)) {
         $response = $cookieLogin->addCookie($identity, $response);
     }
     
