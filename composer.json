@@ -1,7 +1,7 @@
 {
     "name": "yiisoft/user",
     "type": "library",
-    "description": "",
+    "description": "Convenient user identity management and access checking",
     "keywords": [
         "yiisoft",
         "user"
@@ -26,8 +26,6 @@
             "url": "https://github.com/sponsors/yiisoft"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
         "ext-json": "*",
