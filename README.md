@@ -175,14 +175,14 @@ out automatically in case of remaining inactive:
 $currentUser = $currentUser->withAuthTimeout(3600);
 ```
 
-As well as an absolute timeout (number of seconds), during which the user will be logged
+Also, an absolute timeout (number of seconds) could be used. The user will be logged
 out automatically regardless of activity:
 
 ```php
 $currentUser = $currentUser->withAbsoluteAuthTimeout(3600);
 ```
 
-By default, timeouts are not used, the user will be logged out after the current session expires.
+By default, timeouts are not used, so the user will be logged out after the current session expires.
 
 #### Using with event loop
 
@@ -192,7 +192,7 @@ the state at every request. For this purpose, you can use the `clear()` method.
 
 ### Auto login through identity from request attribute
 
-For auto login, you can use the `Yiisoft\User\Login\LoginMiddleware`. This middleware  automatically logs user
+For auto login, you can use the `Yiisoft\User\Login\LoginMiddleware`. This middleware automatically logs user
 in if `Yiisoft\Auth\IdentityInterface` instance presents in a request attribute. It is usually put there by
 `Yiisoft\Auth\Middleware\Authentication`. For more information about the authentication middleware and
 authentication methods, see the [yiisoft/auth](https://github.com/yiisoft/auth).
