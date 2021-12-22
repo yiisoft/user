@@ -286,7 +286,8 @@ public function logout(
     \Yiisoft\User\CurrentUser $currentUser
 ): \Psr\Http\Message\ResponseInterface {
     $response = $responseFactory->createResponse(302)->withHeader('Location', '/');
-    $identity = $this->currentUser->getIdentity();
+    
+    // Regenerate cookie login key to `Yiisoft\User\Login\Cookie\CookieLoginIdentityInterface` instance.
     
     if ($currentUser->logout()) {
         $response = $cookieLogin->expireCookie($response);
