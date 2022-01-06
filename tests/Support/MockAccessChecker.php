@@ -17,6 +17,9 @@ final class MockAccessChecker implements AccessCheckerInterface
 
     public function userHasPermission($userId, string $permissionName, array $parameters = []): bool
     {
+        if (!is_string($userId) && !is_int($userId)) {
+            throw new \InvalidArgumentException('User ID must be a string or integer.');
+        }
         return $this->userHasPermission;
     }
 }

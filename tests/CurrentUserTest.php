@@ -384,10 +384,20 @@ final class CurrentUserTest extends TestCase
     {
         $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
             ->withAccessChecker($this->createAccessChecker(true))
-            ->withSession($this->createSession())
-        ;
+            ->withSession($this->createSession());
+        $identity = $this->createIdentity('test-id');
 
+        $this->assertTrue($currentUser->login($identity));
         $this->assertTrue($currentUser->can('permission'));
+    }
+
+    public function testCanWithGuest(): void
+    {
+        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
+            ->withAccessChecker($this->createAccessChecker(true))
+            ->withSession($this->createSession());
+
+        $this->assertFalse($currentUser->can('permission'));
     }
 
     public function testImmutable(): void

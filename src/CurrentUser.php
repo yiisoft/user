@@ -170,7 +170,7 @@ final class CurrentUser
      */
     public function can(string $permissionName, array $params = []): bool
     {
-        if ($this->accessChecker === null) {
+        if ($this->accessChecker === null || $this->getId() === null) {
             return false;
         }
 
