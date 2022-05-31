@@ -42,7 +42,9 @@ final class UserAuth implements AuthenticationMethodInterface
      */
     public function challenge(ResponseInterface $response): ResponseInterface
     {
-        return $this->responseFactory->createResponse(Status::FOUND)->withHeader('Location', $this->authUrl);
+        return $this->responseFactory
+            ->createResponse(Status::FOUND)
+            ->withHeader('Location', $this->authUrl);
     }
 
     /**
