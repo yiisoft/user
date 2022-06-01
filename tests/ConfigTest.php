@@ -46,7 +46,9 @@ final class ConfigTest extends TestCase
         $cookieLogin = $container->get(CookieLogin::class);
 
         $this->assertInstanceOf(CookieLogin::class, $cookieLogin);
-        $this->assertSame(5, $this->getInaccessibleProperty($cookieLogin, 'duration')->d);
+        $this->assertSame(5, $this
+            ->getInaccessibleProperty($cookieLogin, 'duration')
+            ->d);
 
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
@@ -74,7 +76,9 @@ final class ConfigTest extends TestCase
         $cookieLogin = $container->get(CookieLogin::class);
 
         $this->assertInstanceOf(CookieLogin::class, $cookieLogin);
-        $this->assertSame(2, $this->getInaccessibleProperty($cookieLogin, 'duration')->d);
+        $this->assertSame(2, $this
+            ->getInaccessibleProperty($cookieLogin, 'duration')
+            ->d);
 
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 

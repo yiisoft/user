@@ -44,7 +44,9 @@ final class LoginMiddlewareTest extends TestCase
 
         $this->assertNull($this->logger->getLastMessage());
         $this->assertInstanceOf(MockIdentity::class, $this->currentUser->getIdentity());
-        $this->assertSame(self::IDENTITY_ID, $this->currentUser->getIdentity()->getId());
+        $this->assertSame(self::IDENTITY_ID, $this->currentUser
+            ->getIdentity()
+            ->getId());
     }
 
     public function testCorrectProcessWithNonGuestUser(): void
@@ -56,7 +58,9 @@ final class LoginMiddlewareTest extends TestCase
 
         $this->assertNull($this->logger->getLastMessage());
         $this->assertInstanceOf(MockIdentity::class, $currentUser->getIdentity());
-        $this->assertSame(self::IDENTITY_ID, $currentUser->getIdentity()->getId());
+        $this->assertSame(self::IDENTITY_ID, $currentUser
+            ->getIdentity()
+            ->getId());
         $this->assertCount(2, $this->eventDispatcher->getEvents());
         $this->assertSame([BeforeLogin::class, AfterLogin::class], $this->eventDispatcher->getEventClasses());
 
@@ -64,7 +68,9 @@ final class LoginMiddlewareTest extends TestCase
 
         $this->assertNull($this->logger->getLastMessage());
         $this->assertInstanceOf(MockIdentity::class, $currentUser->getIdentity());
-        $this->assertSame(self::IDENTITY_ID, $currentUser->getIdentity()->getId());
+        $this->assertSame(self::IDENTITY_ID, $currentUser
+            ->getIdentity()
+            ->getId());
         $this->assertCount(2, $this->eventDispatcher->getEvents());
         $this->assertSame([BeforeLogin::class, AfterLogin::class], $this->eventDispatcher->getEventClasses());
     }
@@ -76,7 +82,9 @@ final class LoginMiddlewareTest extends TestCase
         $middleware->process($this->createServerRequest(false), $this->createRequestHandler());
 
         $this->assertInstanceOf(GuestIdentity::class, $this->currentUser->getIdentity());
-        $this->assertNull($this->currentUser->getIdentity()->getId());
+        $this->assertNull($this->currentUser
+            ->getIdentity()
+            ->getId());
         $this->assertSame('Unable to authenticate user by token. Identity not found.', $this->logger->getLastMessage());
     }
 

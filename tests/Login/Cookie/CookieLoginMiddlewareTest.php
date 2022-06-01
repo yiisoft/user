@@ -49,7 +49,9 @@ final class CookieLoginMiddlewareTest extends TestCase
         $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser
+            ->getIdentity()
+            ->getId());
     }
 
     public function testCorrectProcessWithNonGuestUser(): void
@@ -73,14 +75,18 @@ final class CookieLoginMiddlewareTest extends TestCase
         $middleware->process($request, $this->getRequestHandler());
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser
+            ->getIdentity()
+            ->getId());
         $this->assertCount(2, $eventDispatcher->getEvents());
         $this->assertSame([BeforeLogin::class, AfterLogin::class], $eventDispatcher->getEventClasses());
 
         $middleware->process($request, $this->getRequestHandler());
 
         $this->assertNull($this->getLastLogMessage());
-        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser
+            ->getIdentity()
+            ->getId());
         $this->assertCount(2, $eventDispatcher->getEvents());
         $this->assertSame([BeforeLogin::class, AfterLogin::class], $eventDispatcher->getEventClasses());
     }
@@ -237,7 +243,10 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
 
         $handler = $this->createMock(RequestHandlerInterface::class);
-        $handler->expects($this->once())->method('handle')->willReturn(new Response());
+        $handler
+            ->expects($this->once())
+            ->method('handle')
+            ->willReturn(new Response());
         $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $handler);
 
         $this->assertNull($this->getLastLogMessage());

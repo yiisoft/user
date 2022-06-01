@@ -50,7 +50,9 @@ final class UserAuthTest extends TestCase
     {
         $response = new Response();
         $user = $this->createCurrentUser();
-        $challenge = (new UserAuth($user, new ResponseFactory()))->withAuthUrl('/custom-auth-url')->challenge($response);
+        $challenge = (new UserAuth($user, new ResponseFactory()))
+            ->withAuthUrl('/custom-auth-url')
+            ->challenge($response);
 
         $this->assertSame('/custom-auth-url', $challenge->getHeaderLine('Location'));
     }
