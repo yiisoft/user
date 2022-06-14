@@ -1,6 +1,6 @@
 # Yii User Change Log
 
-## 1.1.0 under development
+## 1.0.1 under development
 
 - Enh #55: Add support for `2.0`, `3.0` versions of `psr/log` (rustamwin)
 
