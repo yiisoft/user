@@ -48,7 +48,7 @@
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.18",
         "yiisoft/di": "^1.0",
-        "yiisoft/test-support": "^1.3"
+        "yiisoft/test-support": "^2.0"
     },
     "autoload": {
         "psr-4": {
