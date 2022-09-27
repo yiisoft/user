@@ -8,11 +8,8 @@ use Yiisoft\Auth\IdentityInterface;
 
 final class MockIdentity implements IdentityInterface
 {
-    private string $id;
-
-    public function __construct(string $id)
+    public function __construct(private string $id)
     {
-        $this->id = $id;
     }
 
     public function getId(): ?string

@@ -174,7 +174,7 @@ final class CookieLoginMiddlewareTest extends TestCase
                 CookieLoginIdentity::KEY_CORRECT,
                 time() + 3600,
                 'weird stuff',
-            ]),
+            ], JSON_THROW_ON_ERROR),
         ]);
 
         $response = $middleware->process($request, $this->getRequestHandler());
@@ -417,7 +417,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         int $expires = null
     ): ServerRequestInterface {
         return $this->getRequestWithCookies([
-            'autoLogin' => json_encode([CookieLoginIdentity::ID, $authKey, $expires ?? time() + 3600]),
+            'autoLogin' => json_encode([CookieLoginIdentity::ID, $authKey, $expires ?? time() + 3600], JSON_THROW_ON_ERROR),
         ]);
     }
 

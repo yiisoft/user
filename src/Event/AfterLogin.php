@@ -8,11 +8,8 @@ use Yiisoft\Auth\IdentityInterface;
 
 final class AfterLogin
 {
-    private IdentityInterface $identity;
-
-    public function __construct(IdentityInterface $identity)
+    public function __construct(private IdentityInterface $identity)
     {
-        $this->identity = $identity;
     }
 
     public function getIdentity(): IdentityInterface

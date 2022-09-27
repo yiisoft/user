@@ -19,11 +19,8 @@ final class MockArraySessionStorage implements SessionInterface
 
     private bool $closed = false;
 
-    private array $data;
-
-    public function __construct(array $data = [])
+    public function __construct(private array $data = [])
     {
-        $this->data = $data;
     }
 
     public function get(string $key, $default = null)

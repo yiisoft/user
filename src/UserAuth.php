@@ -17,13 +17,9 @@ use Yiisoft\Http\Status;
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
-    private CurrentUser $currentUser;
-    private ResponseFactoryInterface $responseFactory;
 
-    public function __construct(CurrentUser $currentUser, ResponseFactoryInterface $responseFactory)
+    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory)
     {
-        $this->currentUser = $currentUser;
-        $this->responseFactory = $responseFactory;
     }
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
@@ -51,8 +47,6 @@ final class UserAuth implements AuthenticationMethodInterface
      * Returns a new instance with the specified authentication URL.
      *
      * @param string $url The authentication URL.
-     *
-     * @return self
      */
     public function withAuthUrl(string $url): self
     {
