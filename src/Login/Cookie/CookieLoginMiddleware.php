@@ -27,12 +27,6 @@ use function time;
  */
 final class CookieLoginMiddleware implements MiddlewareInterface
 {
-    private CurrentUser $currentUser;
-    private IdentityRepositoryInterface $identityRepository;
-    private LoggerInterface $logger;
-    private CookieLogin $cookieLogin;
-    private bool $forceAddCookie;
-
     /**
      * @param CurrentUser $currentUser The current user instance.
      * @param IdentityRepositoryInterface $identityRepository The identity repository instance.
@@ -40,18 +34,8 @@ final class CookieLoginMiddleware implements MiddlewareInterface
      * @param CookieLogin $cookieLogin The cookie login instance.
      * @param bool $forceAddCookie Whether to force add a cookie.
      */
-    public function __construct(
-        CurrentUser $currentUser,
-        IdentityRepositoryInterface $identityRepository,
-        LoggerInterface $logger,
-        CookieLogin $cookieLogin,
-        bool $forceAddCookie = false
-    ) {
-        $this->currentUser = $currentUser;
-        $this->identityRepository = $identityRepository;
-        $this->logger = $logger;
-        $this->cookieLogin = $cookieLogin;
-        $this->forceAddCookie = $forceAddCookie;
+    public function __construct(private CurrentUser $currentUser, private IdentityRepositoryInterface $identityRepository, private LoggerInterface $logger, private CookieLogin $cookieLogin, private bool $forceAddCookie = false)
+    {
     }
 
     /**
@@ -105,7 +89,7 @@ final class CookieLoginMiddleware implements MiddlewareInterface
 
         try {
             $data = json_decode((string) $cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
             return;
         }
