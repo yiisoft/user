@@ -1,8 +1,8 @@
 # Yii User Change Log
 
-## 1.0.2 under development
+## 2.0.0 under development
 
-- no changes in this release.
+- Chg #67: Adapt configuration group names to Yii conventions (@vjik)
 
 ## 1.0.1 June 15, 2022
 
