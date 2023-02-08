@@ -25,7 +25,6 @@ use Yiisoft\User\Login\LoginMiddleware;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
 use Yiisoft\User\UserAuth;
 
-use function array_merge;
 use function dirname;
 
 final class ConfigTest extends TestCase
