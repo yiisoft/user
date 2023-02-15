@@ -1,12 +1,13 @@
 # Yii User Change Log
 
-## 1.0.2 under development
+## 2.0.0 under development
 
 - Enh #68: Add support of `yiisoft/session` version `^2.0` (@vjik)
+- Chg #67: Adapt configuration group names to Yii conventions (@vjik)
 
 ## 1.0.1 June 15, 2022
 
-- Enh #55: Add support for `2.0`, `3.0` versions of `psr/log` (rustamwin)
+- Enh #55: Add support for `2.0`, `3.0` versions of `psr/log` (@rustamwin)
 
 ## 1.0.0 December 22, 2021
 
