@@ -2,7 +2,7 @@
 
 ## 1.0.2 under development
 
-- no changes in this release.
+- Enh #68: Add support of `yiisoft/session` version `^2.0` (@vjik)
 
 ## 1.0.1 June 15, 2022
 
