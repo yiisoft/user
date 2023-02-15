@@ -1,9 +1,9 @@
 # Yii User Change Log
 
-## 2.0.0 under development
+## 2.0.0 February 15, 2023
 
-- Enh #68: Add support of `yiisoft/session` version `^2.0` (@vjik)
 - Chg #67: Adapt configuration group names to Yii conventions (@vjik)
+- Enh #68: Add support of `yiisoft/session` version `^2.0` (@vjik)
 
 ## 1.0.1 June 15, 2022
 
