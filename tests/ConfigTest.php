@@ -25,7 +25,6 @@ use Yiisoft\User\Login\LoginMiddleware;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
 use Yiisoft\User\UserAuth;
 
-use function array_merge;
 use function dirname;
 
 final class ConfigTest extends TestCase
@@ -90,23 +89,27 @@ final class ConfigTest extends TestCase
     {
         return new Container(
             ContainerConfig::create()->withDefinitions(
-                $this->getWebDefinitions($params)
+                $this->getDiConfig($params)
+                +
+                [
+                    EventDispatcherInterface::class => SimpleEventDispatcher::class,
+                    IdentityRepositoryInterface::class => MockIdentityRepository::class,
+                    ResponseFactoryInterface::class => ResponseFactory::class,
+                    LoggerInterface::class => SimpleLogger::class,
+                ]
             ),
         );
     }
 
-    private function getWebDefinitions(?array $params = null): array
+    private function getDiConfig(?array $params = null): array
     {
-        if ($params === null) {
-            $params = require dirname(__DIR__) . '/config/params.php';
-        }
+        $params ??= $this->getParams();
+        return require dirname(__DIR__) . '/config/di-web.php';
+    }
 
-        return array_merge(require dirname(__DIR__) . '/config/web.php', [
-            EventDispatcherInterface::class => SimpleEventDispatcher::class,
-            IdentityRepositoryInterface::class => MockIdentityRepository::class,
-            ResponseFactoryInterface::class => ResponseFactory::class,
-            LoggerInterface::class => SimpleLogger::class,
-        ]);
+    private function getParams(): array
+    {
+        return require dirname(__DIR__) . '/config/params.php';
     }
 
     private function getInaccessibleProperty(object $object, string $propertyName)

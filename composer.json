@@ -38,7 +38,7 @@
         "yiisoft/access": "^1.0",
         "yiisoft/auth": "^2.0|^3.0",
         "yiisoft/cookies": "^1.2",
-        "yiisoft/session": "^1.0",
+        "yiisoft/session": "^1.0|^2.0",
         "yiisoft/http": "^1.2"
     },
     "require-dev": {
@@ -66,7 +66,7 @@
         },
         "config-plugin": {
             "params": "params.php",
-            "web": "web.php"
+            "di-web": "di-web.php"
         }
     },
     "config": {
