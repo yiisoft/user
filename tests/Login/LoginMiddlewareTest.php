@@ -85,7 +85,7 @@ final class LoginMiddlewareTest extends TestCase
         $this->assertNull($this->currentUser
             ->getIdentity()
             ->getId());
-        $this->assertSame('Unable to authenticate user by token. Identity not found.', $this->logger->getLastMessage());
+        $this->assertSame('Unable to authenticate user by token "null". Identity not found.', $this->logger->getLastMessage());
     }
 
     private function createServerRequest(bool $withIdentity = true): ServerRequestInterface
