@@ -26,12 +26,8 @@ final class UserAuth implements AuthenticationMethodInterface
         $this->responseFactory = $responseFactory;
     }
 
-    public function authenticate(ServerRequestInterface $request): ?IdentityInterface
+    public function authenticate(ServerRequestInterface $request): IdentityInterface
     {
-        if ($this->currentUser->isGuest()) {
-            return null;
-        }
-
         return $this->currentUser->getIdentity();
     }
 
