@@ -10,12 +10,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
+use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Event\AfterLogin;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Guest\GuestIdentity;
 use Yiisoft\User\Login\LoginMiddleware;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
-use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
 
@@ -85,7 +85,7 @@ final class LoginMiddlewareTest extends TestCase
         $this->assertNull($this->currentUser
             ->getIdentity()
             ->getId());
-        $this->assertSame('Unable to authenticate user by token "null". Identity not found.', $this->logger->getLastMessage());
+        $this->assertSame('Unable to authenticate user by token of type null. Identity not found.', $this->logger->getLastMessage());
     }
 
     private function createServerRequest(bool $withIdentity = true): ServerRequestInterface
