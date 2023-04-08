@@ -2,7 +2,7 @@
 
 ## 2.0.1 under development
 
-- no changes in this release.
+- Chg #71: Add token logging when login was failed (@xepozz)
 
 ## 2.0.0 February 15, 2023
 
