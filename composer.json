@@ -43,7 +43,7 @@
     },
     "require-dev": {
         "httpsoft/http-message": "^1.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^10.1",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.30|^5.6",
