@@ -36,6 +36,8 @@ return [
     CookieLogin::class => [
         '__construct()' => [
             'duration' => new DateInterval($params['yiisoft/user']['cookieLogin']['duration']),
+            'cookieName' => $params['yiisoft/user']['cookieLogin']['cookieName'],
+            'cookieParams' => $params['yiisoft/user']['cookieLogin']['cookieParams'],
         ],
     ],
 ];

@@ -3,6 +3,7 @@
 ## 2.0.1 under development
 
 - Chg #71: Add token logging when login was failed (@xepozz)
+- Enh #79: Move auto-login cookie params to component config parameters
 
 ## 2.0.0 February 15, 2023
 

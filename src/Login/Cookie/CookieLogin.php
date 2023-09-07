@@ -20,15 +20,29 @@ use function json_encode;
  */
 final class CookieLogin
 {
-    private string $cookieName = 'autoLogin';
+    private const DEFAULT_COOKIE_PARAMS = [
+        'domain' => null,
+        'path' => '/',
+        'secure' => true,
+        'httpOnly' => true,
+        'sameSite' => Cookie::SAME_SITE_LAX,
+        'encodeValue' => true,
+    ];
+
     private DateInterval $duration;
+    private string $cookieName;
+    private array $cookieParams;
 
     /**
-     * @param DateInterval $duration Interval until the auto-login cookie expires.
+     * @param DateInterval $duration Interval until auto-login cookie expires.
+     * @param string $cookieName Auto-login cookie name.
+     * @param array $cookieParams Parameters for auto-login cookie.
      */
-    public function __construct(DateInterval $duration)
+    public function __construct(DateInterval $duration, string $cookieName, array $cookieParams = [])
     {
         $this->duration = $duration;
+        $this->cookieName = $cookieName;
+        $this->cookieParams = array_merge(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
     }
 
     /**
@@ -66,9 +80,19 @@ final class CookieLogin
             $expires->getTimestamp(),
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        return (new Cookie($this->cookieName, $data))
-            ->withExpires($expires)
-            ->addToResponse($response);
+        $cookie = new Cookie(
+            name:  $this->cookieName,
+            value: $data,
+            domain: $this->cookieParams['domain'],
+            path: $this->cookieParams['path'],
+            secure: $this->cookieParams['secure'],
+            httpOnly: $this->cookieParams['httpOnly'],
+            sameSite: $this->cookieParams['sameSite'],
+            encodeValue: $this->cookieParams['encodeValue'],
+        );
+        $cookie = $cookie->withExpires($expires);
+
+        return $cookie->addToResponse($response);
     }
 
     /**
