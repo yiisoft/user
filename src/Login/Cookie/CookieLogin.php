@@ -83,12 +83,12 @@ final class CookieLogin
         $cookie = new Cookie(
             name:  $this->cookieName,
             value: $data,
-            domain: $this->cookieParams['domain'],
-            path: $this->cookieParams['path'],
-            secure: $this->cookieParams['secure'],
-            httpOnly: $this->cookieParams['httpOnly'],
-            sameSite: $this->cookieParams['sameSite'],
-            encodeValue: $this->cookieParams['encodeValue'],
+            domain: (string) $this->cookieParams['domain'] ?: null,
+            path: (string) $this->cookieParams['path'] ?: null,
+            secure: (bool) $this->cookieParams['secure'],
+            httpOnly: (bool) $this->cookieParams['httpOnly'],
+            sameSite: (string) $this->cookieParams['sameSite'] ?: null,
+            encodeValue: (bool) $this->cookieParams['encodeValue'],
         );
         $cookie = $cookie->withExpires($expires);
 
