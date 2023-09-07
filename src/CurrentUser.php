@@ -325,6 +325,7 @@ final class CurrentUser
     {
         /**
          * @var mixed $expire
+         *
          * @psalm-suppress PossiblyNullReference
          */
         $expire = $this->authTimeout !== null
@@ -339,6 +340,7 @@ final class CurrentUser
     {
         /**
          * @var mixed $expire
+         *
          * @psalm-suppress PossiblyNullReference
          */
         $expire = $this->absoluteAuthTimeout !== null
