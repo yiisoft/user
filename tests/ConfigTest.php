@@ -64,7 +64,10 @@ final class ConfigTest extends TestCase
                     'forceAddCookie' => true,
                     'duration' => 'P2D',
                     'cookieName' => 'autoAuth',
-                    'cookieParams' => [],
+                    'cookieParams' => [
+                        'domain' => 'exampple.com',
+                        'secure' => false,
+                    ],
                 ],
             ],
         ]);
@@ -80,9 +83,11 @@ final class ConfigTest extends TestCase
         $this->assertSame(2, $this
             ->getInaccessibleProperty($cookieLogin, 'duration')
             ->d);
-        $this->assertSame('autoAuth', $this
-            ->getInaccessibleProperty($cookieLogin, 'cookieName')
-            ->d);
+        $this->assertSame('autoAuth', $this->getInaccessibleProperty($cookieLogin, 'cookieName'));
+
+        $cookieParams = $this->getInaccessibleProperty($cookieLogin, 'cookieParams');
+        $this->assertSame('exampple.com', $cookieParams['domain']);
+        $this->assertSame(false, $cookieParams['secure']);
 
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
