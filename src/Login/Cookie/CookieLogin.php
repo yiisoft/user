@@ -38,7 +38,7 @@ final class CookieLogin
      * @param string $cookieName Auto-login cookie name.
      * @param array $cookieParams Parameters for auto-login cookie.
      */
-    public function __construct(DateInterval $duration, string $cookieName, array $cookieParams = [])
+    public function __construct(DateInterval $duration, string $cookieName = 'autoLogin', array $cookieParams = [])
     {
         $this->duration = $duration;
         $this->cookieName = $cookieName;
