@@ -26,7 +26,7 @@ The package handles user-related functionality:
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 8.0 or higher.
 - `JSON` PHP extension.
 
 ## Installation

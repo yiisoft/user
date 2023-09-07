@@ -128,9 +128,7 @@ final class CurrentUser
      */
     public function getId(): ?string
     {
-        return $this
-            ->getIdentity()
-            ->getId();
+        return $this->getIdentity()->getId();
     }
 
     /**
