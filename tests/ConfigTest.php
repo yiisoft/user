@@ -77,7 +77,7 @@ final class ConfigTest extends TestCase
         $cookieLogin = $container->get(CookieLogin::class);
 
         $this->assertInstanceOf(CookieLogin::class, $cookieLogin);
-        $this->assertSame('P2D', $this
+        $this->assertSame(2, $this
             ->getInaccessibleProperty($cookieLogin, 'duration')
             ->d);
         $this->assertSame('autoAuth', $this
