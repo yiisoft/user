@@ -3,6 +3,7 @@
 ## 2.0.1 under development
 
 - Chg #71: Add token logging when login was failed (@xepozz)
+- Chg #58: Raise the minimum version of PHP to 8.0 (@xepozz, @rustamwin)
 
 ## 2.0.0 February 15, 2023
 
