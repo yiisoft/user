@@ -26,7 +26,6 @@ final class CookieLogin
         'secure' => true,
         'httpOnly' => true,
         'sameSite' => Cookie::SAME_SITE_LAX,
-        'encodeValue' => true,
     ];
 
     private DateInterval $duration;
@@ -88,7 +87,6 @@ final class CookieLogin
             secure: (bool) $this->cookieParams['secure'],
             httpOnly: (bool) $this->cookieParams['httpOnly'],
             sameSite: (string) $this->cookieParams['sameSite'] ?: null,
-            encodeValue: (bool) $this->cookieParams['encodeValue'],
         );
         $cookie = $cookie->withExpires($expires);
 
