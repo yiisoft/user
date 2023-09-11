@@ -8,12 +8,10 @@ use Yiisoft\Auth\IdentityInterface;
 
 final class BeforeLogout
 {
-    private IdentityInterface $identity;
     private bool $isValid = true;
 
-    public function __construct(IdentityInterface $identity)
+    public function __construct(private IdentityInterface $identity)
     {
-        $this->identity = $identity;
     }
 
     public function invalidate(): void

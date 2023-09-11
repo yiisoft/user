@@ -199,11 +199,8 @@ final class CurrentUserTest extends TestCase
     {
         $id = 'test-id';
         $identity = new class ($id) implements IdentityInterface {
-            private ?string $id;
-
-            public function __construct(string $id)
+            public function __construct(private ?string $id)
             {
-                $this->id = $id;
             }
 
             public function getId(): ?string

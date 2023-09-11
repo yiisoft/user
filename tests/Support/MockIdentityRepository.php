@@ -10,12 +10,10 @@ use Yiisoft\Auth\IdentityRepositoryInterface;
 
 final class MockIdentityRepository implements IdentityRepositoryInterface
 {
-    private ?IdentityInterface $identity;
     private bool $withException = false;
 
-    public function __construct(?IdentityInterface $identity = null)
+    public function __construct(private ?IdentityInterface $identity = null)
     {
-        $this->identity = $identity;
     }
 
     public function findIdentity(string $id): ?IdentityInterface

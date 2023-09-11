@@ -21,22 +21,18 @@ use function json_encode;
 final class CookieLogin
 {
     private string $cookieName = 'autoLogin';
-    private DateInterval $duration;
 
     /**
      * @param DateInterval $duration Interval until the auto-login cookie expires.
      */
-    public function __construct(DateInterval $duration)
+    public function __construct(private DateInterval $duration)
     {
-        $this->duration = $duration;
     }
 
     /**
      * Returns a new instance with the specified auto-login cookie name.
      *
      * @param string $name The auto-login cookie name.
-     *
-     * @return self
      */
     public function withCookieName(string $name): self
     {
