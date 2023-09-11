@@ -34,8 +34,13 @@ final class CookieLoginMiddleware implements MiddlewareInterface
      * @param CookieLogin $cookieLogin The cookie login instance.
      * @param bool $forceAddCookie Whether to force add a cookie.
      */
-    public function __construct(private CurrentUser $currentUser, private IdentityRepositoryInterface $identityRepository, private LoggerInterface $logger, private CookieLogin $cookieLogin, private bool $forceAddCookie = false)
-    {
+    public function __construct(
+        private CurrentUser $currentUser,
+        private IdentityRepositoryInterface $identityRepository,
+        private LoggerInterface $logger,
+        private CookieLogin $cookieLogin,
+        private bool $forceAddCookie = false
+    ) {
     }
 
     /**
