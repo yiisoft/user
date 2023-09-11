@@ -17,10 +17,14 @@ use function json_encode;
  *
  * @see CookieLoginIdentityInterface
  * @see CookieLoginMiddleware
+ *
+ * @psalm-type CookieOptions = array{
+ *     name?: string,
+ * }&array<string,mixed>
  */
 final class CookieLogin
 {
-    private const DEFAULT_COOKIE_PARAMS = [
+    private const DEFAULT_COOKIE_OPTIONS = [
         'domain' => null,
         'path' => '/',
         'secure' => true,
@@ -30,18 +34,23 @@ final class CookieLogin
 
     private DateInterval $duration;
     private string $cookieName;
-    private array $cookieParams;
+    /**
+     * @psalm-var CookieOptions
+     */
+    private array $cookieOptions;
 
     /**
      * @param DateInterval $duration Interval until auto-login cookie expires.
      * @param string $cookieName Auto-login cookie name.
-     * @param array $cookieParams Parameters for auto-login cookie.
+     * @param array $cookieOptions Parameters for auto-login cookie.
+     *
+     * @psalm-param CookieOptions $cookieOptions
      */
-    public function __construct(DateInterval $duration, string $cookieName = 'autoLogin', array $cookieParams = [])
+    public function __construct(DateInterval $duration, string $cookieName = 'autoLogin', array $cookieOptions = [])
     {
         $this->duration = $duration;
         $this->cookieName = $cookieName;
-        $this->cookieParams = array_merge(self::DEFAULT_COOKIE_PARAMS, $cookieParams);
+        $this->cookieOptions = array_merge(self::DEFAULT_COOKIE_OPTIONS, $cookieOptions);
     }
 
     /**
@@ -82,11 +91,11 @@ final class CookieLogin
         $cookie = new Cookie(
             name:  $this->cookieName,
             value: $data,
-            domain: (string) $this->cookieParams['domain'] ?: null,
-            path: (string) $this->cookieParams['path'] ?: null,
-            secure: (bool) $this->cookieParams['secure'],
-            httpOnly: (bool) $this->cookieParams['httpOnly'],
-            sameSite: (string) $this->cookieParams['sameSite'] ?: null,
+            domain: (string) $this->cookieOptions['domain'] ?: null,
+            path: (string) $this->cookieOptions['path'] ?: null,
+            secure: (bool) $this->cookieOptions['secure'],
+            httpOnly: (bool) $this->cookieOptions['httpOnly'],
+            sameSite: (string) $this->cookieOptions['sameSite'] ?: null,
         );
         $cookie = $cookie->withExpires($expires);
 
