@@ -23,8 +23,10 @@ final class LoginMiddleware implements MiddlewareInterface
      * @param CurrentUser $currentUser The current user instance.
      * @param LoggerInterface $logger The logger instance.
      */
-    public function __construct(private CurrentUser $currentUser, private LoggerInterface $logger)
-    {
+    public function __construct(
+        private CurrentUser $currentUser,
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**
