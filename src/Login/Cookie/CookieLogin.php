@@ -57,8 +57,6 @@ final class CookieLogin
      * Returns a new instance with the specified auto-login cookie name.
      *
      * @param string $name The auto-login cookie name.
-     *
-     * @return self
      */
     public function withCookieName(string $name): self
     {

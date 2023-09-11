@@ -19,17 +19,14 @@ use Yiisoft\User\CurrentUser;
  */
 final class LoginMiddleware implements MiddlewareInterface
 {
-    private CurrentUser $currentUser;
-    private LoggerInterface $logger;
-
     /**
      * @param CurrentUser $currentUser The current user instance.
      * @param LoggerInterface $logger The logger instance.
      */
-    public function __construct(CurrentUser $currentUser, LoggerInterface $logger)
-    {
-        $this->currentUser = $currentUser;
-        $this->logger = $logger;
+    public function __construct(
+        private CurrentUser $currentUser,
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**

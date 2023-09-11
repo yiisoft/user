@@ -28,9 +28,6 @@ final class CurrentUser
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';
     private const SESSION_AUTH_ABSOLUTE_EXPIRE = '__auth_absolute_expire';
-
-    private IdentityRepositoryInterface $identityRepository;
-    private EventDispatcherInterface $eventDispatcher;
     private GuestIdentityFactoryInterface $guestIdentityFactory;
     private ?AccessCheckerInterface $accessChecker = null;
     private ?SessionInterface $session = null;
@@ -42,12 +39,10 @@ final class CurrentUser
     private ?int $absoluteAuthTimeout = null;
 
     public function __construct(
-        IdentityRepositoryInterface $identityRepository,
-        EventDispatcherInterface $eventDispatcher,
+        private IdentityRepositoryInterface $identityRepository,
+        private EventDispatcherInterface $eventDispatcher,
         GuestIdentityFactoryInterface $guestIdentityFactory = null
     ) {
-        $this->identityRepository = $identityRepository;
-        $this->eventDispatcher = $eventDispatcher;
         $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
     }
 
@@ -55,8 +50,6 @@ final class CurrentUser
      * Returns a new instance with the specified session to store current user ID and auth timeouts.
      *
      * @param SessionInterface $session The session instance.
-     *
-     * @return self
      */
     public function withSession(SessionInterface $session): self
     {
@@ -69,8 +62,6 @@ final class CurrentUser
      * Returns a new instance with the specified access checker to check user permissions {@see can()}.
      *
      * @param AccessCheckerInterface $accessChecker The access checker instance.
-     *
-     * @return self
      */
     public function withAccessChecker(AccessCheckerInterface $accessChecker): self
     {
@@ -85,8 +76,6 @@ final class CurrentUser
      *
      * @param int $timeout The number of seconds in which the user will be logged out automatically in case of
      * remaining inactive. Default is `null`, the user will be logged out after the current session expires.
-     *
-     * @return self
      */
     public function withAuthTimeout(int $timeout): self
     {
@@ -101,8 +90,6 @@ final class CurrentUser
      *
      * @param int $timeout The number of seconds in which the user will be logged out automatically regardless
      * of activity. Default is `null`, the user will be logged out after the current session expires.
-     *
-     * @return self
      */
     public function withAbsoluteAuthTimeout(int $timeout): self
     {
@@ -141,9 +128,7 @@ final class CurrentUser
      */
     public function getId(): ?string
     {
-        return $this
-            ->getIdentity()
-            ->getId();
+        return $this->getIdentity()->getId();
     }
 
     /**
