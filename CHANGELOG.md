@@ -1,8 +1,11 @@
 # Yii User Change Log
 
-## 2.0.1 under development
+## 2.1.0 under development
 
 - Enh: Add composer require checker into CI
+- Chg #71: Add token logging when login was failed (@xepozz)
+- Chg #58: Raise the minimum version of PHP to 8.0 and did refactoring using the features of it (@xepozz, @rustamwin)
+- Chg #58: Raise version of `yiisoft/access` to `^2.0` (@rustamwin)
 
 ## 2.0.0 February 15, 2023
 

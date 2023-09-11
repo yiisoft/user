@@ -15,27 +15,24 @@ use Yiisoft\User\CurrentUser;
 
 /**
  * `LoginMiddleware` automatically logs user in if {@see IdentityInterface} instance presents in a request
- * attribute. It is usually put there by {@see \Yiisoft\Auth\Middleware\Authentication}.
+ * attribute. It is usually put there by {@see Authentication}.
  */
 final class LoginMiddleware implements MiddlewareInterface
 {
-    private CurrentUser $currentUser;
-    private LoggerInterface $logger;
-
     /**
      * @param CurrentUser $currentUser The current user instance.
      * @param LoggerInterface $logger The logger instance.
      */
-    public function __construct(CurrentUser $currentUser, LoggerInterface $logger)
-    {
-        $this->currentUser = $currentUser;
-        $this->logger = $logger;
+    public function __construct(
+        private CurrentUser $currentUser,
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**
      * {@inheritDoc}
      *
-     * Before this middleware, there should be {@see \Yiisoft\Auth\Middleware\Authentication} in the middleware stack.
+     * Before this middleware, there should be {@see Authentication} in the middleware stack.
      * It authenticates the user and places {@see IdentityInterface} instance in the corresponding request attribute.
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -50,7 +47,10 @@ final class LoginMiddleware implements MiddlewareInterface
         if ($identity instanceof IdentityInterface) {
             $this->currentUser->login($identity);
         } else {
-            $this->logger->warning('Unable to authenticate user by token. Identity not found.');
+            $this->logger->warning(sprintf(
+                'Unable to authenticate user by token %s. Identity not found.',
+                is_scalar($identity) ? ('"' . $identity . '"') : ('of type ' . get_debug_type($identity)),
+            ));
         }
 
         return $handler->handle($request);
