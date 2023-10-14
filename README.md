@@ -275,6 +275,8 @@ return [
 ];
 ```
 
+> If you want the cookie to be a session cookie, change the duration to `null`.
+
 #### Removing a cookie
 
 The `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` automatically removes the cookie after the logout.
