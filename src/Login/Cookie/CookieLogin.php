@@ -23,9 +23,10 @@ final class CookieLogin
     private string $cookieName = 'autoLogin';
 
     /**
-     * @param DateInterval $duration Interval until the auto-login cookie expires.
+     * @param DateInterval|null $duration Interval until the auto-login cookie expires. If it isn't set it means
+     * the auto-login cookie is session cookie that expires when browser is closed.
      */
-    public function __construct(private DateInterval $duration)
+    public function __construct(private ?DateInterval $duration = null)
     {
     }
 
@@ -54,17 +55,21 @@ final class CookieLogin
      */
     public function addCookie(CookieLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
     {
-        $expires = (new DateTimeImmutable())->add($this->duration);
+        $cookie = new Cookie(name: $this->cookieName);
+        $data = [$identity->getId(), $identity->getCookieLoginKey()];
 
-        $data = json_encode([
-            $identity->getId(),
-            $identity->getCookieLoginKey(),
-            $expires->getTimestamp(),
-        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($this->duration !== null) {
+            $expires = (new DateTimeImmutable())->add($this->duration);
+            $data[] = $expires->getTimestamp();
+            $cookie = $cookie->withExpires($expires);
+        } else {
+            $data[] = 0;
+            $cookie = $cookie->expireWhenBrowserIsClosed();
+        }
 
-        return (new Cookie($this->cookieName, $data))
-            ->withExpires($expires)
-            ->addToResponse($response);
+        $cookieValue = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $cookie->withValue($cookieValue)->addToResponse($response);
     }
 
     /**

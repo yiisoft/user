@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 use Yiisoft\Auth\IdentityRepositoryInterface;
+use Yiisoft\Cookies\CookieCollection;
 use Yiisoft\User\CurrentUser;
 
 use function array_key_exists;
@@ -131,7 +132,7 @@ final class CookieLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        if ($expires < time()) {
+        if ($expires !== 0 && $expires < time()) {
             $this->logger->warning('Unable to authenticate user by cookie. Lifetime has expired.');
             return;
         }

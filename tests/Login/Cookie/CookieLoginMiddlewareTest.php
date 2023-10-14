@@ -54,6 +54,25 @@ final class CookieLoginMiddlewareTest extends TestCase
             ->getId());
     }
 
+    public function testSessionCookieLogin(): void
+    {
+        $currentUser = $this->createCurrentUser();
+
+        $middleware = new CookieLoginMiddleware(
+            $currentUser,
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $this->createCookieLogin(),
+        );
+
+        $middleware->process($this->getRequestWithAutoLoginCookie(expires: 0), $this->getRequestHandler());
+
+        $this->assertNull($this->getLastLogMessage());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser
+            ->getIdentity()
+            ->getId());
+    }
+
     public function testCorrectProcessWithNonGuestUser(): void
     {
         $eventDispatcher = $this->createEventDispatcher();

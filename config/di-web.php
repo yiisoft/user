@@ -6,8 +6,8 @@ use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Guest\GuestIdentityFactory;
 use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
-use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\Login\Cookie\CookieLogin;
+use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\UserAuth;
 
 /** @var array $params */
@@ -35,7 +35,9 @@ return [
 
     CookieLogin::class => [
         '__construct()' => [
-            'duration' => new DateInterval($params['yiisoft/user']['cookieLogin']['duration']),
+            'duration' => ($duration = $params['yiisoft/user']['cookieLogin']['duration']) !== null ?
+                new DateInterval($duration) :
+                null,
         ],
     ],
 ];
