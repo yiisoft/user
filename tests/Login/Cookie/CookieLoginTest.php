@@ -28,6 +28,22 @@ final class CookieLoginTest extends TestCase
         );
     }
 
+    public function testAddSessionCookie(): void
+    {
+        $cookieLogin = new CookieLogin();
+
+        $identity = new CookieLoginIdentity();
+
+        $response = new Response();
+        $response = $cookieLogin->addCookie($identity, $response);
+
+        $this->assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C0%5D;'
+            . ' Path=/; Secure; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie'),
+        );
+    }
+
     public function testRemoveCookie(): void
     {
         $cookieLogin = new CookieLogin(new DateInterval('P1W'));
