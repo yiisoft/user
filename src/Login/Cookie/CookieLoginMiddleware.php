@@ -13,7 +13,6 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 use Yiisoft\Auth\IdentityRepositoryInterface;
-use Yiisoft\Cookies\CookieCollection;
 use Yiisoft\User\CurrentUser;
 
 use function array_key_exists;
