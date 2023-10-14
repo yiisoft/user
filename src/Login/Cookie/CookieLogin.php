@@ -55,21 +55,19 @@ final class CookieLogin
      */
     public function addCookie(CookieLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
     {
-        $cookie = new Cookie(name: $this->cookieName);
         $data = [$identity->getId(), $identity->getCookieLoginKey()];
 
         if ($this->duration !== null) {
             $expires = (new DateTimeImmutable())->add($this->duration);
             $data[] = $expires->getTimestamp();
-            $cookie = $cookie->withExpires($expires);
         } else {
+            $expires = null;
             $data[] = 0;
-            $cookie = $cookie->expireWhenBrowserIsClosed();
         }
 
         $cookieValue = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        return $cookie->withValue($cookieValue)->addToResponse($response);
+        return (new Cookie(name: $this->cookieName, value: $cookieValue, expires: $expires))->addToResponse($response);
     }
 
     /**
