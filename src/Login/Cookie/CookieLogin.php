@@ -48,17 +48,26 @@ final class CookieLogin
      *
      * @param CookieLoginIdentityInterface $identity The cookie login identity instance.
      * @param ResponseInterface $response Response for adding auto-login cookie.
+     * @param DateInterval|null|false $duration Interval until the auto-login cookie expires. If it is null it means
+     * the auto-login cookie is session cookie that expires when browser is closed. If it is false (by default) will be
+     * used default value of duration.
      *
      * @throws JsonException If an error occurs during JSON encoding of the cookie value.
      *
      * @return ResponseInterface Response with added auto-login cookie.
      */
-    public function addCookie(CookieLoginIdentityInterface $identity, ResponseInterface $response): ResponseInterface
+    public function addCookie(
+        CookieLoginIdentityInterface $identity,
+        ResponseInterface $response,
+        DateInterval|null|false $duration = false,
+    ): ResponseInterface
     {
+        $duration = $duration === false ? $this->duration : $duration;
+
         $data = [$identity->getId(), $identity->getCookieLoginKey()];
 
-        if ($this->duration !== null) {
-            $expires = (new DateTimeImmutable())->add($this->duration);
+        if ($duration !== null) {
+            $expires = (new DateTimeImmutable())->add($duration);
             $data[] = $expires->getTimestamp();
         } else {
             $expires = null;

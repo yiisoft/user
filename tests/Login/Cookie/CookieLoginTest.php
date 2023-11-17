@@ -87,4 +87,40 @@ final class CookieLoginTest extends TestCase
             $response->getHeaderLine('Set-Cookie'),
         );
     }
+
+    public function dataAddCookieWithCustomDuration(): array
+    {
+        return [
+            'false' => [
+                '#testName=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D; Expires=.*?; Max-Age=604800; Path=/; Secure; HttpOnly; SameSite=Lax#',
+                false,
+            ],
+            'null' => [
+                '#testName=%5B%2242%22%2C%22auto-login-key-correct%22%2C0%5D; Path=/; Secure; HttpOnly; SameSite=Lax#',
+                null,
+            ],
+            'p1d' => [
+                '#testName=%5B%2242%22%2C%22auto-login-key-correct%22%2C[0-9]{10}%5D; Expires=.*?; Max-Age=86400; Path=/; Secure; HttpOnly; SameSite=Lax#',
+                new DateInterval('P1D'),
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataAddCookieWithCustomDuration
+     */
+    public function testAddCookieWithCustomDuration(string $expectedRegExp, DateInterval|null|false $duration): void
+    {
+        $cookieLogin = (new CookieLogin(new DateInterval('P1W')))->withCookieName('testName');
+
+        $identity = new CookieLoginIdentity();
+
+        $response = new Response();
+        $response = $cookieLogin->addCookie($identity, $response, $duration);
+
+        $this->assertMatchesRegularExpression(
+            $expectedRegExp,
+            $response->getHeaderLine('Set-Cookie'),
+        );
+    }
 }
