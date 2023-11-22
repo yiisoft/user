@@ -34,7 +34,7 @@ The package handles user-related functionality:
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/user --prefer-dist
+composer require yiisoft/user
 ```
 
 ## General usage
