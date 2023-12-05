@@ -1,12 +1,12 @@
 # Yii User Change Log
 
-## 2.1.0 under development
+## 2.1.0 December 05, 2023
 
-- Chg #71: Add token logging when login was failed (@xepozz)
+- New #86: Add optional parameter `$duration` to `CookieLogin::addCookie()` (@vjik)
 - Chg #58: Raise the minimum version of PHP to 8.0 and did refactoring using the features of it (@xepozz, @rustamwin)
 - Chg #58: Raise version of `yiisoft/access` to `^2.0` (@rustamwin)
+- Chg #71: Add token logging when login was failed (@xepozz)
 - Enh #83: Allow to create a session cookie via `CookieLogin` (@rustamwin)
-- New #86: Add optional parameter `$duration` to `CookieLogin::addCookie()` (@vjik)
 
 ## 2.0.0 February 15, 2023
 
