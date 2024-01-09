@@ -136,7 +136,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             $this->createCookieLogin(),
         );
 
-        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_CORRECT, time() -1);
+        $request = $this->getRequestWithAutoLoginCookie(CookieLoginIdentity::KEY_CORRECT, time() - 1);
 
         $response = $middleware->process($request, $this->getRequestHandler());
 
