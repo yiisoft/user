@@ -6,6 +6,7 @@ namespace Yiisoft\User\Tests\Login\Cookie;
 
 use DateInterval;
 use HttpSoft\Message\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Tests\Support\CookieLoginIdentity;
@@ -88,7 +89,7 @@ final class CookieLoginTest extends TestCase
         );
     }
 
-    public function dataAddCookieWithCustomDuration(): array
+    public static function dataAddCookieWithCustomDuration(): array
     {
         return [
             'false' => [
@@ -106,9 +107,7 @@ final class CookieLoginTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataAddCookieWithCustomDuration
-     */
+    #[DataProvider('dataAddCookieWithCustomDuration')]
     public function testAddCookieWithCustomDuration(string $expectedRegExp, DateInterval|null|false $duration): void
     {
         $cookieLogin = (new CookieLogin(new DateInterval('P1W')))->withCookieName('testName');

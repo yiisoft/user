@@ -6,6 +6,7 @@ namespace Yiisoft\User\Tests\Login\Cookie;
 
 use DateInterval;
 use HttpSoft\Message\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -238,7 +239,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
     }
 
-    public function forceAddCookieDataProvider(): array
+    public static function forceAddCookieDataProvider(): array
     {
         return [
             'true' => [true],
@@ -246,9 +247,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider forceAddCookieDataProvider
-     */
+    #[DataProvider('forceAddCookieDataProvider')]
     public function testForceAddCookieAfterLoginAndNotManualLogin(bool $forceAddCookie): void
     {
         $currentUser = $this->createCurrentUser();
@@ -273,9 +272,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
     }
 
-    /**
-     * @dataProvider forceAddCookieDataProvider
-     */
+    #[DataProvider('forceAddCookieDataProvider')]
     public function testForceAddCookieAfterLoginAndManualLoginAndManualAddCookie(bool $forceAddCookie): void
     {
         $cookieLogin = $this->createCookieLogin();
@@ -310,9 +307,7 @@ final class CookieLoginMiddlewareTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider forceAddCookieDataProvider
-     */
+    #[DataProvider('forceAddCookieDataProvider')]
     public function testForceAddCookieAfterLoginAndManualLoginAndNotManualAddCookie(bool $forceAddCookie): void
     {
         $currentUser = $this->createCurrentUser();

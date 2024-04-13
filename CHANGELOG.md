@@ -1,8 +1,8 @@
 # Yii User Change Log
 
-## 2.1.1 under development
+## 2.2.0 under development
 
-- no changes in this release.
+- Chg #96: Raise minimum PHP version to 8.1 (@vjik)
 
 ## 2.1.0 December 05, 2023
 
