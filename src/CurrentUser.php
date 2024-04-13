@@ -150,7 +150,7 @@ final class CurrentUser
      * Note that you must provide access checker via {@see withAccessChecker()} in order to use this
      * method. Otherwise, it will always return `false`.
      *
-     * @param string|BackedEnum $permissionName The name of the permission (e.g. "edit post") that needs access check.
+     * @param BackedEnum|string $permissionName The name of the permission (e.g. "edit post") that needs access check.
      * You can use backed enumerations as permission name, in this case the value of the enumeration will be used.
      * @param array $params Name-value pairs that would be passed to the rules associated with the roles and
      * permissions assigned to the user.

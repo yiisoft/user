@@ -19,7 +19,6 @@ use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\Guest\GuestIdentity;
 use Yiisoft\User\Tests\Support\AccessCheckerStub;
 use Yiisoft\User\Tests\Support\Permission;
-use Yiisoft\User\Tests\Support\StubAccessChecker;
 use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
