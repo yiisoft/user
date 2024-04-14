@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\User;
 
+use BackedEnum;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
@@ -149,16 +150,21 @@ final class CurrentUser
      * Note that you must provide access checker via {@see withAccessChecker()} in order to use this
      * method. Otherwise, it will always return `false`.
      *
-     * @param string $permissionName The name of the permission (e.g. "edit post") that needs access check.
+     * @param BackedEnum|string $permissionName The name of the permission (e.g. "edit post") that needs access check.
+     * You can use backed enumerations as permission name, in this case the value of the enumeration will be used.
      * @param array $params Name-value pairs that would be passed to the rules associated with the roles and
      * permissions assigned to the user.
      *
      * @return bool Whether the user can perform the operation as specified by the given permission.
      */
-    public function can(string $permissionName, array $params = []): bool
+    public function can(string|BackedEnum $permissionName, array $params = []): bool
     {
         if ($this->accessChecker === null) {
             return false;
+        }
+
+        if ($permissionName instanceof BackedEnum) {
+            $permissionName = (string) $permissionName->value;
         }
 
         return $this->accessChecker->userHasPermission($this->getId(), $permissionName, $params);

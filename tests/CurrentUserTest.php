@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\User\Tests;
 
+use BackedEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
@@ -14,7 +17,8 @@ use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
 use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\Guest\GuestIdentity;
-use Yiisoft\User\Tests\Support\MockAccessChecker;
+use Yiisoft\User\Tests\Support\AccessCheckerStub;
+use Yiisoft\User\Tests\Support\Permission;
 use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
@@ -368,23 +372,28 @@ final class CurrentUserTest extends TestCase
         $this->assertInstanceOf(GuestIdentity::class, $currentUser->getIdentity());
     }
 
-    public function testCanWithoutAccessChecker(): void
+    public static function dataCan(): iterable
     {
-        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
-            ->withSession($this->createSession())
-        ;
-
-        $this->assertFalse($currentUser->can('permission'));
+        $accessChecker = new AccessCheckerStub(['edit']);
+        yield 'without access checker' => [false, 'edit', null];
+        yield 'string false' => [false, 'delete', $accessChecker];
+        yield 'string true' => [true, 'edit', $accessChecker];
+        yield 'enum false' => [false, Permission::DELETE, $accessChecker];
+        yield 'enum true' => [true, Permission::EDIT, $accessChecker];
     }
 
-    public function testCanWithAccessChecker(): void
-    {
-        $currentUser = (new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher()))
-            ->withAccessChecker($this->createAccessChecker(true))
-            ->withSession($this->createSession())
-        ;
+    #[DataProvider('dataCan')]
+    public function testCan(
+        bool $expected,
+        string|BackedEnum $permissionName,
+        ?AccessCheckerInterface $accessChecker
+    ): void {
+        $currentUser = new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher());
+        if ($accessChecker !== null) {
+            $currentUser = $currentUser->withAccessChecker($accessChecker);
+        }
 
-        $this->assertTrue($currentUser->can('permission'));
+        $this->assertSame($expected, $currentUser->can($permissionName));
     }
 
     public function testImmutable(): void
@@ -392,7 +401,7 @@ final class CurrentUserTest extends TestCase
         $currentUser = new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher());
 
         $this->assertNotSame($currentUser, $currentUser->withSession($this->createSession()));
-        $this->assertNotSame($currentUser, $currentUser->withAccessChecker($this->createAccessChecker()));
+        $this->assertNotSame($currentUser, $currentUser->withAccessChecker(new AccessCheckerStub()));
         $this->assertNotSame($currentUser, $currentUser->withAbsoluteAuthTimeout(3600));
         $this->assertNotSame($currentUser, $currentUser->withAuthTimeout(60));
     }
@@ -405,11 +414,6 @@ final class CurrentUserTest extends TestCase
     private function createSession(array $data = []): MockArraySessionStorage
     {
         return new MockArraySessionStorage($data);
-    }
-
-    private function createAccessChecker(bool $userHasPermission = false): MockAccessChecker
-    {
-        return new MockAccessChecker($userHasPermission);
     }
 
     private function createIdentityRepository(?IdentityInterface $identity = null): IdentityRepositoryInterface
