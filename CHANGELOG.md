@@ -3,11 +3,8 @@
 ## 2.2.0 under development
 
 - Chg #96: Raise minimum PHP version to 8.1 (@vjik)
-- Enh #93: Allow to use backed enumerations as permission name in `CurrentUser::can()` method (@vjik)
-
-## 2.1.1 April 22, 2024
-
 - Chg #98: Change log level from `warning` to `debug` for `LoginMiddleware` (@viktorprogger)
+- Enh #93: Allow to use backed enumerations as permission name in `CurrentUser::can()` method (@vjik)
 
 ## 2.1.0 December 05, 2023
 
