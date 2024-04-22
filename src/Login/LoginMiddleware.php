@@ -47,7 +47,7 @@ final class LoginMiddleware implements MiddlewareInterface
         if ($identity instanceof IdentityInterface) {
             $this->currentUser->login($identity);
         } else {
-            $this->logger->warning(sprintf(
+            $this->logger->debug(sprintf(
                 'Unable to authenticate user by token %s. Identity not found.',
                 is_scalar($identity) ? ('"' . $identity . '"') : ('of type ' . get_debug_type($identity)),
             ));
