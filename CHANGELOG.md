@@ -5,6 +5,7 @@
 - Chg #96: Raise minimum PHP version to 8.1 (@vjik)
 - Chg #98: Change log level from `warning` to `debug` for `LoginMiddleware` (@viktorprogger)
 - Enh #93: Allow to use backed enumerations as permission name in `CurrentUser::can()` method (@vjik)
+- Enh #90: Add support for `psr/http-message` version `^2.0` (@vjik)
 
 ## 2.1.0 December 05, 2023
 
