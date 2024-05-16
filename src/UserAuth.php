@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\User;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
-use Yiisoft\Http\Status;
 
 /**
  * Implementation of the authentication interface for the user.
@@ -18,7 +16,7 @@ final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
 
-    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory)
+    public function __construct(private CurrentUser $currentUser)
     {
     }
 
@@ -38,9 +36,7 @@ final class UserAuth implements AuthenticationMethodInterface
      */
     public function challenge(ResponseInterface $response): ResponseInterface
     {
-        return $this->responseFactory
-            ->createResponse(Status::FOUND)
-            ->withHeader('Location', $this->authUrl);
+        return $response;
     }
 
     /**
