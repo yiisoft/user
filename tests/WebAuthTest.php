@@ -14,15 +14,15 @@ use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
 use Yiisoft\User\CurrentUser;
-use Yiisoft\User\UserAuth;
+use Yiisoft\User\Method\WebAuth;
 
-final class UserAuthTest extends TestCase
+final class WebAuthTest extends TestCase
 {
     public function testSuccessfulAuthentication(): void
     {
         $user = $this->createCurrentUser();
         $user->login(new MockIdentity('test-id'));
-        $result = (new UserAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
+        $result = (new WebAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
 
         $this->assertNotNull($result);
         $this->assertSame('test-id', $result->getId());
@@ -31,7 +31,7 @@ final class UserAuthTest extends TestCase
     public function testIdentityNotAuthenticated(): void
     {
         $user = $this->createCurrentUser();
-        $result = (new UserAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
+        $result = (new WebAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
 
         $this->assertNull($result);
     }
@@ -40,7 +40,7 @@ final class UserAuthTest extends TestCase
     {
         $response = new Response();
         $user = $this->createCurrentUser();
-        $challenge = (new UserAuth($user, new ResponseFactory()))->challenge($response);
+        $challenge = (new WebAuth($user, new ResponseFactory()))->challenge($response);
 
         $this->assertSame(Status::FOUND, $challenge->getStatusCode());
         $this->assertSame('/login', $challenge->getHeaderLine('Location'));
@@ -50,7 +50,7 @@ final class UserAuthTest extends TestCase
     {
         $response = new Response();
         $user = $this->createCurrentUser();
-        $challenge = (new UserAuth($user, new ResponseFactory()))
+        $challenge = (new WebAuth($user, new ResponseFactory()))
             ->withAuthUrl('/custom-auth-url')
             ->challenge($response);
 
@@ -59,7 +59,7 @@ final class UserAuthTest extends TestCase
 
     public function testImmutability(): void
     {
-        $original = new UserAuth($this->createCurrentUser(), new ResponseFactory());
+        $original = new WebAuth($this->createCurrentUser(), new ResponseFactory());
 
         $this->assertNotSame($original, $original->withAuthUrl('/custom-auth-url'));
     }

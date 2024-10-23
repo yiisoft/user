@@ -8,7 +8,7 @@ use Yiisoft\User\Guest\GuestIdentityFactory;
 use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
 use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
-use Yiisoft\User\UserAuth;
+use Yiisoft\User\Method\WebAuth;
 
 /** @var array $params */
 
@@ -19,12 +19,11 @@ return [
         },
     ],
 
-    UserAuth::class => [
-        'class' => UserAuth::class,
+    WebAuth::class => [
         'withAuthUrl()' => [$params['yiisoft/user']['authUrl']],
     ],
 
-    AuthenticationMethodInterface::class => UserAuth::class,
+    AuthenticationMethodInterface::class => WebAuth::class,
     GuestIdentityFactoryInterface::class => GuestIdentityFactory::class,
 
     CookieLoginMiddleware::class => [

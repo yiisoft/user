@@ -2,7 +2,8 @@
 
 ## 2.2.1 under development
 
-- no changes in this release.
+- Chg #101: Rename `UserAuth` to `WebAuth`, mark `UserAuth` as deprecated (@olegbaturin)
+- Enh #101: Add `ApiAuth` authentication method (@olegbaturin)
 
 ## 2.2.0 May 07, 2024
 
