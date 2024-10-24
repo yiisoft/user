@@ -192,40 +192,44 @@ the state at every request. For this purpose, you can use the `clear()` method.
 
 ### Authentication methods
 
-This package provides two authentication methods, `ApiAuth` and `WebAuth`, that implement `AuthenticationMethodInterface`. Both can be provided to the `Yiisoft\Auth\Middleware\Authentication` middleware as authentication method.
+This package provides two authentication methods, `Yiisoft\User\Method\WebAuth` and `Yiisoft\User\Method\ApiAuth`, that implement `Yiisoft\Auth\AuthenticationMethodInterface`. Both can be provided to the `Yiisoft\Auth\Middleware\Authentication` middleware as authentication method.
 
 #### WebAuth
 
 `Yiisoft\User\Method\WebAuth` is used to authenticate users in the classic web applications.
-If authentication is failed, it creates a new instance of the response from the `Authentication::authenticationFailureHandler`, and adds a `Location` header with a temporary redirect to the authentication URL, by default `/login`.
+If authentication is failed, it creates a new instance of the response from the `Yiisoft\Auth\Middleware\Authentication::authenticationFailureHandler`, and adds a `Location` header with a temporary redirect to the authentication URL, by default `/login`.
 
 You can change this behavior through the parameter `authUrl` of the `yiisoft/user` package configuration
 
 `config/web/params.php`:
 
-```
+```php
 return [
     'yiisoft/user' => [
         'authUrl' => '/auth',
-        ],
     ],
 ];
 ```
 
 or by calling `WebAuth::withAuthUrl()` method
 
-```
-$authenticationMethod = new \Yiisoft\User\Method\WebAuth();
+```php
+use Yiisoft\User\Method\WebAuth;
+
+$authenticationMethod = new WebAuth();
 
 // Returns a new instance with the specified authentication URL.
 $authenticationMethod = $authenticationMethod->withAuthUrl('/auth');
 ```
 
-Class `Yiisoft\User\Method\WebAuth` is configured as default implementation of `AuthenticationMethodInterface`.
+Class `Yiisoft\User\Method\WebAuth` is configured as default implementation of `Yiisoft\Auth\AuthenticationMethodInterface`.
 
 `config/web/di/auth.php`:
 
-```
+```php
+use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\User\Method\WebAuth;
+
 return [
     AuthenticationMethodInterface::class => WebAuth::class,
 ];
@@ -236,11 +240,14 @@ return [
 `Yiisoft\User\Method\ApiAuth` is used to authenticate users in the API clients.
 If authentication is failed, it returns the response from the `Authentication::authenticationFailureHandler()` method.
 
-In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `AuthenticationMethodInterface` in the DI configuration
+In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the DI configuration
 
 `config/web/di/auth.php`:
 
-```
+```php
+use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\User\Method\ApiAuth;
+
 return [
     AuthenticationMethodInterface::class => ApiAuth::class,
 ];
@@ -248,10 +255,13 @@ return [
 
 or provide `Yiisoft\User\Method\ApiAuth` instance to the `Yiisoft\Auth\Middleware\Authentication` middleware
 
-```
-$authenticationMethod = new \Yiisoft\User\Method\ApiAuth();
+```php
+use Yiisoft\Auth\Middleware\Authentication;
+use Yiisoft\User\Method\ApiAuth;
 
-$middleware = new \Yiisoft\Auth\Middleware\Authentication(
+$authenticationMethod = new ApiAuth();
+
+$middleware = new Authentication(
     $authenticationMethod,
     $responseFactory // PSR-17 ResponseFactoryInterface
 );
