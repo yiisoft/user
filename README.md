@@ -211,7 +211,7 @@ return [
 ];
 ```
 
-or by calling `WebAuth::withAuthUrl()` method
+or by calling `Yiisoft\User\Method\WebAuth::withAuthUrl()` method
 
 ```php
 use Yiisoft\User\Method\WebAuth;
@@ -238,7 +238,7 @@ return [
 #### ApiAuth
 
 `Yiisoft\User\Method\ApiAuth` is used to authenticate users in the API clients.
-If authentication is failed, it returns the response from the `Authentication::authenticationFailureHandler()` method.
+If authentication is failed, it returns the response from the `Yiisoft\Auth\Middleware\Authentication::authenticationFailureHandler` handler.
 
 In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the DI configuration
 
