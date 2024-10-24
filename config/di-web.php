@@ -9,6 +9,7 @@ use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
 use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\Method\WebAuth;
+use Yiisoft\User\UserAuth;
 
 /** @var array $params */
 
@@ -19,6 +20,9 @@ return [
         },
     ],
 
+    UserAuth::class => [
+        'withAuthUrl()' => [$params['yiisoft/user']['authUrl']],
+    ],
     WebAuth::class => [
         'withAuthUrl()' => [$params['yiisoft/user']['authUrl']],
     ],
