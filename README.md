@@ -201,6 +201,8 @@ If authentication is failed, it creates a new instance of the response from the 
 
 You can change this behavior through the parameter `authUrl` of the `yiisoft/user` package configuration
 
+`config/web/params.php`:
+
 ```
 return [
     'yiisoft/user' => [
@@ -221,6 +223,8 @@ $authenticationMethod = $authenticationMethod->withAuthUrl('/auth');
 
 Class `Yiisoft\User\Method\WebAuth` is configured as default implementation of `AuthenticationMethodInterface`.
 
+`config/web/di/auth.php`:
+
 ```
 return [
     AuthenticationMethodInterface::class => WebAuth::class,
@@ -233,6 +237,8 @@ return [
 If authentication is failed, it returns the response from the `Authentication::authenticationFailureHandler()` method.
 
 In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `AuthenticationMethodInterface` in the DI configuration
+
+`config/web/di/auth.php`:
 
 ```
 return [
