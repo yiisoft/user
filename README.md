@@ -240,7 +240,7 @@ return [
 `Yiisoft\User\Method\ApiAuth` is used to authenticate users in the API clients.
 If authentication is failed, it returns the response from the `Yiisoft\Auth\Middleware\Authentication::authenticationFailureHandler` handler.
 
-In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the DI configuration
+In order to use `Yiisoft\User\Method\ApiAuth` as an authentication method, you need to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the DI container configuration
 
 `config/web/di/auth.php`:
 
