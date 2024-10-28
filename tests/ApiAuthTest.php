@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\User\Tests;
 
 use HttpSoft\Message\Response;
-use HttpSoft\Message\ResponseFactory;
 use HttpSoft\Message\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Http\Status;

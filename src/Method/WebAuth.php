@@ -22,7 +22,7 @@ final class WebAuth implements AuthenticationMethodInterface
     public function __construct(
         private readonly CurrentUser $currentUser,
         private readonly ResponseFactoryInterface $responseFactory
-    ){
+    ) {
     }
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
