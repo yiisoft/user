@@ -15,7 +15,7 @@ use Yiisoft\User\CurrentUser;
  */
 final class ApiAuth implements AuthenticationMethodInterface
 {
-    public function __construct(private CurrentUser $currentUser)
+    public function __construct(private readonly CurrentUser $currentUser)
     {
     }
 

@@ -14,7 +14,7 @@ use Yiisoft\Http\Status;
 /**
  * Implementation of the authentication interface for the user.
  *
- * @deprecated Use {@see \Yiisoft\User\Method\WebAuth}. Will remove in the next major version.
+ * @deprecated Use {@see \Yiisoft\User\Method\WebAuth}. This class will be removed in the next major version.
  */
 final class UserAuth implements AuthenticationMethodInterface
 {

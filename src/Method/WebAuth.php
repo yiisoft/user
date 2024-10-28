@@ -19,8 +19,10 @@ final class WebAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
 
-    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory)
-    {
+    public function __construct(
+        private readonly CurrentUser $currentUser,
+        private readonly ResponseFactoryInterface $responseFactory
+    ){
     }
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface

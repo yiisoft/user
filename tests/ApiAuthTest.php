@@ -22,7 +22,7 @@ final class ApiAuthTest extends TestCase
     {
         $user = $this->createCurrentUser();
         $user->login(new MockIdentity('test-id'));
-        $result = (new ApiAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
+        $result = (new ApiAuth($user))->authenticate(new ServerRequest());
 
         $this->assertNotNull($result);
         $this->assertSame('test-id', $result->getId());
@@ -31,7 +31,7 @@ final class ApiAuthTest extends TestCase
     public function testIdentityNotAuthenticated(): void
     {
         $user = $this->createCurrentUser();
-        $result = (new ApiAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
+        $result = (new ApiAuth($user))->authenticate(new ServerRequest());
 
         $this->assertNull($result);
     }
@@ -40,7 +40,7 @@ final class ApiAuthTest extends TestCase
     {
         $response = new Response(Status::UNAUTHORIZED);
         $user = $this->createCurrentUser();
-        $challenge = (new ApiAuth($user, new ResponseFactory()))->challenge($response);
+        $challenge = (new ApiAuth($user))->challenge($response);
 
         $this->assertSame(Status::UNAUTHORIZED, $challenge->getStatusCode());
     }
