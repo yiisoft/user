@@ -210,9 +210,8 @@ $authenticationMethod = new WebAuth();
 $authenticationMethod = $authenticationMethod->withAuthUrl('/auth');
 ```
 
-or in the DI container:
+or in the [DI container](https://github.com/yiisoft/di):
 
->[yiisoft/di](https://github.com/yiisoft/di) configuration example
 ```php
 // config/web/di/auth.php
 return [
@@ -233,7 +232,7 @@ return [
 ];
 ```
 
-In case the application is used along with the [yiisoft/config](https://github.com/yiisoft/config), the package is [configured](./config/di-web.php)
+If the application is used along with the [yiisoft/config](https://github.com/yiisoft/config), the package is [configured](./config/di-web.php)
 automatically to use `WebAuth` as default implementation of `Yiisoft\Auth\AuthenticationMethodInterface`.
 
 #### ApiAuth
@@ -241,7 +240,7 @@ automatically to use `WebAuth` as default implementation of `Yiisoft\Auth\Authen
 `ApiAuth` is used to authenticate users in the API clients.
 If authentication is failed, it returns the response from the `Yiisoft\Auth\Middleware\Authentication::authenticationFailureHandler` handler.
 
-To use `ApiAuth` as an authentication method, you need or provide the `ApiAuth` instance to the `Yiisoft\Auth\Middleware\Authentication` middleware
+To use `ApiAuth` as an authentication method, you need or provide the `ApiAuth` instance to the `Yiisoft\Auth\Middleware\Authentication` middleware:
 
 ```php
 use Yiisoft\Auth\Middleware\Authentication;
@@ -255,9 +254,8 @@ $middleware = new Authentication(
 );
 ```
 
-of to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the DI container configuration:
+of to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the [DI container](https://github.com/yiisoft/di) configuration:
 
->[yiisoft/di](https://github.com/yiisoft/di) configuration example
 ```php
 // config/web/di/auth.php
 use Yiisoft\Auth\AuthenticationMethodInterface;
