@@ -23,7 +23,7 @@ use Yiisoft\User\Login\Cookie\CookieLogin;
 use Yiisoft\User\Login\Cookie\CookieLoginMiddleware;
 use Yiisoft\User\Login\LoginMiddleware;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
-use Yiisoft\User\UserAuth;
+use Yiisoft\User\Method\WebAuth;
 
 use function dirname;
 
@@ -37,10 +37,10 @@ final class ConfigTest extends TestCase
         $this->assertInstanceOf(GuestIdentityFactory::class, $container->get(GuestIdentityFactoryInterface::class));
         $this->assertInstanceOf(LoginMiddleware::class, $container->get(LoginMiddleware::class));
 
-        $userAuth = $container->get(AuthenticationMethodInterface::class);
+        $webAuth = $container->get(AuthenticationMethodInterface::class);
 
-        $this->assertInstanceOf(UserAuth::class, $userAuth);
-        $this->assertSame('/login', $this->getInaccessibleProperty($userAuth, 'authUrl'));
+        $this->assertInstanceOf(WebAuth::class, $webAuth);
+        $this->assertSame('/login', $this->getInaccessibleProperty($webAuth, 'authUrl'));
 
         $cookieLogin = $container->get(CookieLogin::class);
 
@@ -67,10 +67,10 @@ final class ConfigTest extends TestCase
             ],
         ]);
 
-        $userAuth = $container->get(AuthenticationMethodInterface::class);
+        $webAuth = $container->get(AuthenticationMethodInterface::class);
 
-        $this->assertInstanceOf(UserAuth::class, $userAuth);
-        $this->assertSame('/override', $this->getInaccessibleProperty($userAuth, 'authUrl'));
+        $this->assertInstanceOf(WebAuth::class, $webAuth);
+        $this->assertSame('/override', $this->getInaccessibleProperty($webAuth, 'authUrl'));
 
         $cookieLogin = $container->get(CookieLogin::class);
 

@@ -190,12 +190,89 @@ The `Yiisoft\User\CurrentUser` instance is stateful, so when you build long-runn
 with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should reset
 the state at every request. For this purpose, you can use the `clear()` method.
 
+### Authentication methods
+
+This package provides two authentication methods, `WebAuth` and `ApiAuth`, that implement the `Yiisoft\Auth\AuthenticationMethodInterface`. Both can be provided to the `Yiisoft\Auth\Authentication` middleware as authentication method.
+
+#### WebAuth
+
+`WebAuth` is used to authenticate users in the classic web applications.
+If authentication is failed, it creates a new instance of the response and adds a `Location` header with a temporary redirect to the authentication URL, by default `/login`.
+
+You can change authentication URL by calling `WebAuth::withAuthUrl()` method:
+
+```php
+use Yiisoft\User\Method\WebAuth;
+
+$authenticationMethod = new WebAuth();
+
+// Returns a new instance with the specified authentication URL.
+$authenticationMethod = $authenticationMethod->withAuthUrl('/auth');
+```
+
+or in the [DI container](https://github.com/yiisoft/di):
+
+```php
+// config/web/di/auth.php
+return [
+    WebAuth::class => [
+        'withAuthUrl()' => ['/auth'],
+    ],
+];
+```
+
+or through the parameter `authUrl` of the `yiisoft/user` config group, [yiisoft/config](https://github.com/yiisoft/config) package must be installed:
+
+```php
+// config/web/params.php
+return [
+    'yiisoft/user' => [
+        'authUrl' => '/auth',
+    ],
+];
+```
+
+If the application is used along with the [yiisoft/config](https://github.com/yiisoft/config), the package is [configured](./config/di-web.php)
+automatically to use `WebAuth` as default implementation of `Yiisoft\Auth\AuthenticationMethodInterface`.
+
+#### ApiAuth
+
+`ApiAuth` is used to authenticate users in the API clients.
+If authentication is failed, it returns the response from the `Yiisoft\Auth\Middleware\Authentication::authenticationFailureHandler` handler.
+
+To use `ApiAuth` as an authentication method, you need or provide the `ApiAuth` instance to the `Yiisoft\Auth\Middleware\Authentication` middleware:
+
+```php
+use Yiisoft\Auth\Middleware\Authentication;
+use Yiisoft\User\Method\ApiAuth;
+
+$authenticationMethod = new ApiAuth();
+
+$middleware = new Authentication(
+    $authenticationMethod,
+    $responseFactory // PSR-17 ResponseFactoryInterface
+);
+```
+
+of to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the [DI container](https://github.com/yiisoft/di) configuration:
+
+```php
+// config/web/di/auth.php
+use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\User\Method\ApiAuth;
+
+return [
+    AuthenticationMethodInterface::class => ApiAuth::class,
+];
+```
+
+For more information about the authentication middleware and authentication methods, see the [yiisoft/auth](https://github.com/yiisoft/auth).
+
 ### Auto login through identity from request attribute
 
 For auto login, you can use the `Yiisoft\User\Login\LoginMiddleware`. This middleware automatically logs user
 in if `Yiisoft\Auth\IdentityInterface` instance presents in a request attribute. It is usually put there by
-`Yiisoft\Auth\Middleware\Authentication`. For more information about the authentication middleware and
-authentication methods, see the [yiisoft/auth](https://github.com/yiisoft/auth).
+`Yiisoft\Auth\Middleware\Authentication`.
 
 > Please note that `Yiisoft\Auth\Middleware\Authentication` should be located before
 > `Yiisoft\User\Login\LoginMiddleware` in the middleware stack.
