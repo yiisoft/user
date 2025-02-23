@@ -29,7 +29,6 @@ final class CurrentUser
     private const SESSION_AUTH_ID = '__auth_id';
     private const SESSION_AUTH_EXPIRE = '__auth_expire';
     private const SESSION_AUTH_ABSOLUTE_EXPIRE = '__auth_absolute_expire';
-    private GuestIdentityFactoryInterface $guestIdentityFactory;
     private ?AccessCheckerInterface $accessChecker = null;
     private ?SessionInterface $session = null;
 
@@ -39,12 +38,8 @@ final class CurrentUser
     private ?int $authTimeout = null;
     private ?int $absoluteAuthTimeout = null;
 
-    public function __construct(
-        private IdentityRepositoryInterface $identityRepository,
-        private EventDispatcherInterface $eventDispatcher,
-        ?GuestIdentityFactoryInterface $guestIdentityFactory = null
-    ) {
-        $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
+    public function __construct(private IdentityRepositoryInterface $identityRepository, private EventDispatcherInterface $eventDispatcher, private GuestIdentityFactoryInterface $guestIdentityFactory = new GuestIdentityFactory())
+    {
     }
 
     /**
