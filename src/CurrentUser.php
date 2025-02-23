@@ -42,7 +42,7 @@ final class CurrentUser
     public function __construct(
         private IdentityRepositoryInterface $identityRepository,
         private EventDispatcherInterface $eventDispatcher,
-        GuestIdentityFactoryInterface $guestIdentityFactory = null
+        ?GuestIdentityFactoryInterface $guestIdentityFactory = null
     ) {
         $this->guestIdentityFactory = $guestIdentityFactory ?? new GuestIdentityFactory();
     }

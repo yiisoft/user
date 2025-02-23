@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\User\Tests\Login;
 
 use HttpSoft\Message\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use stdClass;
 use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\User\CurrentUser;
@@ -82,10 +84,35 @@ final class LoginMiddlewareTest extends TestCase
         $middleware->process($this->createServerRequest(false), $this->createRequestHandler());
 
         $this->assertInstanceOf(GuestIdentity::class, $this->currentUser->getIdentity());
-        $this->assertNull($this->currentUser
-            ->getIdentity()
-            ->getId());
-        $this->assertSame('Unable to authenticate user by token of type null. Identity not found.', $this->logger->getLastMessage());
+        $this->assertNull($this->currentUser->getIdentity()->getId());
+    }
+
+    public static function dataUnableToAuthenticateUserDebugMessage(): iterable
+    {
+        yield ['true', true];
+        yield ['false', false];
+        yield ['"123"', 123];
+        yield ['"10.4"', 10.4];
+        yield ['"hello"', 'hello'];
+        yield ['of type null', null];
+        yield ['of type stdClass', new stdClass()];
+        yield ['of type array', ['a', 'b']];
+    }
+
+    #[DataProvider('dataUnableToAuthenticateUserDebugMessage')]
+    public function testUnableToAuthenticateUserDebugMessage(string $expectedType, mixed $identity): void
+    {
+        $middleware = new LoginMiddleware($this->currentUser, $this->logger);
+
+        $middleware->process(
+            (new ServerRequest())->withAttribute(Authentication::class, $identity),
+            $this->createRequestHandler()
+        );
+
+        $this->assertSame(
+            'Unable to authenticate user by token ' . $expectedType . '. Identity not found.',
+            $this->logger->getLastMessage()
+        );
     }
 
     private function createServerRequest(bool $withIdentity = true): ServerRequestInterface
