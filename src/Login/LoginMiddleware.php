@@ -13,6 +13,10 @@ use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\Middleware\Authentication;
 use Yiisoft\User\CurrentUser;
 
+use function is_bool;
+use function is_scalar;
+use function sprintf;
+
 /**
  * `LoginMiddleware` automatically logs user in if {@see IdentityInterface} instance presents in a request
  * attribute. It is usually put there by {@see Authentication}.
@@ -47,10 +51,16 @@ final class LoginMiddleware implements MiddlewareInterface
         if ($identity instanceof IdentityInterface) {
             $this->currentUser->login($identity);
         } else {
-            $this->logger->debug(sprintf(
-                'Unable to authenticate user by token %s. Identity not found.',
-                is_scalar($identity) ? ('"' . $identity . '"') : ('of type ' . get_debug_type($identity)),
-            ));
+            if (is_scalar($identity)) {
+                $token = is_bool($identity)
+                    ? ($identity ? 'true' : 'false')
+                    : ('"' . $identity . '"');
+            } else {
+                $token = 'of type ' . get_debug_type($identity);
+            }
+            $this->logger->debug(
+                sprintf('Unable to authenticate user by token %s. Identity not found.', $token)
+            );
         }
 
         return $handler->handle($request);
