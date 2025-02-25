@@ -1,12 +1,12 @@
 # Yii User Change Log
 
-## 2.2.1 under development
+## 2.3.0 February 25, 2025
 
-- Chg #101: Rename `UserAuth` to `WebAuth`, mark `UserAuth` as deprecated (@olegbaturin)
 - New #101: Add `ApiAuth` authentication method (@olegbaturin)
+- Chg #101: Rename `UserAuth` to `WebAuth`, mark `UserAuth` as deprecated (@olegbaturin)
 - Chg #109: Change PHP constraint in `composer.json` to `~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0` (@vjik)
+- Enh #109: Improve debug message "Unable to authenticate user…" in `LogginMiddleware` (@vjik)
 - Bug #109: Explicitly mark nullable parameters (@vjik)
-- Enh #109: Improve debug message "Unable to authenticate user…" in `LogginMiddleware` (@vjik) 
 
 ## 2.2.0 May 07, 2024
 
