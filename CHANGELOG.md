@@ -1,5 +1,9 @@
 # Yii User Change Log
 
+## 2.3.1 under development
+
+- no changes in this release.
+
 ## 2.3.0 February 25, 2025
 
 - New #101: Add `ApiAuth` authentication method (@olegbaturin)
