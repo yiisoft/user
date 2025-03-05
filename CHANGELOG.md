@@ -2,7 +2,7 @@
 
 ## 2.3.1 under development
 
-- no changes in this release.
+- Enh #111: Add support of `yiisoft/session` version `^3.0` (@vjik)
 
 ## 2.3.0 February 25, 2025
 
