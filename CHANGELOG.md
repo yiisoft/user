@@ -1,6 +1,6 @@
 # Yii User Change Log
 
-## 2.3.1 under development
+## 2.3.1 March 06, 2025
 
 - Enh #111: Add support of `yiisoft/session` version `^3.0` (@vjik)
 
