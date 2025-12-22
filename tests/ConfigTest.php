@@ -116,9 +116,7 @@ final class ConfigTest extends TestCase
     {
         $class = new ReflectionObject($object);
         $property = $class->getProperty($propertyName);
-        $property->setAccessible(true);
         $result = $property->getValue($object);
-        $property->setAccessible(false);
         return $result;
     }
 }
