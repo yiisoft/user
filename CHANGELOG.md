@@ -1,6 +1,6 @@
 # Yii User Change Log
 
-## 2.3.2 under development
+## 2.3.2 December 23, 2025
 
 - Enh #114: Add PHP 8.5 support (@vjik)
 
