@@ -106,12 +106,12 @@ final class LoginMiddlewareTest extends TestCase
 
         $middleware->process(
             (new ServerRequest())->withAttribute(Authentication::class, $identity),
-            $this->createRequestHandler()
+            $this->createRequestHandler(),
         );
 
         $this->assertSame(
             'Unable to authenticate user by token ' . $expectedType . '. Identity not found.',
-            $this->logger->getLastMessage()
+            $this->logger->getLastMessage(),
         );
     }
 

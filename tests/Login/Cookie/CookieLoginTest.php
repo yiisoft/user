@@ -108,7 +108,7 @@ final class CookieLoginTest extends TestCase
     }
 
     #[DataProvider('dataAddCookieWithCustomDuration')]
-    public function testAddCookieWithCustomDuration(string $expectedRegExp, DateInterval|null|false $duration): void
+    public function testAddCookieWithCustomDuration(string $expectedRegExp, DateInterval|false|null $duration): void
     {
         $cookieLogin = (new CookieLogin(new DateInterval('P1W')))->withCookieName('testName');
 

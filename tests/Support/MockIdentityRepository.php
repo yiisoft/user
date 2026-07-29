@@ -12,9 +12,7 @@ final class MockIdentityRepository implements IdentityRepositoryInterface
 {
     private bool $withException = false;
 
-    public function __construct(private ?IdentityInterface $identity = null)
-    {
-    }
+    public function __construct(private ?IdentityInterface $identity = null) {}
 
     public function findIdentity(string $id): ?IdentityInterface
     {

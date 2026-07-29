@@ -10,9 +10,7 @@ final class BeforeLogout
 {
     private bool $isValid = true;
 
-    public function __construct(private IdentityInterface $identity)
-    {
-    }
+    public function __construct(private IdentityInterface $identity) {}
 
     public function invalidate(): void
     {

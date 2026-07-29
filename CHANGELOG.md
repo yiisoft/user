@@ -3,6 +3,8 @@
 ## 2.3.3 under development
 
 - no changes in this release.
+- Enh #XX: Replace StyleCI with PHP CS Fixer (@vjik)
+- Enh #XX: Explicitly import classes and constants in "use" section.
 
 ## 2.3.2 December 23, 2025
 

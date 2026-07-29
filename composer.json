@@ -44,7 +44,9 @@
         "httpsoft/http-message": "^1.1.6",
         "maglnet/composer-require-checker": "^4.7.1",
         "phpunit/phpunit": "^10.5.45",
+        "friendsofphp/php-cs-fixer": "^3.64",
         "rector/rector": "^2.0.10",
+        "yiisoft/code-style": "^1.1",
         "roave/infection-static-analysis-plugin": "^1.35",
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1 || ^6.8.8",
@@ -79,6 +81,8 @@
         }
     },
     "scripts": {
+        "cs-fix": "php-cs-fixer fix",
+        "rector": "rector",
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
     }
