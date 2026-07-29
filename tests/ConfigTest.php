@@ -90,13 +90,12 @@ final class ConfigTest extends TestCase
         return new Container(
             ContainerConfig::create()->withDefinitions(
                 $this->getDiConfig($params)
-                +
-                [
+                + [
                     EventDispatcherInterface::class => SimpleEventDispatcher::class,
                     IdentityRepositoryInterface::class => MockIdentityRepository::class,
                     ResponseFactoryInterface::class => ResponseFactory::class,
                     LoggerInterface::class => SimpleLogger::class,
-                ]
+                ],
             ),
         );
     }

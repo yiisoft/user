@@ -30,8 +30,7 @@ final class LoginMiddleware implements MiddlewareInterface
     public function __construct(
         private CurrentUser $currentUser,
         private LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -59,7 +58,7 @@ final class LoginMiddleware implements MiddlewareInterface
                 $token = 'of type ' . get_debug_type($identity);
             }
             $this->logger->debug(
-                sprintf('Unable to authenticate user by token %s. Identity not found.', $token)
+                sprintf('Unable to authenticate user by token %s. Identity not found.', $token),
             );
         }
 

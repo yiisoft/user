@@ -8,9 +8,7 @@ use Yiisoft\Auth\IdentityInterface;
 
 final class AfterLogout
 {
-    public function __construct(private IdentityInterface $identity)
-    {
-    }
+    public function __construct(private IdentityInterface $identity) {}
 
     public function getIdentity(): IdentityInterface
     {

@@ -203,9 +203,7 @@ final class CurrentUserTest extends TestCase
     {
         $id = 'test-id';
         $identity = new class ($id) implements IdentityInterface {
-            public function __construct(private ?string $id)
-            {
-            }
+            public function __construct(private ?string $id) {}
 
             public function getId(): ?string
             {
@@ -386,7 +384,7 @@ final class CurrentUserTest extends TestCase
     public function testCan(
         bool $expected,
         string|BackedEnum $permissionName,
-        ?AccessCheckerInterface $accessChecker
+        ?AccessCheckerInterface $accessChecker,
     ): void {
         $currentUser = new CurrentUser($this->createIdentityRepository(), $this->createEventDispatcher());
         if ($accessChecker !== null) {

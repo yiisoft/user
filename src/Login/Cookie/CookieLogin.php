@@ -12,6 +12,10 @@ use Yiisoft\Cookies\Cookie;
 
 use function json_encode;
 
+use const JSON_THROW_ON_ERROR;
+use const JSON_UNESCAPED_SLASHES;
+use const JSON_UNESCAPED_UNICODE;
+
 /**
  * The service is used to send or remove auto-login cookie.
  *
@@ -26,9 +30,7 @@ final class CookieLogin
      * @param DateInterval|null $duration Interval until the auto-login cookie expires. If it isn't set it means
      * the auto-login cookie is session cookie that expires when browser is closed.
      */
-    public function __construct(private ?DateInterval $duration = null)
-    {
-    }
+    public function __construct(private ?DateInterval $duration = null) {}
 
     /**
      * Returns a new instance with the specified auto-login cookie name.
@@ -59,7 +61,7 @@ final class CookieLogin
     public function addCookie(
         CookieLoginIdentityInterface $identity,
         ResponseInterface $response,
-        DateInterval|null|false $duration = false,
+        DateInterval|false|null $duration = false,
     ): ResponseInterface {
         $duration = $duration === false ? $this->duration : $duration;
 

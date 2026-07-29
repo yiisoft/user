@@ -22,6 +22,8 @@ use function json_decode;
 use function sprintf;
 use function time;
 
+use const JSON_THROW_ON_ERROR;
+
 /**
  * `CookieLoginMiddleware` automatically logs user in based on cookie.
  */
@@ -39,9 +41,8 @@ final class CookieLoginMiddleware implements MiddlewareInterface
         private IdentityRepositoryInterface $identityRepository,
         private LoggerInterface $logger,
         private CookieLogin $cookieLogin,
-        private bool $forceAddCookie = false
-    ) {
-    }
+        private bool $forceAddCookie = false,
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -122,7 +123,7 @@ final class CookieLoginMiddleware implements MiddlewareInterface
                 sprintf(
                     'Identity repository must return an instance of %s in order for auto-login to function.',
                     CookieLoginIdentityInterface::class,
-                )
+                ),
             );
         }
 

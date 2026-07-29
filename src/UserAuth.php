@@ -10,19 +10,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
+use Yiisoft\User\Method\WebAuth;
 
 /**
  * Implementation of the authentication interface for the user.
  *
- * @deprecated Use {@see \Yiisoft\User\Method\WebAuth}. This class will be removed in the next major version.
+ * @deprecated Use {@see WebAuth}. This class will be removed in the next major version.
  */
 final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
 
-    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory)
-    {
-    }
+    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory) {}
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
     {
