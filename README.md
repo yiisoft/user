@@ -308,6 +308,12 @@ final class CookieLoginIdentityRepository implements IdentityRepositoryInterface
 The `CookieLoginMiddleware` will check for the existence of a cookie in the request,
 validate it and login the user automatically.
 
+> [!note]
+> The auto-login cookie value isn't protected against tampering by this package. This isn't only about
+> the end user editing their own cookie, anyone who steals the cookie value can modify it too, e.g. to
+> remove its expiration. Use `CookieMiddleware` from [`yiisoft/cookies`](https://github.com/yiisoft/cookies)
+> to sign or encrypt it if you want to prevent that.
+
 #### Creating a cookie
 
 By default, you should set cookie for auto login manually in your application after logging user in:
