@@ -26,6 +26,11 @@ use const JSON_THROW_ON_ERROR;
 
 /**
  * `CookieLoginMiddleware` automatically logs user in based on cookie.
+ *
+ * The auto-login cookie value isn't protected against tampering by this package. This isn't only about
+ * the end user editing their own cookie — anyone who steals the cookie value can modify it too, e.g. to
+ * remove its expiration. Use `CookieMiddleware` from {@link https://github.com/yiisoft/cookies} to sign
+ * or encrypt it if you want to prevent that.
  */
 final class CookieLoginMiddleware implements MiddlewareInterface
 {
