@@ -3,6 +3,7 @@
 ## 2.3.3 under development
 
 - Enh #120: Explicitly import classes and constants in "use" section (@vjik)
+- Enh #127: Fix deprecated classes usage (@klsoft-web)
 
 ## 2.3.2 December 23, 2025
 

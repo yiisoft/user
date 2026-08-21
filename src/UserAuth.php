@@ -7,7 +7,7 @@ namespace Yiisoft\User;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\User\Method\WebAuth;
@@ -17,7 +17,7 @@ use Yiisoft\User\Method\WebAuth;
  *
  * @deprecated Use {@see WebAuth}. This class will be removed in the next major version.
  */
-final class UserAuth implements AuthenticationMethodInterface
+final class UserAuth implements AuthenticatorWithChallengeInterface
 {
     private string $authUrl = '/login';
 
@@ -25,11 +25,7 @@ final class UserAuth implements AuthenticationMethodInterface
 
     public function authenticate(ServerRequestInterface $request): ?IdentityInterface
     {
-        if ($this->currentUser->isGuest()) {
-            return null;
-        }
-
-        return $this->currentUser->getIdentity();
+        return (new UserAuthenticator($this->currentUser))->authenticate($request);
     }
 
     /**
