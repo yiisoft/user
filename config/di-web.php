@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
+use Yiisoft\Auth\AuthenticatorInterface;
 use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Guest\GuestIdentityFactory;
 use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
@@ -27,7 +27,7 @@ return [
         'withAuthUrl()' => [$params['yiisoft/user']['authUrl']],
     ],
 
-    AuthenticatorWithChallengeInterface::class => WebAuth::class,
+    AuthenticatorInterface::class => WebAuth::class,
     GuestIdentityFactoryInterface::class => GuestIdentityFactory::class,
 
     CookieLoginMiddleware::class => [
