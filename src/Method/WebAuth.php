@@ -6,9 +6,7 @@ namespace Yiisoft\User\Method;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
-use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\User\CurrentUser;
 use Yiisoft\User\UserAuthenticator;
@@ -21,10 +19,10 @@ final class WebAuth extends UserAuthenticator implements AuthenticatorWithChalle
     private string $authUrl = '/login';
 
     public function __construct(
-        private readonly CurrentUser $currentUser,
+        CurrentUser $currentUser,
         private readonly ResponseFactoryInterface $responseFactory,
     ) {
-        parent::__construct($this->currentUser);
+        parent::__construct($currentUser);
     }
 
     /**

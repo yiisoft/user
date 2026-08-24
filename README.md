@@ -191,7 +191,7 @@ the state at every request. For this purpose, you can use the `clear()` method.
 
 ### Authentication methods
 
-This package provides two authentication methods, `WebAuth` and `ApiAuth`, that implement the `Yiisoft\Auth\AuthenticationMethodInterface`. Both can be provided to the `Yiisoft\Auth\Authentication` middleware as authentication method.
+This package provides two authentication methods, `WebAuth` and `ApiAuth`, that implement the `Yiisoft\Auth\AuthenticatorWithChallengeInterface`. Both can be provided to the `Yiisoft\Auth\Authentication` middleware as authentication method.
 
 #### WebAuth
 

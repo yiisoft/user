@@ -6,9 +6,7 @@ namespace Yiisoft\User;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
-use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\User\Method\WebAuth;
 
@@ -21,8 +19,8 @@ final class UserAuth extends UserAuthenticator implements AuthenticatorWithChall
 {
     private string $authUrl = '/login';
 
-    public function __construct(private CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory) {
-        parent::__construct($this->currentUser);
+    public function __construct(CurrentUser $currentUser, private ResponseFactoryInterface $responseFactory) {
+        parent::__construct($currentUser);
     }
 
     /**
