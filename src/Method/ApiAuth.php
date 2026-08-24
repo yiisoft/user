@@ -5,17 +5,25 @@ declare(strict_types=1);
 namespace Yiisoft\User\Method;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
+use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\User\CurrentUser;
-use Yiisoft\User\UserAuthenticator;
 
 /**
  * Implementation of the `AuthenticatorWithChallengeInterface` for authenticating users in the API clients.
  */
-final class ApiAuth extends UserAuthenticator implements AuthenticatorWithChallengeInterface
+final class ApiAuth implements AuthenticatorWithChallengeInterface
 {
-    public function __construct(CurrentUser $currentUser) {
-        parent::__construct($currentUser);
+    public function __construct(private readonly CurrentUser $currentUser) {}
+
+    public function authenticate(ServerRequestInterface $request): ?IdentityInterface
+    {
+        if ($this->currentUser->isGuest()) {
+            return null;
+        }
+
+        return $this->currentUser->getIdentity();
     }
 
     public function challenge(ResponseInterface $response): ResponseInterface

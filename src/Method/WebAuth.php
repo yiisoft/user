@@ -6,23 +6,31 @@ namespace Yiisoft\User\Method;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
+use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\User\CurrentUser;
-use Yiisoft\User\UserAuthenticator;
 
 /**
  * Implementation of the `AuthenticatorWithChallengeInterface` for authenticating users in the web applications.
  */
-final class WebAuth extends UserAuthenticator implements AuthenticatorWithChallengeInterface
+final class WebAuth implements AuthenticatorWithChallengeInterface
 {
     private string $authUrl = '/login';
 
     public function __construct(
-        CurrentUser $currentUser,
+        private readonly CurrentUser $currentUser,
         private readonly ResponseFactoryInterface $responseFactory,
-    ) {
-        parent::__construct($currentUser);
+    ) {}
+
+    public function authenticate(ServerRequestInterface $request): ?IdentityInterface
+    {
+        if ($this->currentUser->isGuest()) {
+            return null;
+        }
+
+        return $this->currentUser->getIdentity();
     }
 
     /**
