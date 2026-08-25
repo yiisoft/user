@@ -11,7 +11,11 @@ use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\User\CurrentUser;
 
 /**
- * Implementation of the `AuthenticationMethodInterface` for authenticating users in the API clients.
+ * Implementation of the `AuthenticatorInterface` for authenticating users in the API clients.
+ *
+ * @psalm-suppress DeprecatedInterface Implements the deprecated `AuthenticationMethodInterface` (instead of
+ * `AuthenticatorInterface` directly) to avoid a backward compatibility break. Will be switched
+ * to `AuthenticatorInterface` in the next major version, see https://github.com/yiisoft/user/issues/130.
  */
 final class ApiAuth implements AuthenticationMethodInterface
 {
