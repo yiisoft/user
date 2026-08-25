@@ -232,7 +232,7 @@ return [
 ```
 
 If the application is used along with the [yiisoft/config](https://github.com/yiisoft/config), the package is [configured](./config/di-web.php)
-automatically to use `WebAuth` as default implementation of `Yiisoft\Auth\AuthenticationMethodInterface`.
+automatically to use `WebAuth` as default implementation of `Yiisoft\Auth\AuthenticatorInterface`.
 
 #### ApiAuth
 
@@ -253,15 +253,15 @@ $middleware = new Authentication(
 );
 ```
 
-of to define it as an implementation of `Yiisoft\Auth\AuthenticationMethodInterface` in the [DI container](https://github.com/yiisoft/di) configuration:
+of to define it as an implementation of `Yiisoft\Auth\AuthenticatorInterface` in the [DI container](https://github.com/yiisoft/di) configuration:
 
 ```php
 // config/web/di/auth.php
-use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\Auth\AuthenticatorInterface;
 use Yiisoft\User\Method\ApiAuth;
 
 return [
-    AuthenticationMethodInterface::class => ApiAuth::class,
+    AuthenticatorInterface::class => ApiAuth::class,
 ];
 ```
 
