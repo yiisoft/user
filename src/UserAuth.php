@@ -7,7 +7,7 @@ namespace Yiisoft\User;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Auth\AuthenticatorWithChallengeInterface;
+use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\User\Method\WebAuth;
@@ -16,8 +16,11 @@ use Yiisoft\User\Method\WebAuth;
  * Implementation of the `AuthenticatorWithChallengeInterface` interface for the user.
  *
  * @deprecated Use {@see WebAuth}. This class will be removed in the next major version.
+ * See https://github.com/yiisoft/user/issues/131.
+ *
+ * @psalm-suppress DeprecatedInterface
  */
-final class UserAuth implements AuthenticatorWithChallengeInterface
+final class UserAuth implements AuthenticationMethodInterface
 {
     private string $authUrl = '/login';
 
