@@ -13,7 +13,11 @@ use Yiisoft\Http\Status;
 use Yiisoft\User\CurrentUser;
 
 /**
- * Implementation of the `AuthenticationMethodInterface` for authenticating users in the web applications.
+ * Implementation of the `AuthenticatorWithChallengeInterface` for authenticating users in the web applications.
+ *
+ * @psalm-suppress DeprecatedInterface Implements the deprecated `AuthenticationMethodInterface` (instead of
+ * `AuthenticatorWithChallengeInterface` directly) to avoid a backward compatibility break. Will be switched
+ * to `AuthenticatorWithChallengeInterface` in the next major version, see https://github.com/yiisoft/user/issues/130.
  */
 final class WebAuth implements AuthenticationMethodInterface
 {

@@ -11,6 +11,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionObject;
 use Yiisoft\Auth\AuthenticationMethodInterface;
+use Yiisoft\Auth\AuthenticatorInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -37,10 +38,12 @@ final class ConfigTest extends TestCase
         $this->assertInstanceOf(GuestIdentityFactory::class, $container->get(GuestIdentityFactoryInterface::class));
         $this->assertInstanceOf(LoginMiddleware::class, $container->get(LoginMiddleware::class));
 
-        $webAuth = $container->get(AuthenticationMethodInterface::class);
+        $webAuth = $container->get(AuthenticatorInterface::class);
 
         $this->assertInstanceOf(WebAuth::class, $webAuth);
         $this->assertSame('/login', $this->getInaccessibleProperty($webAuth, 'authUrl'));
+
+        $this->assertInstanceOf(WebAuth::class, $container->get(AuthenticationMethodInterface::class));
 
         $cookieLogin = $container->get(CookieLogin::class);
 
@@ -67,10 +70,12 @@ final class ConfigTest extends TestCase
             ],
         ]);
 
-        $webAuth = $container->get(AuthenticationMethodInterface::class);
+        $webAuth = $container->get(AuthenticatorInterface::class);
 
         $this->assertInstanceOf(WebAuth::class, $webAuth);
         $this->assertSame('/override', $this->getInaccessibleProperty($webAuth, 'authUrl'));
+
+        $this->assertInstanceOf(WebAuth::class, $container->get(AuthenticationMethodInterface::class));
 
         $cookieLogin = $container->get(CookieLogin::class);
 

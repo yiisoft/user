@@ -13,9 +13,12 @@ use Yiisoft\Http\Status;
 use Yiisoft\User\Method\WebAuth;
 
 /**
- * Implementation of the authentication interface for the user.
+ * Implementation of the `AuthenticatorWithChallengeInterface` interface for the user.
  *
  * @deprecated Use {@see WebAuth}. This class will be removed in the next major version.
+ * See https://github.com/yiisoft/user/issues/131.
+ *
+ * @psalm-suppress DeprecatedInterface
  */
 final class UserAuth implements AuthenticationMethodInterface
 {
