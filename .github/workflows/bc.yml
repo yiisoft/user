@@ -5,6 +5,7 @@ on:
     paths: &paths
       - 'src/**'
       - 'config/**'
+      - '.roave-backward-compatibility-check.xml'
       - 'composer.json'
       - '.github/workflows/bc.yml'
   push:
