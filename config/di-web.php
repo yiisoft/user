@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\AuthenticatorInterface;
 use Yiisoft\User\CurrentUser;
 use Yiisoft\User\Guest\GuestIdentityFactory;
@@ -28,6 +29,7 @@ return [
     ],
 
     AuthenticatorInterface::class => WebAuth::class,
+    AuthenticationMethodInterface::class => WebAuth::class,
     GuestIdentityFactoryInterface::class => GuestIdentityFactory::class,
 
     CookieLoginMiddleware::class => [
