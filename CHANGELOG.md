@@ -4,6 +4,7 @@
 
 - Enh #120: Explicitly import classes and constants in "use" section (@vjik)
 - Enh #127: Bump `yiisoft/auth` version to `^3.3.0`, and fix deprecated classes usage (@klsoft-web, @vjik)
+- Enh #132: Bump `yiisoft/session` version to `^3.0.2` (@vjik)
 
 ## 2.3.2 December 23, 2025
 
