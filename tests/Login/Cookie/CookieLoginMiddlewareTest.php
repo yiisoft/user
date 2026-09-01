@@ -26,7 +26,6 @@ use Yiisoft\User\CurrentUser;
 
 use function hash_hmac;
 use function json_encode;
-use function str_repeat;
 use function time;
 
 use const JSON_THROW_ON_ERROR;
@@ -264,7 +263,7 @@ final class CookieLoginMiddlewareTest extends TestCase
             CookieLoginIdentity::ID,
             CookieLoginIdentity::KEY_CORRECT,
             0,
-            'other-key'
+            'other-key',
         );
 
         $response = $middleware->process(
