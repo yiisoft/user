@@ -24,10 +24,14 @@ use Yiisoft\User\Tests\Support\CookieLoginIdentity;
 use Yiisoft\User\Tests\Support\LastMessageLogger;
 use Yiisoft\User\CurrentUser;
 
+use function hash_hmac;
 use function json_encode;
+use function str_repeat;
 use function time;
 
 use const JSON_THROW_ON_ERROR;
+use const JSON_UNESCAPED_SLASHES;
+use const JSON_UNESCAPED_UNICODE;
 
 final class CookieLoginMiddlewareTest extends TestCase
 {
@@ -200,6 +204,73 @@ final class CookieLoginMiddlewareTest extends TestCase
         ]);
 
         $response = $middleware->process($request, $this->getRequestHandler());
+
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
+    }
+
+    public function testCorrectLoginWithSignedCookie(): void
+    {
+        $currentUser = $this->createCurrentUser();
+
+        $middleware = new CookieLoginMiddleware(
+            $currentUser,
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $this->createCookieLogin('secret-key'),
+        );
+
+        $middleware->process(
+            $this->getRequestWithCookies([
+                'autoLogin' => $this->createCookieValue(
+                    CookieLoginIdentity::ID,
+                    CookieLoginIdentity::KEY_CORRECT,
+                    0,
+                    'secret-key',
+                ),
+            ]),
+            $this->getRequestHandler(),
+        );
+
+        $this->assertNull($this->getLastLogMessage());
+        $this->assertSame(CookieLoginIdentity::ID, $currentUser->getIdentity()->getId());
+    }
+
+    public function testUnsignedCookieIsRejectedWhenSignatureKeyIsSet(): void
+    {
+        $middleware = new CookieLoginMiddleware(
+            $this->createCurrentUser(),
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $this->createCookieLogin('secret-key'),
+        );
+
+        $response = $middleware->process($this->getRequestWithAutoLoginCookie(), $this->getRequestHandler());
+
+        $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
+    }
+
+    public function testSignedCookieWithInvalidSignatureIsRejected(): void
+    {
+        $middleware = new CookieLoginMiddleware(
+            $this->createCurrentUser(),
+            $this->getCookieLoginIdentityRepository(),
+            $this->logger,
+            $this->createCookieLogin('secret-key'),
+        );
+
+        $cookieValue = $this->createCookieValue(
+            CookieLoginIdentity::ID,
+            CookieLoginIdentity::KEY_CORRECT,
+            0,
+            'other-key'
+        );
+
+        $response = $middleware->process(
+            $this->getRequestWithCookies(['autoLogin' => $cookieValue]),
+            $this->getRequestHandler(),
+        );
 
         $this->assertEmpty($response->getHeaderLine('Set-Cookie'));
         $this->assertSame('Unable to authenticate user by cookie. Invalid cookie.', $this->getLastLogMessage());
@@ -450,9 +521,25 @@ final class CookieLoginMiddlewareTest extends TestCase
         return $request;
     }
 
-    private function createCookieLogin(): CookieLogin
+    private function createCookieLogin(?string $signatureKey = null): CookieLogin
     {
-        return new CookieLogin(new DateInterval('P1W'));
+        return new CookieLogin(new DateInterval('P1W'), $signatureKey);
+    }
+
+    private function createCookieValue(
+        string $id,
+        string $key,
+        int $expires,
+        ?string $signatureKey = null,
+    ): string {
+        $payload = json_encode(
+            [$id, $key, $expires],
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+        );
+
+        return $signatureKey === null
+            ? $payload
+            : hash_hmac('sha256', $payload, $signatureKey) . '.' . $payload;
     }
 
     private function createCurrentUser(): CurrentUser
