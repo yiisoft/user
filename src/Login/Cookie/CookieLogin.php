@@ -148,6 +148,7 @@ final class CookieLogin
         if (!is_array($data) || !array_is_list($data) || count($data) !== 3) {
             return null;
         }
+        /** @psalm-var array{0: scalar, 1: scalar, 2: scalar} $data */
 
         [$id, $key, $expires] = $data;
 
