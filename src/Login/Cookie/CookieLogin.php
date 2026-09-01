@@ -11,6 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use Yiisoft\Cookies\Cookie;
 
+use function array_is_list;
 use function count;
 use function hash_equals;
 use function hash_hmac;
@@ -144,7 +145,7 @@ final class CookieLogin
             return null;
         }
 
-        if (!is_array($data) || count($data) !== 3) {
+        if (!is_array($data) || !array_is_list($data) || count($data) !== 3) {
             return null;
         }
 

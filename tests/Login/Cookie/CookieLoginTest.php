@@ -180,6 +180,10 @@ final class CookieLoginTest extends TestCase
             'not a string prefixed with signature' => ['["42","auto-login-key-correct",0]'],
             'invalid signature' => [str_repeat('0', 64) . '.["42","auto-login-key-correct",0]'],
             'malformed payload' => [hash_hmac('sha256', 'not-json', 'secret-key') . '.not-json'],
+            'associative array payload' => [
+                hash_hmac('sha256', '{"id":"42","key":"k","expires":0}', 'secret-key')
+                . '.{"id":"42","key":"k","expires":0}',
+            ],
             'empty' => [''],
             'no separator' => [str_repeat('0', 64)],
         ];
@@ -221,6 +225,8 @@ final class CookieLoginTest extends TestCase
             'not json' => ['weird stuff'],
             'not an array' => ['"string"'],
             'wrong element count' => ['["42","auto-login-key-correct",0,"extra"]'],
+            'associative array' => ['{"id":"42","key":"auto-login-key-correct","expires":0}'],
+            'list with string keys mixed' => ['{"0":"42","1":"auto-login-key-correct","3":0}'],
         ];
     }
 
