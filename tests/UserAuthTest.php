@@ -10,10 +10,11 @@ use HttpSoft\Message\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Http\Status;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
+use Yiisoft\User\CurrentUser;
+use Yiisoft\User\Guest\GuestIdentityInterface;
 use Yiisoft\User\Tests\Support\MockArraySessionStorage;
 use Yiisoft\User\Tests\Support\MockIdentity;
 use Yiisoft\User\Tests\Support\MockIdentityRepository;
-use Yiisoft\User\CurrentUser;
 use Yiisoft\User\UserAuth;
 
 final class UserAuthTest extends TestCase
@@ -33,7 +34,7 @@ final class UserAuthTest extends TestCase
         $user = $this->createCurrentUser();
         $result = (new UserAuth($user, new ResponseFactory()))->authenticate(new ServerRequest());
 
-        $this->assertNull($result);
+        $this->assertInstanceOf(GuestIdentityInterface::class, $result);
     }
 
     public function testChallengeIsCorrect(): void
