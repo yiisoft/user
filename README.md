@@ -308,6 +308,10 @@ final class CookieLoginIdentityRepository implements IdentityRepositoryInterface
 The `CookieLoginMiddleware` will check for the existence of a cookie in the request,
 validate it and login the user automatically.
 
+> [!warning]
+> By default the auto-login cookie value isn't protected against tampering. See
+> [Protecting the cookie value](#protecting-the-cookie-value) below.
+
 #### Creating a cookie
 
 By default, you should set cookie for auto login manually in your application after logging user in:
@@ -377,14 +381,42 @@ public function logout(
 }
 ```
 
-#### Preventing the substitution of cookies
+#### Protecting the cookie value
 
-The login cookie value is stored raw. To prevent the substitution of the cookie value,
-you can use a `Yiisoft\Cookies\CookieMiddleware`. For more information, see
+By default the auto-login cookie value is stored raw: `[id, key, expires]` as JSON, with no integrity check.
+Anyone able to edit the cookie value — the end user, or an attacker who obtained the cookie — can change the
+identity or the expiration timestamp.
+
+You must protect the cookie value against tampering in one of the following ways:
+
+**Option 1 (recommended). Set a `signatureKey` in `params.php`:**
+
+```php
+return [
+    'yiisoft/user' => [
+        'cookieLogin' => [
+            'signatureKey' => 'your-secret-random-string',
+        ],
+    ],
+];
+```
+
+When it is set, `CookieLogin` signs the cookie value with HMAC-SHA256, and `CookieLoginMiddleware` rejects any
+auto-login cookie whose signature is missing or invalid. Use a long random string, keep it secret, and don't
+reuse it for other purposes. Changing it invalidates all existing auto-login cookies.
+
+In this case, don't additionally sign or encrypt the auto-login cookie through `Yiisoft\Cookies\CookieMiddleware`.
+
+**Option 2. Sign or encrypt the cookie separately**, for example with `Yiisoft\Cookies\CookieMiddleware` from
+[`yiisoft/cookies`](https://github.com/yiisoft/cookies). Leave `signatureKey` as `null` and make sure the
+middleware processes the auto-login cookie on every response, including logout. For more information, see the
 [Yii guide to cookies](https://github.com/yiisoft/docs/blob/master/guide/en/runtime/cookies.md).
 
 > Please note that `Yiisoft\Cookies\CookieMiddleware` should be located before
 > `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` in the middleware stack.
+
+> [!note]
+> `signatureKey` will become required in the next major version.
 
 You can find examples of the above features in the [yiisoft/demo](https://github.com/yiisoft/demo).
 

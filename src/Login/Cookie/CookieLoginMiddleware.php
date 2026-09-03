@@ -11,21 +11,21 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Throwable;
 use Yiisoft\Auth\IdentityRepositoryInterface;
+use Yiisoft\Cookies\CookieMiddleware;
 use Yiisoft\User\CurrentUser;
 
 use function array_key_exists;
-use function count;
-use function is_array;
-use function json_decode;
 use function sprintf;
 use function time;
 
-use const JSON_THROW_ON_ERROR;
-
 /**
  * `CookieLoginMiddleware` automatically logs user in based on cookie.
+ *
+ * The auto-login cookie value must be protected against tampering: either configure a signature key for
+ * {@see CookieLogin}, or sign/encrypt the cookie separately (for example with {@see CookieMiddleware}).
+ * Otherwise anyone able to edit the cookie (the end user, or an attacker who obtained it) can change the identity
+ * or the expiration timestamp.
  */
 final class CookieLoginMiddleware implements MiddlewareInterface
 {
@@ -37,11 +37,11 @@ final class CookieLoginMiddleware implements MiddlewareInterface
      * @param bool $forceAddCookie Whether to force add a cookie.
      */
     public function __construct(
-        private CurrentUser $currentUser,
-        private IdentityRepositoryInterface $identityRepository,
-        private LoggerInterface $logger,
-        private CookieLogin $cookieLogin,
-        private bool $forceAddCookie = false,
+        private readonly CurrentUser $currentUser,
+        private readonly IdentityRepositoryInterface $identityRepository,
+        private readonly LoggerInterface $logger,
+        private readonly CookieLogin $cookieLogin,
+        private readonly bool $forceAddCookie = false,
     ) {}
 
     /**
@@ -93,23 +93,14 @@ final class CookieLoginMiddleware implements MiddlewareInterface
             return;
         }
 
-        try {
-            $data = json_decode((string) $cookies[$cookieName], true, 512, JSON_THROW_ON_ERROR);
-        } catch (Throwable) {
+        $data = $this->cookieLogin->parseValue((string) $cookies[$cookieName]);
+
+        if ($data === null) {
             $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
             return;
         }
 
-        if (!is_array($data) || count($data) !== 3) {
-            $this->logger->warning('Unable to authenticate user by cookie. Invalid cookie.');
-            return;
-        }
-
-        [$id, $key, $expires] = $data;
-
-        $id = (string) $id;
-        $key = (string) $key;
-        $expires = (int) $expires;
+        ['id' => $id, 'key' => $key, 'expires' => $expires] = $data;
 
         $identity = $this->identityRepository->findIdentity($id);
 

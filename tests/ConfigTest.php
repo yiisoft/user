@@ -51,6 +51,7 @@ final class ConfigTest extends TestCase
         $this->assertSame(5, $this
             ->getInaccessibleProperty($cookieLogin, 'duration')
             ->d);
+        $this->assertNull($this->getInaccessibleProperty($cookieLogin, 'signatureKey'));
 
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
@@ -66,6 +67,7 @@ final class ConfigTest extends TestCase
                 'cookieLogin' => [
                     'forceAddCookie' => true,
                     'duration' => 'P2D',
+                    'signatureKey' => 'test-signature-key',
                 ],
             ],
         ]);
@@ -83,6 +85,7 @@ final class ConfigTest extends TestCase
         $this->assertSame(2, $this
             ->getInaccessibleProperty($cookieLogin, 'duration')
             ->d);
+        $this->assertSame('test-signature-key', $this->getInaccessibleProperty($cookieLogin, 'signatureKey'));
 
         $cookieLoginMiddleware = $container->get(CookieLoginMiddleware::class);
 
