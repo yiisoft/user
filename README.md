@@ -410,7 +410,7 @@ In this case, don't additionally sign or encrypt the auto-login cookie through `
 **Option 2. Sign or encrypt the cookie separately**, for example with `Yiisoft\Cookies\CookieMiddleware` from
 [`yiisoft/cookies`](https://github.com/yiisoft/cookies). Leave `signatureKey` as `null` and make sure the
 middleware processes the auto-login cookie on every response, including logout. For more information, see the
-[Yii guide to cookies](https://github.com/yiisoft/docs/blob/master/guide/en/runtime/cookies.md).
+[Yii guide to cookies](https://yiisoft.github.io/docs/guide/runtime/cookies).
 
 > Please note that `Yiisoft\Cookies\CookieMiddleware` should be located before
 > `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` in the middleware stack.
