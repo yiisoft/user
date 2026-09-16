@@ -238,9 +238,9 @@ final class CookieLoginTest extends TestCase
         $this->assertNull($cookieLogin->parseValue($value));
     }
 
-    public function testAddCookieWithDisableCookieSecure(): void
+    public function testAddCookieWithDisableSecureCookie(): void
     {
-        $cookieLogin = new CookieLogin(cookieSecure: false);
+        $cookieLogin = new CookieLogin(secureCookie: false);
 
         $identity = new CookieLoginIdentity();
 

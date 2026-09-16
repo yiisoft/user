@@ -349,14 +349,14 @@ return [
         'cookieLogin' => [
             'forceAddCookie' => true,
             'duration' => 'P5D', // 5 days
-            'cookieSecure' => true, // whether the client should send back the cookie only over HTTPS connection
+            'secureCookie' => true, // whether the client should send back the cookie only over HTTPS connection
         ],
     ],
 ];
 ```
 
 > If you want the cookie to be a session cookie, change the duration to `null`.
-> To enable a cookie to be set when an HTTP request is made, change the `cookieSecure` to `false`.
+> To enable a cookie to be set when an HTTP request is made, change the `secureCookie` to `false`.
 
 #### Removing a cookie
 
