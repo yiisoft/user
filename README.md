@@ -358,6 +358,9 @@ return [
 > If you want the cookie to be a session cookie, change the duration to `null`.
 > To enable a cookie to be set when an HTTP request is made, change the `secureCookie` to `false`.
 
+> [!warning]
+> With secureCookie turned off, it travels in cleartext and can be captured and replayed for the full duration of cookie lifetime (5 days by default).
+
 #### Removing a cookie
 
 The `Yiisoft\User\Login\Cookie\CookieLoginMiddleware` automatically removes the cookie after the logout.
