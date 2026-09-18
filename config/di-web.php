@@ -44,6 +44,7 @@ return [
                 new DateInterval($params['yiisoft/user']['cookieLogin']['duration']) :
                 null,
             'signatureKey' => $params['yiisoft/user']['cookieLogin']['signatureKey'],
+            'secureCookie' => $params['yiisoft/user']['cookieLogin']['secureCookie'],
         ],
     ],
 ];

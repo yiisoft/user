@@ -50,10 +50,12 @@ final class CookieLogin
      * the auto-login cookie is session cookie that expires when browser is closed.
      * @param string|null $signatureKey Secret key used to sign the auto-login cookie value with HMAC-SHA256. If it
      * isn't set, the cookie value is stored without a signature and isn't protected against tampering.
+     * @param bool $secureCookie Whether the client should send back the cookie only over HTTPS connection.
      */
     public function __construct(
         private readonly ?DateInterval $duration = null,
         private readonly ?string $signatureKey = null,
+        private readonly bool $secureCookie = true,
     ) {}
 
     /**
@@ -93,7 +95,7 @@ final class CookieLogin
 
         $cookieValue = $this->createValue((string) $identity->getId(), $identity->getCookieLoginKey(), $expires);
 
-        return (new Cookie(name: $this->cookieName, value: $cookieValue, expires: $expires))
+        return (new Cookie(name: $this->cookieName, value: $cookieValue, expires: $expires, secure: $this->secureCookie))
             ->addToResponse($response);
     }
 
@@ -106,7 +108,7 @@ final class CookieLogin
      */
     public function expireCookie(ResponseInterface $response): ResponseInterface
     {
-        return (new Cookie($this->cookieName))
+        return (new Cookie($this->cookieName, secure: $this->secureCookie))
             ->expire()
             ->addToResponse($response);
     }

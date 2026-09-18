@@ -238,6 +238,22 @@ final class CookieLoginTest extends TestCase
         $this->assertNull($cookieLogin->parseValue($value));
     }
 
+    public function testAddCookieWithDisableSecureCookie(): void
+    {
+        $cookieLogin = new CookieLogin(secureCookie: false);
+
+        $identity = new CookieLoginIdentity();
+
+        $response = new Response();
+        $response = $cookieLogin->addCookie($identity, $response);
+
+        $this->assertMatchesRegularExpression(
+            '#autoLogin=%5B%2242%22%2C%22auto-login-key-correct%22%2C0%5D;'
+            . ' Path=/; HttpOnly; SameSite=Lax#',
+            $response->getHeaderLine('Set-Cookie'),
+        );
+    }
+
     private function extractCookieValue(string $setCookieHeader): string
     {
         $pair = explode(';', $setCookieHeader, 2)[0];

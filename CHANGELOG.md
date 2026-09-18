@@ -6,6 +6,7 @@
 - Enh #127: Bump `yiisoft/auth` version to `^3.3.0`, and fix deprecated classes usage (@klsoft-web, @vjik)
 - Enh #132: Bump `yiisoft/session` version to `^3.0.2` (@vjik)
 - New #126: Add optional HMAC signing of the auto-login cookie value via `CookieLogin` signature key (@vjik)
+- Enh #135: Add the `secureCookie` parameter to enable `CookieLogin` to set a cookie when an HTTP request is made (@klsoft-web)
 
 ## 2.3.2 December 23, 2025
 
