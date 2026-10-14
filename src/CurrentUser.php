@@ -10,10 +10,10 @@ use Yiisoft\Access\AccessCheckerInterface;
 use Yiisoft\Auth\IdentityInterface;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Session\SessionInterface;
-use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\AfterLogin;
-use Yiisoft\User\Event\BeforeLogout;
+use Yiisoft\User\Event\AfterLogout;
 use Yiisoft\User\Event\BeforeLogin;
+use Yiisoft\User\Event\BeforeLogout;
 use Yiisoft\User\Guest\GuestIdentity;
 use Yiisoft\User\Guest\GuestIdentityFactory;
 use Yiisoft\User\Guest\GuestIdentityFactoryInterface;
@@ -298,7 +298,7 @@ final class CurrentUser
     private function switchIdentity(IdentityInterface $identity): void
     {
         $this->identity = $identity;
-        $this->saveId($identity instanceof GuestIdentityInterface ? null : $identity->getId());
+        $this->saveId($identity->getId());
     }
 
     private function getSavedId(): ?string
