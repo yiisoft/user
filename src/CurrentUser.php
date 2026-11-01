@@ -156,6 +156,8 @@ final class CurrentUser
      * permissions assigned to the user.
      *
      * @return bool Whether the user can perform the operation as specified by the given permission.
+     *
+     * @psalm-param array<string, mixed> $params
      */
     public function can(string|BackedEnum $permissionName, array $params = []): bool
     {
