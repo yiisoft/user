@@ -69,7 +69,7 @@ final class ConfigTest extends TestCase
                     'forceAddCookie' => true,
                     'duration' => 'P2D',
                     'signatureKey' => 'test-signature-key',
-                    'secureCookie' => false
+                    'secureCookie' => false,
                 ],
             ],
         ]);
